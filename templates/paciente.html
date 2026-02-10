@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radiología Médica - Panel del Paciente</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset y estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo i {
+            font-size: 28px;
+            color: #1a2980;
+        }
+        
+        .company-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .company-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a2980;
+            font-size: 20px;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        /* Navegación del Paciente */
+        .main-nav {
+            background: white;
+            border-bottom: 1px solid #e1e5ee;
+            padding: 0 40px;
+        }
+        
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 24px;
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-link:hover {
+            color: #1a2980;
+            background: #f8f9fa;
+        }
+        
+        .nav-link.active {
+            color: #1a2980;
+            border-bottom: 3px solid #26d0ce;
+            background: linear-gradient(to bottom, rgba(26, 41, 128, 0.05) 0%, transparent 100%);
+        }
+        
+        /* Layout principal */
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+        
+        .main-content {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        /* Header del contenido */
+        .content-header {
+            margin-bottom: 10px;
+        }
+        
+        .content-header h1 {
+            font-size: 28px;
+            color: #1a2980;
+            margin-bottom: 8px;
+        }
+        
+        .breadcrumb {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* Bienvenida del paciente */
+        .patient-welcome {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            border-radius: 12px;
+            padding: 30px;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .patient-welcome h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .patient-welcome p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .patient-info {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-item i {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Acciones del paciente */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .action-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #1a2980;
+            background: white;
+        }
+        
+        .action-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 28px;
+        }
+        
+        .action-card h3 {
+            font-size: 18px;
+            color: #1a2980;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .action-card p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        /* Calendario de citas */
+        .calendar-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e1e5ee;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: #1a2980;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        .calendar-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        /* Mini calendario */
+        .mini-calendar {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #1a2980;
+        }
+        
+        .calendar-nav {
+            background: none;
+            border: none;
+            color: #1a2980;
+            cursor: pointer;
+            font-size: 16px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        
+        .calendar-nav:hover {
+            background: rgba(26, 41, 128, 0.1);
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-day-header {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            padding: 8px 0;
+        }
+        
+        .calendar-day {
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .calendar-day:hover {
+            background: rgba(26, 41, 128, 0.1);
+        }
+        
+        .calendar-day.today {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Formulario de agendar cita */
+        .appointment-form {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5ee;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .form-control:focus {
+            border-color: #1a2980;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 41, 128, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .btn-primary, .btn-secondary {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.2);
+        }
+        
+        .btn-secondary {
+            background: #e9ecef;
+            color: #666;
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn-secondary:hover {
+            background: #dee2e6;
+            transform: translateY(-2px);
+        }
+        
+        /* Mis estudios */
+        .studies-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e1e5ee;
+        }
+        
+        .studies-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .study-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+            border: 1px solid #e1e5ee;
+        }
+        
+        .study-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        
+        .study-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            margin-right: 15px;
+        }
+        
+        .study-details {
+            flex: 1;
+        }
+        
+        .study-details h4 {
+            font-size: 16px;
+            color: #1a2980;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .study-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .study-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .study-status {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        .study-status.completed {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+        
+        .study-status.pending {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+        
+        .study-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-download, .btn-view {
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-download {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+        }
+        
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.2);
+        }
+        
+        .btn-view {
+            background: #f8f9fa;
+            color: #1a2980;
+            border: 1px solid #e1e5ee;
+        }
+        
+        .btn-view:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        /* Próximas citas */
+        .appointments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .appointment-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+            border: 1px solid #e1e5ee;
+        }
+        
+        .appointment-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        
+        .appointment-time {
+            min-width: 100px;
+            font-weight: 600;
+            color: #1a2980;
+            font-size: 16px;
+            padding-right: 20px;
+            border-right: 2px solid #e1e5ee;
+        }
+        
+        .appointment-details {
+            flex: 1;
+            padding: 0 20px;
+        }
+        
+        .appointment-details h4 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .appointment-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .appointment-doctor {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .appointment-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-cancel {
+            background: #f8f9fa;
+            color: #dc3545;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #e1e5ee;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .btn-cancel:hover {
+            background: #dc3545;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.2);
+        }
+        
+        /* Ofertas y promociones */
+        .offers-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e1e5ee;
+            margin-top: 30px;
+        }
+        
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .offer-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 4px solid #26d0ce;
+            transition: all 0.3s;
+        }
+        
+        .offer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        
+        .offer-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .offer-card h3 {
+            font-size: 18px;
+            color: #1a2980;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .offer-card p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .offer-discount {
+            font-size: 24px;
+            font-weight: 700;
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        
+        .offer-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e1e5ee;
+        }
+        
+        .offer-expiry {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .btn-apply {
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-apply:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+            padding: 40px;
+            margin-top: 40px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-section h4 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .footer-section p {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-section i {
+            width: 18px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+        }
+        
+        .footer-links a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        
+        /* Estilos para elementos vacíos */
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #e1e5ee;
+        }
+        
+        .empty-message i {
+            font-size: 48px;
+            color: #c3cfe2;
+            margin-bottom: 15px;
+        }
+        
+        .empty-message p {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .empty-value {
+            font-style: italic;
+            color: #999;
+        }
+
+        /* Modal para descargar documentos */
+        .download-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .download-modal-overlay.active {
+            display: flex;
+        }
+        
+        .download-modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .download-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .download-modal-title {
+            font-size: 24px;
+            color: #1a2980;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-close {
+            background: #f8f9fa;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            background: #e9ecef;
+            transform: rotate(90deg);
+        }
+        
+        .documents-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .document-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px solid #e1e5ee;
+            transition: all 0.3s;
+        }
+        
+        .document-item:hover {
+            border-color: #1a2980;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .document-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin-right: 20px;
+        }
+        
+        .document-details {
+            flex: 1;
+        }
+        
+        .document-title {
+            font-size: 16px;
+            color: #1a2980;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .document-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .document-date, .document-size, .document-type {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .document-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-download-doc {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-download-doc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.2);
+        }
+        
+        .btn-download-all {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-download-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
+        }
+        
+        /* Mensaje cuando no hay documentos */
+        .no-documents {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px dashed #e1e5ee;
+            margin-bottom: 30px;
+        }
+        
+        .no-documents i {
+            font-size: 48px;
+            color: #c3cfe2;
+            margin-bottom: 15px;
+        }
+        
+        .no-documents h3 {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .calendar-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .offers-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .main-nav ul {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .actions-grid,
+            .offers-grid,
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .appointment-item,
+            .study-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .appointment-time,
+            .study-icon {
+                width: 100%;
+                border-right: none;
+                border-bottom: 2px solid #e1e5ee;
+                padding-bottom: 10px;
+                margin-right: 0;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+                font-size: 12px;
+            }
+            
+            .document-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .document-icon {
+                margin-right: 0;
+            }
+            
+            .document-info {
+                justify-content: center;
+            }
+            
+            .document-actions {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado común -->
+        <header>
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-x-ray"></i>
+                </div>
+                <div>
+                    <div class="company-name">Radiología Médica Avanzada</div>
+                    <div class="company-subtitle">Diagnóstico por Imágenes de Precisión</div>
+                </div>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-name">Juan Pérez</div>
+                <a href="login.html" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </header>
+        
+        <!-- Menú de navegación para pacientes -->
+        <nav class="main-nav">
+            <ul>
+                <li><a href="paciente.html" class="nav-link active"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="mis-citas-paciente.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Mis Citas</a></li>
+                <li><a href="mis-estudios-paciente.html" class="nav-link"><i class="fas fa-file-medical"></i> Mis Estudios</a></li>
+                <li><a href="mi-perfil-paciente.html" class="nav-link"><i class="fas fa-user"></i> Mi Perfil</a></li>
+            </ul>
+        </nav>
+
+        <!-- Contenido principal -->
+        <div class="content">
+            <!-- Bienvenida del paciente -->
+            <div class="patient-welcome">
+                <h2>¡Bienvenido, Juan Pérez!</h2>
+                <p>Este es tu panel de control donde puedes gestionar tus citas, ver tus estudios y resultados.</p>
+                <div class="patient-info">
+                    <div class="info-item">
+                        <i class="fas fa-user-md"></i>
+                        <span>Dr. Carlos Rodríguez - Tu médico principal</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-phone"></i>
+                        <span>Contacto: (555) 123-4567</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-calendar"></i>
+                        <span id="nextAppointmentText">Próxima cita: No hay citas programadas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Acciones rápidas para pacientes -->
+            <section class="calendar-section">
+                <h2 class="section-title">Acciones Rápidas</h2>
+                <div class="actions-grid">
+                    <div class="action-card" onclick="openAppointmentPage()">
+                        <div class="action-icon">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <h3>Agendar Cita</h3>
+                        <p>Programa una nueva cita con tu médico</p>
+                    </div>
+                    
+                    <div class="action-card" onclick="openDownloadModal()">
+                        <div class="action-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <h3>Descargar Resultados</h3>
+                        <p>Descarga tus estudios y resultados médicos</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Calendario y agendar citas -->
+            <section class="calendar-section">
+                <h2 class="section-title">Calendario de Citas</h2>
+                <div class="calendar-container">
+                    <!-- Mini calendario -->
+                    <div class="mini-calendar">
+                        <div class="calendar-header">
+                            <button class="calendar-nav" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                            <span id="calendarTitle">Febrero 2024</span>
+                            <button class="calendar-nav" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="calendar-grid">
+                            <div class="calendar-day-header">Lun</div>
+                            <div class="calendar-day-header">Mar</div>
+                            <div class="calendar-day-header">Mié</div>
+                            <div class="calendar-day-header">Jue</div>
+                            <div class="calendar-day-header">Vie</div>
+                            <div class="calendar-day-header">Sáb</div>
+                            <div class="calendar-day-header">Dom</div>
+                            
+                            <!-- Días del calendario se generarán con JavaScript -->
+                        </div>
+                        <div class="calendar-legend">
+                            <p><span style="color: #1a2980; font-weight: bold;">●</span> Día con cita</p>
+                            <p><span style="color: #26d0ce; font-weight: bold;">●</span> Hoy</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Información de citas rápidas -->
+                    <div class="appointment-form">
+                        <h3 style="color: #1a2980; margin-bottom: 20px;">Citas Rápidas Disponibles</h3>
+                        <div style="margin-bottom: 20px;">
+                            <p style="color: #666; margin-bottom: 15px;">Horarios disponibles para esta semana:</p>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
+                                <div style="background: #e9ecef; padding: 10px; border-radius: 6px; text-align: center; font-weight: 500;">
+                                    <div>Mié 14 Feb</div>
+                                    <div style="color: #1a2980; font-weight: 600;">9:00 AM</div>
+                                </div>
+                                <div style="background: #e9ecef; padding: 10px; border-radius: 6px; text-align: center; font-weight: 500;">
+                                    <div>Jue 15 Feb</div>
+                                    <div style="color: #1a2980; font-weight: 600;">2:00 PM</div>
+                                </div>
+                                <div style="background: #e9ecef; padding: 10px; border-radius: 6px; text-align: center; font-weight: 500;">
+                                    <div>Vie 16 Feb</div>
+                                    <div style="color: #1a2980; font-weight: 600;">11:00 AM</div>
+                                </div>
+                                <div style="background: #e9ecef; padding: 10px; border-radius: 6px; text-align: center; font-weight: 500;">
+                                    <div>Lun 19 Feb</div>
+                                    <div style="color: #1a2980; font-weight: 600;">4:00 PM</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn-primary" onclick="openAppointmentPage()">
+                                <i class="fas fa-calendar-plus"></i> Agendar Cita Ahora
+                            </button>
+                            <button class="btn-secondary" onclick="window.location.href='mis-citas-paciente.html'">
+                                <i class="fas fa-calendar-alt"></i> Ver Todas las Citas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Mis estudios recientes -->
+            <section class="studies-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2 class="section-title">Mis Estudios Recientes</h2>
+                    <button class="btn-secondary" onclick="window.location.href='mis-estudios-paciente.html'">
+                        <i class="fas fa-external-link-alt"></i> Ver Todos
+                    </button>
+                </div>
+                
+                <div class="studies-list" id="recentStudiesList">
+                    <!-- Los estudios recientes se cargarán con JavaScript -->
+                </div>
+            </section>
+            
+            <!-- Próximas citas -->
+            <section class="studies-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2 class="section-title">Mis Próximas Citas</h2>
+                    <button class="btn-secondary" onclick="window.location.href='mis-citas-paciente.html'">
+                        <i class="fas fa-external-link-alt"></i> Ver Todas
+                    </button>
+                </div>
+                
+                <div class="appointments-list" id="upcomingAppointmentsList">
+                    <!-- Las próximas citas se cargarán con JavaScript -->
+                </div>
+            </section>
+            
+            <!-- Ofertas y promociones -->
+            <section class="offers-section">
+                <h2 class="section-title">Ofertas y Promociones Especiales</h2>
+                <p style="color: #666; margin-bottom: 20px;">Aprovecha nuestros descuentos especiales para pacientes frecuentes</p>
+                
+                <div class="offers-grid">
+                    <div class="offer-card">
+                        <div class="offer-badge">20% DESCUENTO</div>
+                        <div class="offer-discount">20% OFF</div>
+                        <h3>Paquete Anual</h3>
+                        <p>Contrata nuestro paquete anual y obtén 20% de descuento en todos tus estudios durante un año.</p>
+                        <div class="offer-footer">
+                            <span class="offer-expiry">Válido hasta: 31/03/2024</span>
+                            <button class="btn-apply">Aplicar</button>
+                        </div>
+                    </div>
+                    
+                    <div class="offer-card">
+                        <div class="offer-badge">ESPECIAL</div>
+                        <div class="offer-discount">2x1</div>
+                        <h3>Estudios Familiares</h3>
+                        <p>Trae a un familiar y obtén el segundo estudio con 50% de descuento.</p>
+                        <div class="offer-footer">
+                            <span class="offer-expiry">Promoción permanente</span>
+                            <button class="btn-apply">Aplicar</button>
+                        </div>
+                    </div>
+                    
+                    <div class="offer-card">
+                        <div class="offer-badge">15% DESCUENTO</div>
+                        <div class="offer-discount">15% OFF</div>
+                        <h3>Loyalty Program</h3>
+                        <p>Por ser paciente frecuente, obtén 15% de descuento en tu próximo estudio.</p>
+                        <div class="offer-footer">
+                            <span class="offer-expiry">Tu próximo estudio</span>
+                            <button class="btn-apply">Aplicar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Radiología Médica Avanzada</h4>
+                    <p>Sistema de Gestión para Pacientes</p>
+                    <p>Panel principal del paciente</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Atención al Paciente</h4>
+                    <p><i class="fas fa-phone"></i> (555) 987-6543</p>
+                    <p><i class="fas fa-envelope"></i> pacientes@radiologiamedica.com</p>
+                    <p><i class="fas fa-clock"></i> Lunes a Viernes: 8:00 - 20:00</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Emergencias</h4>
+                    <p><i class="fas fa-ambulance"></i> Urgencias: 24/7</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Av. Paciente 456, Ciudad</p>
+                    <p><i class="fas fa-info-circle"></i> Resultados en línea</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Radiología Médica Avanzada. Todos los derechos reservados.</p>
+                <div class="footer-links">
+                    <a href="#">Política de Privacidad</a>
+                    <a href="#">Términos de Servicio</a>
+                    <a href="#">Aviso Legal</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Modal para descargar documentos -->
+    <div class="download-modal-overlay" id="downloadModal">
+        <div class="download-modal">
+            <div class="download-modal-header">
+                <h3 class="download-modal-title">
+                    <i class="fas fa-download"></i> Descargar Resultados
+                </h3>
+                <button class="modal-close" onclick="closeDownloadModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="documentsContainer">
+                <!-- Los documentos se cargarán con JavaScript -->
+            </div>
+            
+            <button class="btn-download-all" onclick="downloadAllDocuments()">
+                <i class="fas fa-download"></i> Descargar Todos los Documentos
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Datos de ejemplo
+        const patientData = {
+            name: "Juan Pérez",
+            patientId: "P-001234",
+            doctor: "Dr. Carlos Rodríguez",
+            doctorPhone: "(555) 123-4567"
+        };
+
+        // Datos de documentos (últimos 3 documentos cargados por el doctor)
+        const recentDocuments = [
+            {
+                id: "doc-001",
+                title: "Radiografía de Rodilla Derecha",
+                date: "15/02/2024",
+                size: "2.4 MB",
+                type: "PDF",
+                doctor: "Dr. Carlos Rodríguez",
+                downloadUrl: "#"
+            },
+            {
+                id: "doc-002",
+                title: "Resonancia Magnética Cerebral",
+                date: "10/02/2024",
+                size: "15.7 MB",
+                type: "DICOM",
+                doctor: "Dr. Carlos Rodríguez",
+                downloadUrl: "#"
+            },
+            {
+                id: "doc-003",
+                title: "Análisis de Sangre Completo",
+                date: "05/02/2024",
+                size: "1.8 MB",
+                type: "PDF",
+                doctor: "Dr. Carlos Rodríguez",
+                downloadUrl: "#"
+            }
+        ];
+
+        // Datos de estudios recientes
+        const recentStudies = [
+            {
+                id: "study-001",
+                name: "Radiografía de Rodilla",
+                date: "15/02/2024",
+                status: "completado",
+                doctor: "Dr. Carlos Rodríguez"
+            },
+            {
+                id: "study-002",
+                name: "Resonancia Magnética",
+                date: "10/02/2024",
+                status: "completado",
+                doctor: "Dr. Carlos Rodríguez"
+            }
+        ];
+
+        // Datos de próximas citas
+        const upcomingAppointments = [
+            {
+                id: "app-001",
+                date: "22/02/2024",
+                time: "10:30 AM",
+                type: "Consulta de Resultados",
+                doctor: "Dr. Carlos Rodríguez"
+            },
+            {
+                id: "app-002",
+                date: "01/03/2024",
+                time: "3:00 PM",
+                type: "Ecografía Abdominal",
+                doctor: "Dr. Carlos Rodríguez"
+            }
+        ];
+
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Actualizar información del paciente
+            updatePatientInfo();
+            
+            // Cargar calendario
+            loadCalendar();
+            
+            // Cargar estudios recientes
+            loadRecentStudies();
+            
+            // Cargar próximas citas
+            loadUpcomingAppointments();
+            
+            // Configurar navegación del calendario
+            document.getElementById('prevMonth').addEventListener('click', changeMonth);
+            document.getElementById('nextMonth').addEventListener('click', changeMonth);
+        });
+
+        // Función para abrir la página de agendar cita
+        function openAppointmentPage() {
+            // Redirigir a la página de agendar cita
+            window.location.href = 'citaspaciente-paciente.html';
+        }
+
+        // Función para abrir el modal de descarga
+        function openDownloadModal() {
+            loadDocuments();
+            document.getElementById('downloadModal').classList.add('active');
+        }
+
+        // Función para cerrar el modal de descarga
+        function closeDownloadModal() {
+            document.getElementById('downloadModal').classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('downloadModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDownloadModal();
+            }
+        });
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDownloadModal();
+            }
+        });
+
+        // Actualizar información del paciente
+        function updatePatientInfo() {
+            // Actualizar nombre en el header
+            document.querySelector('.user-name').textContent = patientData.name;
+            
+            // Actualizar próxima cita
+            if (upcomingAppointments.length > 0) {
+                const nextAppointment = upcomingAppointments[0];
+                document.getElementById('nextAppointmentText').textContent = 
+                    `Próxima cita: ${nextAppointment.date} a las ${nextAppointment.time}`;
+            }
+        }
+
+        // Cargar calendario
+        function loadCalendar() {
+            const calendarGrid = document.querySelector('.calendar-grid');
+            const calendarTitle = document.getElementById('calendarTitle');
+            
+            // Limpiar días existentes (excepto los headers)
+            while (calendarGrid.children.length > 7) {
+                calendarGrid.removeChild(calendarGrid.lastChild);
+            }
+            
+            // Configurar fecha actual
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+            
+            // Establecer título del mes
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                               'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            calendarTitle.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            // Obtener primer día del mes
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDay = firstDay.getDay();
+            
+            // Días vacíos al inicio
+            for (let i = 0; i < startingDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                emptyDay.textContent = '';
+                calendarGrid.appendChild(emptyDay);
+            }
+            
+            // Días del mes
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+                
+                // Marcar hoy
+                if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+                    dayElement.classList.add('today');
+                }
+                
+                // Marcar días con citas (simulado)
+                const hasAppointment = Math.random() > 0.7;
+                if (hasAppointment) {
+                    dayElement.style.position = 'relative';
+                    dayElement.innerHTML = `${day} <span style="position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: #26d0ce; border-radius: 50%;"></span>`;
+                }
+                
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        // Cambiar mes en el calendario
+        function changeMonth(e) {
+            // En una implementación real, esto cambiaría el mes
+            // Por ahora solo mostraremos un mensaje
+            const direction = e.currentTarget.id === 'prevMonth' ? 'anterior' : 'siguiente';
+            alert(`Cambiaría al mes ${direction}. En una implementación real, se actualizaría el calendario.`);
+        }
+
+        // Cargar estudios recientes
+        function loadRecentStudies() {
+            const studiesList = document.getElementById('recentStudiesList');
+            studiesList.innerHTML = '';
+            
+            if (recentStudies.length === 0) {
+                studiesList.innerHTML = `
+                    <div class="empty-message">
+                        <i class="fas fa-file-medical-alt"></i>
+                        <p>No hay estudios registrados</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            recentStudies.forEach(study => {
+                const studyItem = document.createElement('div');
+                studyItem.className = 'study-item';
+                studyItem.innerHTML = `
+                    <div class="study-icon">
+                        <i class="fas fa-file-medical"></i>
+                    </div>
+                    <div class="study-details">
+                        <h4>${study.name}</h4>
+                        <div class="study-info">
+                            <div class="study-date">
+                                <i class="fas fa-calendar"></i>
+                                <span>${study.date}</span>
+                            </div>
+                            <div class="study-status ${study.status}">${study.status === 'completado' ? 'Completado' : 'Pendiente'}</div>
+                            <div class="study-doctor">
+                                <i class="fas fa-user-md"></i>
+                                <span>${study.doctor}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="study-actions">
+                        <button class="btn-view" onclick="viewStudy('${study.id}')">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        <button class="btn-download" onclick="downloadStudy('${study.id}')">
+                            <i class="fas fa-download"></i> Descargar
+                        </button>
+                    </div>
+                `;
+                studiesList.appendChild(studyItem);
+            });
+        }
+
+        // Cargar próximas citas
+        function loadUpcomingAppointments() {
+            const appointmentsList = document.getElementById('upcomingAppointmentsList');
+            appointmentsList.innerHTML = '';
+            
+            if (upcomingAppointments.length === 0) {
+                appointmentsList.innerHTML = `
+                    <div class="empty-message">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>No hay citas programadas</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            upcomingAppointments.forEach(appointment => {
+                const appointmentItem = document.createElement('div');
+                appointmentItem.className = 'appointment-item';
+                appointmentItem.innerHTML = `
+                    <div class="appointment-time">
+                        <div style="font-size: 14px; color: #666;">${appointment.date}</div>
+                        <div style="font-size: 18px;">${appointment.time}</div>
+                    </div>
+                    <div class="appointment-details">
+                        <h4>${appointment.type}</h4>
+                        <div class="appointment-info">
+                            <div class="appointment-doctor">
+                                <i class="fas fa-user-md"></i>
+                                <span>${appointment.doctor}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="appointment-actions">
+                        <button class="btn-cancel" onclick="cancelAppointment('${appointment.id}')">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button class="btn-view" onclick="viewAppointment('${appointment.id}')">
+                            <i class="fas fa-info-circle"></i> Detalles
+                        </button>
+                    </div>
+                `;
+                appointmentsList.appendChild(appointmentItem);
+            });
+        }
+
+        // Cargar documentos en el modal
+        function loadDocuments() {
+            const documentsContainer = document.getElementById('documentsContainer');
+            documentsContainer.innerHTML = '';
+            
+            if (recentDocuments.length === 0) {
+                documentsContainer.innerHTML = `
+                    <div class="no-documents">
+                        <i class="fas fa-file-medical-alt"></i>
+                        <h3>No hay documentos disponibles</h3>
+                        <p>No se han cargado documentos recientemente por tu médico.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const documentsList = document.createElement('div');
+            documentsList.className = 'documents-list';
+            
+            recentDocuments.forEach(doc => {
+                const documentItem = document.createElement('div');
+                documentItem.className = 'document-item';
+                documentItem.innerHTML = `
+                    <div class="document-icon">
+                        <i class="fas fa-file-${doc.type === 'PDF' ? 'pdf' : 'image'}"></i>
+                    </div>
+                    <div class="document-details">
+                        <div class="document-title">${doc.title}</div>
+                        <div class="document-info">
+                            <div class="document-date">
+                                <i class="fas fa-calendar"></i>
+                                <span>${doc.date}</span>
+                            </div>
+                            <div class="document-size">
+                                <i class="fas fa-hdd"></i>
+                                <span>${doc.size}</span>
+                            </div>
+                            <div class="document-type">
+                                <i class="fas fa-file-alt"></i>
+                                <span>${doc.type}</span>
+                            </div>
+                            <div class="document-doctor">
+                                <i class="fas fa-user-md"></i>
+                                <span>${doc.doctor}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="document-actions">
+                        <button class="btn-download-doc" onclick="downloadDocument('${doc.id}')">
+                            <i class="fas fa-download"></i> Descargar
+                        </button>
+                    </div>
+                `;
+                documentsList.appendChild(documentItem);
+            });
+            
+            documentsContainer.appendChild(documentsList);
+        }
+
+        // Funciones para descargar documentos
+        function downloadDocument(documentId) {
+            const document = recentDocuments.find(doc => doc.id === documentId);
+            if (document) {
+                alert(`Descargando documento: ${document.title}\n\nEn una implementación real, se descargaría el archivo desde: ${document.downloadUrl}`);
+                
+                // Simular descarga
+                const link = document.createElement('a');
+                link.href = '#'; // En una implementación real, sería la URL real del documento
+                link.download = `${document.title}.${document.type.toLowerCase()}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Cerrar modal después de descargar
+                setTimeout(closeDownloadModal, 1000);
+            }
+        }
+
+        function downloadAllDocuments() {
+            if (recentDocuments.length === 0) {
+                alert('No hay documentos para descargar.');
+                return;
+            }
+            
+            alert(`Descargando ${recentDocuments.length} documentos...\n\nEn una implementación real, se descargaría un archivo ZIP con todos los documentos.`);
+            
+            // Simular descarga de todos los documentos
+            const link = document.createElement('a');
+            link.href = '#';
+            link.download = 'documentos_medicos.zip';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Cerrar modal después de descargar
+            setTimeout(closeDownloadModal, 1500);
+        }
+
+        // Funciones para estudios
+        function viewStudy(studyId) {
+            const study = recentStudies.find(s => s.id === studyId);
+            if (study) {
+                alert(`Viendo estudio: ${study.name}\nFecha: ${study.date}\nEstado: ${study.status}\nMédico: ${study.doctor}`);
+            }
+        }
+
+        function downloadStudy(studyId) {
+            const study = recentStudies.find(s => s.id === studyId);
+            if (study) {
+                alert(`Descargando estudio: ${study.name}\n\nEn una implementación real, se descargaría el archivo del estudio.`);
+            }
+        }
+
+        // Funciones para citas
+        function viewAppointment(appointmentId) {
+            const appointment = upcomingAppointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                alert(`Detalles de la cita:\n\nFecha: ${appointment.date}\nHora: ${appointment.time}\nTipo: ${appointment.type}\nMédico: ${appointment.doctor}`);
+            }
+        }
+
+        function cancelAppointment(appointmentId) {
+            if (confirm('¿Estás seguro de que deseas cancelar esta cita?')) {
+                alert('Cita cancelada exitosamente.\n\nEn una implementación real, se enviaría una notificación al sistema.');
+            }
+        }
+
+        // Funciones para ofertas
+        document.querySelectorAll('.btn-apply').forEach(button => {
+            button.addEventListener('click', function() {
+                const offerTitle = this.closest('.offer-card').querySelector('h3').textContent;
+                alert(`Aplicando oferta: ${offerTitle}\n\nEn una implementación real, se aplicaría el descuento a tu próxima cita.`);
+            });
+        });
+    </script>
+</body>
+</html>

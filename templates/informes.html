@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Informes - Radiología Médica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset y estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo i {
+            font-size: 28px;
+            color: #1a2980;
+        }
+        
+        .company-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .company-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a2980;
+            font-size: 20px;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        /* Navegación */
+        .main-nav {
+            background: white;
+            border-bottom: 1px solid #e1e5ee;
+            padding: 0 40px;
+        }
+        
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 24px;
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-link:hover {
+            color: #1a2980;
+            background: #f8f9fa;
+        }
+        
+        .nav-link.active {
+            color: #1a2980;
+            border-bottom: 3px solid #26d0ce;
+            background: linear-gradient(to bottom, rgba(26, 41, 128, 0.05) 0%, transparent 100%);
+        }
+        
+        /* Layout principal */
+        .content {
+            padding: 40px;
+        }
+        
+        /* Header del contenido */
+        .content-header {
+            margin-bottom: 30px;
+        }
+        
+        .content-header h1 {
+            font-size: 28px;
+            color: #1a2980;
+            margin-bottom: 8px;
+        }
+        
+        .breadcrumb {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #1a2980;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Formulario de Informes */
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e1e5ee;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .form-title {
+            font-size: 24px;
+            color: #1a2980;
+            margin-bottom: 30px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e1e5ee;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #1a2980;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(26, 41, 128, 0.1);
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e1e5ee;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: #f8f9fa;
+            resize: vertical;
+            min-height: 150px;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #1a2980;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(26, 41, 128, 0.1);
+        }
+        
+        .form-hint {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 25px;
+            border-top: 1px solid #e1e5ee;
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #1a2980;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            border: 1px solid #e1e5ee;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            border: none;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.3);
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+            padding: 40px;
+            margin-top: 40px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-section h4 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .footer-section p {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-section i {
+            width: 18px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+        }
+        
+        .footer-links a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .form-container {
+                padding: 25px;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn-secondary, .btn-primary {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado común -->
+        <header>
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-x-ray"></i>
+                </div>
+                <div>
+                    <div class="company-name">Radiología Médica Avanzada</div>
+                    <div class="company-subtitle">Diagnóstico por Imágenes de Precisión</div>
+                </div>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="user-name">Dr. Tal</div>
+                <a href="login.html" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </header>
+        
+        <!-- Menú de navegación principal - CONFIGURACIÓN AGREGADA -->
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html" class="nav-link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="agenda-doctor.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
+                <li><a href="paciente-doctor.html" class="nav-link"><i class="fas fa-user-injured"></i> Pacientes</a></li>
+                <li><a href="resultados-doctor.html" class="nav-link"><i class="fas fa-file-medical"></i> Resultados</a></li>
+                <!-- Configuración agregada -->
+                <li><a href="configuracion.html" class="nav-link"><i class="fas fa-cog"></i> Configuración</a></li>
+            </ul>
+        </nav>
+
+        <!-- Contenido principal -->
+        <div class="content">
+            <!-- Header -->
+            <div class="content-header">
+                <h1>Generar Informe Médico</h1>
+                <div class="breadcrumb">
+                    <a href="index.html">Inicio</a> > <span>Generar Informe</span>
+                </div>
+            </div>
+
+            <!-- Formulario de Informes -->
+            <div class="form-container">
+                <h2 class="form-title">Complete los datos para generar el informe</h2>
+                
+                <form id="informeForm">
+                    <div class="form-group">
+                        <label for="nombrePaciente" class="form-label">Nombre del Paciente</label>
+                        <input type="text" id="nombrePaciente" class="form-input" placeholder="Ingrese el nombre completo del paciente" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="usuarioPaciente" class="form-label">Nombre de Usuario del Paciente</label>
+                        <input type="text" id="usuarioPaciente" class="form-input" placeholder="Ingrese el nombre de usuario del paciente" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="observaciones" class="form-label">Observaciones en Estudios o Consultas</label>
+                        <textarea id="observaciones" class="form-textarea" placeholder="Detalle las observaciones médicas, resultados de estudios, diagnósticos y recomendaciones..." required></textarea>
+                        <div class="form-hint">Este campo permite texto extenso. Incluya todos los detalles relevantes para el informe.</div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="index.html" class="btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-file-pdf"></i> Generar Informe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Radiología Médica Avanzada</h4>
+                    <p>Sistema de Gestión para Diagnóstico por Imágenes</p>
+                    <p>Versión 2.1 | Desarrollado para profesionales de la salud</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contacto</h4>
+                    <p><i class="fas fa-phone"></i> (555) 123-4567</p>
+                    <p><i class="fas fa-envelope"></i> info@radiologiamedica.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Av. Médica 123, Ciudad</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Horario</h4>
+                    <p>Lunes a Viernes: 8:00 - 20:00</p>
+                    <p>Sábados: 9:00 - 14:00</p>
+                    <p>Urgencias: 24/7</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2023 Radiología Médica Avanzada. Todos los derechos reservados.</p>
+                <div class="footer-links">
+                    <a href="#">Política de Privacidad</a>
+                    <a href="#">Términos de Servicio</a>
+                    <a href="#">Aviso Legal</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Manejo del formulario
+        document.getElementById('informeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Obtener los valores del formulario
+            const nombrePaciente = document.getElementById('nombrePaciente').value;
+            const usuarioPaciente = document.getElementById('usuarioPaciente').value;
+            const observaciones = document.getElementById('observaciones').value;
+            
+            // Validar que todos los campos estén completos
+            if (!nombrePaciente || !usuarioPaciente || !observaciones) {
+                alert('Por favor, complete todos los campos del formulario.');
+                return;
+            }
+            
+            // Mostrar mensaje de confirmación
+            alert(`Informe generado exitosamente para:\n\nPaciente: ${nombrePaciente}\nUsuario: ${usuarioPaciente}\n\nEl informe ha sido guardado en el sistema.`);
+            
+            // Limpiar el formulario
+            document.getElementById('informeForm').reset();
+            
+            // Opcional: Redirigir a la página principal o mostrar un mensaje adicional
+            // window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

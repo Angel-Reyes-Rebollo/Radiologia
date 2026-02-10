@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Radiología Médica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset y estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo i {
+            font-size: 28px;
+            color: #1a2980;
+        }
+        
+        .company-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .company-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a2980;
+            font-size: 20px;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        /* Navegación del Paciente */
+        .main-nav {
+            background: white;
+            border-bottom: 1px solid #e1e5ee;
+            padding: 0 40px;
+        }
+        
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 24px;
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-link:hover {
+            color: #1a2980;
+            background: #f8f9fa;
+        }
+        
+        .nav-link.active {
+            color: #1a2980;
+            border-bottom: 3px solid #26d0ce;
+            background: linear-gradient(to bottom, rgba(26, 41, 128, 0.05) 0%, transparent 100%);
+        }
+        
+        /* Contenido principal */
+        .content {
+            padding: 40px;
+        }
+        
+        /* Header del contenido */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e1e5ee;
+        }
+        
+        .content-header h1 {
+            font-size: 32px;
+            color: #1a2980;
+            margin-bottom: 10px;
+        }
+        
+        .breadcrumb {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #1a2980;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Información principal del perfil */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border: 1px solid #e1e5ee;
+        }
+        
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .profile-info h2 {
+            font-size: 28px;
+            color: #1a2980;
+            margin-bottom: 10px;
+        }
+        
+        .patient-id {
+            display: inline-block;
+            background: #1a2980;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .profile-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a2980;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* Grid de información */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e1e5ee;
+            transition: all 0.3s;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e1e5ee;
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            color: #1a2980;
+            font-weight: 600;
+        }
+        
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #e1e5ee;
+        }
+        
+        .info-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+            text-align: right;
+            font-style: italic;
+            color: #999;
+        }
+        
+        /* Sección de historial médico */
+        .medical-history {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e1e5ee;
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            color: #1a2980;
+            margin-bottom: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .history-tabs {
+            display: flex;
+            border-bottom: 1px solid #e1e5ee;
+            margin-bottom: 25px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            color: #1a2980;
+        }
+        
+        .tab.active {
+            color: #1a2980;
+            border-bottom: 3px solid #26d0ce;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Listas de estudios y citas */
+        .compact-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .compact-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e1e5ee;
+            transition: all 0.3s;
+        }
+        
+        .compact-item:hover {
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .compact-icon {
+            width: 40px;
+            height: 40px;
+            background: #e1e5ee;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a2980;
+            margin-right: 15px;
+        }
+        
+        .compact-details {
+            flex: 1;
+        }
+        
+        .compact-details h4 {
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .compact-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .compact-status {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .status-completed {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+        
+        .status-pending {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+        
+        .status-upcoming {
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+        }
+        
+        /* Sección de contacto de emergencia */
+        .emergency-contact {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e1e5ee;
+            margin-bottom: 40px;
+            background: linear-gradient(to right, #fff5f5 0%, white 100%);
+            border-left: 5px solid #dc3545;
+        }
+        
+        .emergency-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .emergency-icon {
+            width: 50px;
+            height: 50px;
+            background: #dc3545;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .emergency-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .emergency-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e1e5ee;
+        }
+        
+        .emergency-item i {
+            color: #dc3545;
+            font-size: 20px;
+        }
+        
+        /* Sección de documentos */
+        .documents-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e1e5ee;
+            margin-bottom: 40px;
+        }
+        
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .document-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        
+        .document-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #1a2980;
+            background: white;
+        }
+        
+        .document-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .document-name {
+            font-size: 14px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .document-size {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Acciones del perfil */
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e1e5ee;
+        }
+        
+        .btn-edit-profile, .btn-change-password, .btn-download-medical-history {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-edit-profile {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+        }
+        
+        .btn-edit-profile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.3);
+        }
+        
+        .btn-change-password {
+            background: #f8f9fa;
+            color: #1a2980;
+            border: 1px solid #e1e5ee;
+        }
+        
+        .btn-change-password:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-download-medical-history {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-download-medical-history:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        /* Estilos para elementos vacíos */
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px dashed #e1e5ee;
+        }
+        
+        .empty-message i {
+            font-size: 48px;
+            color: #c3cfe2;
+            margin-bottom: 15px;
+        }
+        
+        .empty-message p {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .empty-value {
+            font-style: italic;
+            color: #999;
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+            padding: 40px;
+            margin-top: 40px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-section h4 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .footer-section p {
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-section i {
+            width: 18px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+        }
+        
+        .footer-links a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .documents-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .main-nav ul {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-stats {
+                justify-content: center;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .emergency-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .documents-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Encabezado común -->
+        <header>
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-x-ray"></i>
+                </div>
+                <div>
+                    <div class="company-name">Radiología Médica Avanzada</div>
+                    <div class="company-subtitle">Diagnóstico por Imágenes de Precisión</div>
+                </div>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-name">Usuario</div>
+                <a href="login.html" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </a>
+            </div>
+        </header>
+        
+        <!-- Menú de navegación para pacientes -->
+        <nav class="main-nav">
+            <ul>
+                <li><a href="paciente.html" class="nav-link"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="mis-citas-paciente.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Mis Citas</a></li>
+                <li><a href="mis-estudios-paciente.html" class="nav-link"><i class="fas fa-file-medical"></i> Mis Estudios</a></li>
+                <li><a href="mi-perfil-paciente.html" class="nav-link active"><i class="fas fa-user"></i> Mi Perfil</a></li>
+            </ul>
+        </nav>
+
+        <!-- Contenido principal -->
+        <div class="content">
+            <!-- Header del contenido -->
+            <div class="content-header">
+                <div>
+                    <h1>Mi Perfil</h1>
+                    <div class="breadcrumb">
+                        <a href="paciente-dashboard.html">Inicio</a> > <span>Mi Perfil</span>
+                    </div>
+                </div>
+                <div class="patient-id">ID: --</div>
+            </div>
+            
+            <!-- Información principal del perfil -->
+            <div class="profile-header">
+                <div class="profile-avatar">?</div>
+                <div class="profile-info">
+                    <h2>Nombre del Usuario</h2>
+                    <div class="patient-id">Paciente #--</div>
+                    <p style="color: #666; margin-bottom: 15px;">Paciente desde: --</p>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Estudios Completados</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Citas Programadas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">0</div>
+                            <div class="stat-label">Doctores Atendiendo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Grid de información -->
+            <div class="info-grid">
+                <!-- Información Personal -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="card-title">Información Personal</div>
+                    </div>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="info-label">Nombre Completo</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Fecha de Nacimiento</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Edad</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Género</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Estado Civil</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Nacionalidad</span>
+                            <span class="info-value">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Información de Contacto -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-address-card"></i>
+                        </div>
+                        <div class="card-title">Información de Contacto</div>
+                    </div>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="info-label">Correo Electrónico</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Teléfono Móvil</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Teléfono Casa</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Dirección</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Código Postal</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Estado</span>
+                            <span class="info-value">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Información Médica -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="card-title">Información Médica</div>
+                    </div>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="info-label">Tipo de Sangre</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Alergias</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Condiciones Crónicas</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Medicamentos</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Seguro Médico</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Número de Póliza</span>
+                            <span class="info-value">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Doctores Asignados -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="card-title">Doctores Asignados</div>
+                    </div>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="info-label">Médico Principal</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Especialidad</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Teléfono Consultorio</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Radiólogo</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cardiólogo</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Próxima Consulta</span>
+                            <span class="info-value">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Estadísticas de Salud -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="card-title">Estadísticas de Salud</div>
+                    </div>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="info-label">Peso</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Estatura</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">IMC</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Presión Arterial</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Glucosa en Ayunas</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Última Visita</span>
+                            <span class="info-value">--</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preferencias y Configuración -->
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="card-title">Preferencias</div>
+                    </div>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="info-label">Idioma Preferido</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Notificaciones</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Recordatorios por Email</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Recordatorios por SMS</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Acceso a Historial</span>
+                            <span class="info-value">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Último Acceso</span>
+                            <span class="info-value">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historial Médico -->
+            <div class="medical-history">
+                <h2 class="section-title">
+                    <i class="fas fa-history"></i> Historial Médico
+                </h2>
+                
+                <div class="history-tabs">
+                    <div class="tab active" data-tab="studies">Estudios (0)</div>
+                    <div class="tab" data-tab="appointments">Citas (0)</div>
+                    <div class="tab" data-tab="prescriptions">Recetas (0)</div>
+                    <div class="tab" data-tab="vaccines">Vacunas (0)</div>
+                </div>
+                
+                <div id="studies" class="tab-content active">
+                    <div class="empty-message">
+                        <i class="fas fa-file-medical-alt"></i>
+                        <p>No hay estudios registrados</p>
+                    </div>
+                </div>
+                
+                <div id="appointments" class="tab-content">
+                    <div class="empty-message">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>No hay citas registradas</p>
+                    </div>
+                </div>
+                
+                <div id="prescriptions" class="tab-content">
+                    <div class="empty-message">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                        <p>No hay recetas registradas</p>
+                    </div>
+                </div>
+                
+                <div id="vaccines" class="tab-content">
+                    <div class="empty-message">
+                        <i class="fas fa-syringe"></i>
+                        <p>No hay vacunas registradas</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contacto de Emergencia -->
+            <div class="emergency-contact">
+                <div class="emergency-header">
+                    <div class="emergency-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <h2 style="color: #dc3545; margin-bottom: 5px;">Contacto de Emergencia</h2>
+                        <p style="color: #666;">Información para situaciones de emergencia</p>
+                    </div>
+                </div>
+                
+                <div class="empty-message">
+                    <i class="fas fa-address-book"></i>
+                    <p>No hay contactos de emergencia registrados</p>
+                </div>
+            </div>
+            
+            <!-- Documentos Importantes -->
+            <div class="documents-section">
+                <h2 class="section-title">
+                    <i class="fas fa-folder"></i> Documentos Importantes
+                </h2>
+                
+                <div class="empty-message">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No hay documentos registrados</p>
+                </div>
+            </div>
+            
+            <!-- Acciones del perfil -->
+            <div class="profile-actions">
+                <button class="btn-edit-profile">
+                    <i class="fas fa-edit"></i> Editar Perfil
+                </button>
+                <button class="btn-change-password">
+                    <i class="fas fa-key"></i> Cambiar Contraseña
+                </button>
+                <button class="btn-download-medical-history">
+                    <i class="fas fa-download"></i> Descargar Historial Médico
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Radiología Médica Avanzada</h4>
+                    <p>Sistema de Gestión para Pacientes</p>
+                    <p>Perfil limpio para producción</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Atención al Paciente</h4>
+                    <p><i class="fas fa-phone"></i> (555) 987-6543</p>
+                    <p><i class="fas fa-envelope"></i> pacientes@radiologiamedica.com</p>
+                    <p><i class="fas fa-clock"></i> Lunes a Viernes: 8:00 - 20:00</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Emergencias</h4>
+                    <p><i class="fas fa-ambulance"></i> Urgencias: 24/7</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Av. Paciente 456, Ciudad</p>
+                    <p><i class="fas fa-info-circle"></i> Resultados en línea</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2023 Radiología Médica Avanzada. Sistema limpio para producción.</p>
+                <div class="footer-links">
+                    <a href="#">Política de Privacidad</a>
+                    <a href="#">Términos de Servicio</a>
+                    <a href="#">Aviso Legal</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Datos del paciente VACÍOS
+        const patientData = {
+            id: "--",
+            fullName: "--",
+            birthDate: "--",
+            age: "--",
+            gender: "--",
+            maritalStatus: "--",
+            nationality: "--",
+            email: "--",
+            mobilePhone: "--",
+            homePhone: "--",
+            address: "--",
+            postalCode: "--",
+            state: "--",
+            bloodType: "--",
+            allergies: "--",
+            chronicConditions: "--",
+            medications: "--",
+            insurance: "--",
+            policyNumber: "--",
+            mainDoctor: "--",
+            specialty: "--",
+            doctorPhone: "--",
+            radiologist: "--",
+            cardiologist: "--",
+            nextAppointment: "--",
+            weight: "--",
+            height: "--",
+            bmi: "--",
+            bloodPressure: "--",
+            glucose: "--",
+            lastVisit: "--"
+        };
+        
+        // Inicializar página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Remover clase active de todos los tabs y contenidos
+                    document.querySelectorAll('.tab, .tab-content').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    
+                    // Agregar clase active al tab y contenido seleccionado
+                    this.classList.add('active');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Configurar botones de acción
+            document.querySelector('.btn-edit-profile').addEventListener('click', function() {
+                alert('Funcionalidad de edición de perfil: Se abriría un formulario para editar la información personal.');
+            });
+            
+            document.querySelector('.btn-change-password').addEventListener('click', function() {
+                alert('Funcionalidad de cambio de contraseña: Se abriría un formulario para cambiar la contraseña del paciente.');
+            });
+            
+            document.querySelector('.btn-download-medical-history').addEventListener('click', function() {
+                alert('No hay historial médico para descargar.');
+            });
+            
+            // Configurar clics en documentos (no hay documentos)
+            document.querySelectorAll('.document-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    alert('No hay documentos disponibles.');
+                });
+            });
+            
+            console.log("Perfil vacío - Listo para producción");
+        });
+    </script>
+</body>
+</html>
