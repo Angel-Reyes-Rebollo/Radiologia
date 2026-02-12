@@ -48,13 +48,13 @@ BASE DE DATOS
 
 
 ADMIN
-    Quitar las citas del día 
+    ****Quitar las citas del día 
     Se quita lo de los pacientes
-    En lugar de gestionar de citas, será gestionado de resultados
-    Estudios médicos se quita.
+    ****En lugar de gestion de citas, será gestion de resultados
+    ****Estudios médicos se quita.
     Reportes y análisis debe de ser el historial de la activad que ha tenido el doctor/consulltorio con 4digitaly que aparezca en lista 
     Agregarle y conectar la Receta V 
-    Agregar en la pantalla del administrador en la parte izquierda del menu de funciones el boton de crear cuenta para el doctor nuevo
+    ****Agregar en la pantalla del administrador en la parte izquierda del menu de funciones el boton de crear cuenta para el doctor nuevo
     Agregar agenda.
 
 
