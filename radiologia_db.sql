@@ -118,14 +118,13 @@ CREATE TABLE `notificaciones` (
   `titulo` varchar(200) NOT NULL,
   `mensaje` text NOT NULL,
   `leida` tinyint(1) DEFAULT 0,
-  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `notificaciones`
 --
 
-INSERT INTO `notificaciones` (`id_notificacion`, `usuario_id`, `tipo_usuario`, `titulo`, `mensaje`, `leida`, `fecha_creacion`) VALUES
+INSERT INTO `notificaciones` (`id_notificacion`, `usuario_id`, `tipo_usuario`, `titulo`, `mensaje`, `leida`) VALUES
 (1, 'D004', 'doctor', 'Bienvenido al sistema', 'Bienvenido Dr. Angel Soriano. Su cuenta ha sido creada exitosamente.', 0, '2026-02-04 20:13:35'),
 (2, 'D001', 'doctor', 'Nueva cita agendada', 'Nueva cita agendada para el 2026-02-04 a las 09:00', 0, '2026-02-04 22:22:58'),
 (3, 'P001', 'paciente', 'Cita agendada', 'Se ha agendado una cita para el 2026-02-04 a las 09:00', 0, '2026-02-04 22:22:58'),

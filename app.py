@@ -408,10 +408,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
         
         return pdf
     
-    # ==============================================
-    # FUNCIÓN PARA GENERAR CITA (RECETA VIRTUAL)
-    # ==============================================
+   
     
+    # ==============================================
+# FUNCIÓN PARA GENERAR CITA (RECETA VIRTUAL) - CORREGIDA
+# ==============================================
+
     def handle_generate_cita(self):
         """Generar una nueva cita desde receta virtual"""
         try:
@@ -462,21 +464,20 @@ class CustomHandler(SimpleHTTPRequestHandler):
             pdf_content = self.generate_pdf_cita(pdf_data)
             pdf_size = len(pdf_content)
             
-            # Insertar en base de datos
+            # Insertar en base de datos - CORREGIDO: Columnas y valores coinciden
             cursor.execute("""
                 INSERT INTO citas (
                     numero_folio, paciente, doctor_id, fecha, hora, 
-                    documento_nombre, documento_pdf, documento_tamano, documento_tipo,
-                    fecha_creacion
+                    documento_nombre, documento_pdf, documento_tamano, documento_tipo
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 numero_folio,
                 paciente,
                 doctor_id,
                 fecha_actual,
                 hora_actual,
-                f"{paciente}_{numero_folio}.pdf",
+                f"{paciente}_{numero_folio}.pdf".replace(' ', '_'),
                 pdf_content,
                 pdf_size,
                 'application/pdf'
@@ -691,7 +692,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     CONCAT('Dr. ', d.nombre) as usuario_id,
                     'doctor' as tipo_usuario,
                     'Nueva cita' as accion,
-                    DATE_FORMAT(COALESCE(c.fecha_creacion, c.fecha), '%Y-%m-%d %H:%i') as fecha,
                     CONCAT('Paciente: ', c.paciente, ' - Folio: ', c.numero_folio) as detalles
                 FROM citas c
                 LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
