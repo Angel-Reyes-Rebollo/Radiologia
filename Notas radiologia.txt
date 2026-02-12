@@ -1,21 +1,23 @@
 Reportes solo para doctores
-Quitar pantallas de usuarios, dejar únicamente ligado a los usuarios, su numero de folio de estudio, y año de nacimiento.
-Quitar apartado de paciente la pantalla de admin
-Ficha de doctor en admin: Dirección de consultorio
-Agregar dos teléfonos para la ficha de doctor, uno para consultorio y uno para personal
+****Quitar pantallas de usuarios, dejar únicamente ligado a los usuarios, su numero de folio de estudio, y año de nacimiento. ****
+****Quitar apartado de paciente la pantalla de admin****
+****Ficha de doctor en admin: Dirección de consultorio****
+****Agregar dos teléfonos para la ficha de doctor, uno para consultorio y uno para personal y se agrego el campo de direccion****
 
 
-Poner nuevos filtro en los pacientes
-Paciente | Fecha de Nacimiento | Teléfono | Correo | Último Estudio
+****Poner nuevos filtro en los pacientes****
+****Paciente | Fecha de Nacimiento | Teléfono | Correo | Último Estudio****
+****Se creo una base para la receta virtual****
 
 
-En la pantalla de paciente que el calendario del paciente se actualice con las citas que ya tiene el doctor asignadas o ocupadas, sin información de los otros pacientes, solo que se vea algo que ya están tomadas.
+****Se borro la pestaña de paciente y la tabla de paciente de la base de datos****
+Hice algunos cambios a la base de datos, asi que vuélvela a cargar
 
 Pestaña doctor
 
-Quitar todo lo que tenga que ver con las citas del dia de hoy
+Quitar todo lo que tenga que ver con las citas del día de hoy
 "Colocar foto de perfil"
-Poner filtro con estudios nuevos y últimos 7 dias
+Poner filtro con estudios nuevos y últimos 7 días
 
 En el apartado de pacientes, cambiar los filtros a agudo, crónico, seguimiento recuperado
 
@@ -31,7 +33,7 @@ Pulir el apartado de resultados para descargar los archivos del doctor
 
 Darle funcionalidad correcta a los filtros en el apartado de resultados de la pantalla del doctor
 
-En la BD crear el apartado para los resultados, donde únicamente iran los resultados, el numero de folio que se genera del paciente y el año de nacimiento del paciente. "por definir"
+En la BD crear el apartado para los resultados, donde únicamente irán los resultados, el numero de folio que se genera del paciente y el año de nacimiento del paciente. "por definir"
 En la BD borrar citas, pacientes, modificar los estudios disponibles, 
 
 
@@ -39,7 +41,7 @@ Pulir el apartado de configuración para la pantalla del doctor
 
 
 ADMIN
-Quitar las citas del dia 
+Quitar las citas del día 
 Se quita lo de los pacientes
 En lugar de gestionar de citas, será gestionado de resultados
 Estudios médicos se quita.

@@ -1,4 +1,5 @@
-# main.py
+# app.py
+import base64
 import hashlib
 import json
 import os
@@ -36,62 +37,53 @@ class CustomHandler(SimpleHTTPRequestHandler):
         elif path == '/configuracion-doctor':
             return os.path.join(os.getcwd(), 'templates', 'configuracion-doctor.html')
         elif path.endswith('.html'):
-            # Para otros archivos HTML
             filename = os.path.basename(path)
             return os.path.join(os.getcwd(), 'templates', filename)
         
-        # Para archivos estáticos (CSS, JS, etc.)
         return os.path.join(os.getcwd(), path.lstrip('/'))
     
     def do_GET(self):
         """Manejar peticiones GET"""
         try:
-            # Para el favicon.ico (evitar error 404)
             if self.path == '/favicon.ico':
                 self.send_error(404)
                 return
         
-            # Manejar rutas API
             print(f"[API GET] {self.path}")
         
             # RUTAS ESPECÍFICAS PARA AGENDA
             if self.path.startswith('/api/doctor-appointments/'):
-                # IMPORTANTE: Esta ruta debe estar ANTES de la ruta /api/citas
-                # Ruta: Obtener citas de un doctor específico: /api/doctor-appointments/D001
                 parts = self.path.split('/')
                 if len(parts) >= 4:
                     doctor_id = parts[3]
                     self.handle_get_doctor_appointments(doctor_id)
                     return
             
-            # ==============================================
-            # RUTAS CRÍTICAS - CORREGIDAS PARA RESULTADOS
-            # ==============================================
-            
-            # NUEVA: Ruta para estudios del doctor - DEBE ESTAR AL PRINCIPIO
+            # RUTAS PARA RESULTADOS
             if self.path.startswith('/api/doctor-studies/'):
-                # Ruta: Obtener estudios de un doctor específico: /api/doctor-studies/D001?estado=pendiente
                 parts = self.path.split('/')
                 if len(parts) >= 4:
                     doctor_id = parts[3]
                     self.handle_get_doctor_studios(doctor_id)
                     return
             
-            # Ruta para estadísticas de estudios del doctor
             if self.path.startswith('/api/doctor-study-stats/'):
-                # Ruta: Obtener estadísticas de estudios de un doctor: /api/doctor-study-stats/D001
                 parts = self.path.split('/')
                 if len(parts) >= 4:
                     doctor_id = parts[3]
                     self.handle_get_doctor_study_stats(doctor_id)
                     return
             
-            # Resto de rutas...
+            # RUTA PARA VER PDF DE CITA
+            if self.path.startswith('/api/cita-pdf/'):
+                cita_id = self.path.split('/')[-1]
+                self.handle_get_cita_pdf(cita_id)
+                return
+            
             if self.path == '/api/dashboard/doctor-stats':
                 self.handle_doctor_dashboard_stats()
                 return
             elif self.path.startswith('/api/dashboard/doctor/'):
-                # Nueva ruta simplificada: /api/dashboard/doctor/D001
                 doctor_id = self.path.split('/')[-1]
                 self.handle_dashboard_doctor_data(doctor_id)
                 return
@@ -102,26 +94,16 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.handle_admin_activity()
                 return
             elif self.path.startswith('/api/doctor/'):
-                # Ruta para estadísticas del doctor: /api/doctor/D001/stats
                 if self.path.endswith('/stats'):
                     parts = self.path.split('/')
                     if len(parts) == 4:
                         doctor_id = parts[2]
                         self.handle_doctor_stats(doctor_id)
                         return
-            elif self.path.startswith('/api/pacientes'):
-                if self.path == '/api/pacientes':
-                    self.handle_get_pacientes()
-                else:
-                    # Obtener paciente específico
-                    paciente_id = self.path.split('/')[-1]
-                    self.handle_get_paciente(paciente_id)
-                return
             elif self.path.startswith('/api/doctores'):
                 if self.path == '/api/doctores':
                     self.handle_get_doctores()
                 else:
-                    # Obtener doctor específico
                     doctor_id = self.path.split('/')[-1]
                     self.handle_get_doctor(doctor_id)
                 return
@@ -129,7 +111,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 if self.path == '/api/citas':
                     self.handle_get_citas()
                 else:
-                    # Obtener cita específica
                     cita_id = self.path.split('/')[-1]
                     self.handle_get_cita(cita_id)
                 return
@@ -137,8 +118,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.handle_get_estudios()
                 return
             elif self.path.startswith('/api/usuarios/'):
-                # Obtener usuario específico (paciente o doctor)
-                # Formato: /api/usuarios/paciente/P001 o /api/usuarios/doctor/D001
                 partes = self.path.split('/')
                 if len(partes) == 5:
                     tipo = partes[3]
@@ -146,23 +125,19 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     self.handle_get_usuario(user_id, tipo)
                     return
             elif self.path.startswith('/api/doctor-patients'):
-                # Ruta: Obtener pacientes de un doctor con filtros
                 self.handle_get_doctor_patients()
                 return
             elif self.path.startswith('/api/doctor-patient-citas/'):
-                # Ruta: Obtener citas de un paciente específico
                 parts = self.path.split('/')
                 if len(parts) == 5:
                     paciente_id = parts[-1]
                     self.handle_get_patient_citas(paciente_id)
                 return
             elif self.path.startswith('/api/doctor-info/'):
-                # Ruta: Obtener información del doctor
                 doctor_id = self.path.split('/')[-1]
                 self.handle_get_doctor_info(doctor_id)
                 return
             
-            # Servir el archivo normalmente
             super().do_GET()
         except Exception as e:
             print(f"Error en GET {self.path}: {str(e)}")
@@ -195,23 +170,70 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_error(404)
     
     # ==============================================
-    # FUNCIONES PARA RESULTADOS DOCTOR - CORREGIDAS
+    # FUNCIÓN PARA VER PDF DE CITA
+    # ==============================================
+    
+    def handle_get_cita_pdf(self, cita_id):
+        """Obtener el PDF de una cita específica"""
+        print(f"[API] handle_get_cita_pdf para cita_id: {cita_id}")
+        try:
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            cursor.execute("""
+                SELECT documento_pdf, documento_nombre, documento_tipo
+                FROM citas
+                WHERE id_cita = %s AND documento_pdf IS NOT NULL
+            """, (cita_id,))
+            
+            cita = cursor.fetchone()
+            cursor.close()
+            db.close()
+            
+            if not cita or not cita['documento_pdf']:
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': 'PDF no encontrado'}).encode())
+                return
+            
+            # Convertir el BLOB a base64 para enviarlo en JSON
+            pdf_base64 = base64.b64encode(cita['documento_pdf']).decode('utf-8')
+            
+            response = {
+                'success': True,
+                'pdf_data': pdf_base64,
+                'nombre': cita['documento_nombre'] or f'cita_{cita_id}.pdf',
+                'tipo': cita['documento_tipo'] or 'application/pdf'
+            }
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+        except Exception as e:
+            print(f"Error obteniendo PDF de cita: {str(e)}")
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'error': str(e)}).encode())
+    
+    # ==============================================
+    # FUNCIONES PARA RESULTADOS DOCTOR
     # ==============================================
     def handle_get_doctor_studios(self, doctor_id):
-        """Obtener estudios asignados a un doctor específico - VERSIÓN CORREGIDA"""
+        """Obtener estudios asignados a un doctor específico"""
         print(f"[API] handle_get_doctor_studios para doctor_id: {doctor_id}")
         try:
-            # Obtener parámetros de filtro de la URL
             parsed_url = urlparse(self.path)
             query_params = parse_qs(parsed_url.query)
         
-            # Obtener parámetros con manejo seguro
             estado = query_params.get('estado', ['all'])[0] if query_params.get('estado') else 'all'
             tipo = query_params.get('tipo', ['all'])[0] if query_params.get('tipo') else 'all'
         
             print(f"[API] Parámetros: estado={estado}, tipo={tipo}")
         
-            # Limpiar el doctor_id si viene con parámetros
             if '?' in doctor_id:
                 doctor_id = doctor_id.split('?')[0]
         
@@ -220,7 +242,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
         
-            # CONSULTA BASE
             query = """
                 SELECT e.id_estudio as id, 
                     e.Pidpaciente as paciente_id,
@@ -229,11 +250,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     d.nombre as doctor_nombre,
                     e.tipo_estudio as tipo,
                     e.estudio_especifico,
-                    DATE_FORMAT(e.fecha_realizacion, '%Y-%m-%d') as fecha,
+                    DATE_FORMAT(e.fecha_realizacion, '%%Y-%%m-%%d') as fecha,
                     e.resultado,
                     e.estado,
                     e.archivo_url,
-                    DATE_FORMAT(e.fecha_creacion, '%Y-%m-%d %H:%i:%s') as fecha_creacion
+                    DATE_FORMAT(e.fecha_creacion, '%%Y-%%m-%%d %%H:%%i:%%s') as fecha_creacion
                 FROM estudios e
                 LEFT JOIN pacientes p ON e.Pidpaciente = p.Pidpaciente
                 LEFT JOIN doctores d ON e.Diddoctor = d.Diddoctor
@@ -241,8 +262,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             """
         
             params = [doctor_id]
-        
-            # CORRECCIÓN IMPORTANTE: Construir parámetros de manera segura
             conditions = []
         
             if estado and estado != 'all' and estado != '':
@@ -253,43 +272,20 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 conditions.append("e.tipo_estudio = %s")
                 params.append(tipo)
         
-            # Agregar condiciones si existen
             if conditions:
                 query += " AND " + " AND ".join(conditions)
         
             query += " ORDER BY e.fecha_realizacion DESC"
         
             print(f"[API] Query ejecutada: {query}")
-            print(f"[API] Número de parámetros: {len(params)}")
-            print(f"[API] Parámetros: {params}")
-        
-            # IMPORTANTE: Convertir a tupla
             cursor.execute(query, tuple(params))
             estudios = cursor.fetchall()
         
-            # DEPURACIÓN: Mostrar qué estudios se encontraron
             print(f"[API] Número de estudios encontrados para doctor {doctor_id}: {len(estudios)}")
-        
-            if estudios:
-                for i, estudio in enumerate(estudios):
-                    print(f"  [{i+1}] ID: {estudio['id']}, Paciente: {estudio['paciente_nombre']}, "
-                        f"Tipo: {estudio['tipo']}, Estado: {estudio['estado']}, "
-                        f"Fecha: {estudio['fecha']}")
-            else:
-                print(f"[API] No se encontraron estudios para el doctor {doctor_id}")
-            
-                # Verificar si el doctor existe
-                cursor.execute("SELECT nombre FROM doctores WHERE Diddoctor = %s", (doctor_id,))
-                doctor = cursor.fetchone()
-                if not doctor:
-                    print(f"[API] ERROR: El doctor {doctor_id} no existe en la base de datos")
-                else:
-                    print(f"[API] El doctor {doctor['nombre']} existe pero no tiene estudios asignados")
         
             cursor.close()
             db.close()
         
-            # Siempre devolver un array, aunque esté vacío
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
@@ -310,14 +306,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
         """Obtener estadísticas de estudios de un doctor específico"""
         print(f"[API] handle_get_doctor_study_stats para doctor_id: {doctor_id}")
         try:
-            # Limpiar el doctor_id si viene con parámetros
             if '?' in doctor_id:
                 doctor_id = doctor_id.split('?')[0]
             
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            # Obtener total de estudios
             cursor.execute("""
                 SELECT COUNT(*) as total 
                 FROM estudios 
@@ -326,7 +320,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             result = cursor.fetchone()
             total_estudios = result['total'] if result and result['total'] is not None else 0
             
-            # Obtener estudios completados
             cursor.execute("""
                 SELECT COUNT(*) as completados 
                 FROM estudios 
@@ -335,7 +328,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             result = cursor.fetchone()
             estudios_completados = result['completados'] if result and result['completados'] is not None else 0
             
-            # Obtener estudios pendientes
             cursor.execute("""
                 SELECT COUNT(*) as pendientes 
                 FROM estudios 
@@ -344,7 +336,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             result = cursor.fetchone()
             estudios_pendientes = result['pendientes'] if result and result['pendientes'] is not None else 0
             
-            # Obtener estudios en revisión
             cursor.execute("""
                 SELECT COUNT(*) as revision 
                 FROM estudios 
@@ -394,7 +385,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor()
             
-            # Actualizar el estudio
             cursor.execute("""
                 UPDATE estudios 
                 SET resultado = %s, estado = %s 
@@ -443,7 +433,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             if not estudio_id or not nuevo_estado:
                 raise ValueError("Faltan datos requeridos")
             
-            # Validar que el estado sea válido
             estados_validos = ['pendiente', 'completado', 'revision']
             if nuevo_estado not in estados_validos:
                 raise ValueError("Estado no válido")
@@ -451,7 +440,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor()
             
-            # Actualizar estado del estudio
             cursor.execute("""
                 UPDATE estudios 
                 SET estado = %s 
@@ -505,8 +493,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
                        c.Diddoctor as doctor_id,
                        d.nombre as doctor_nombre,
                        c.tipo_estudio as tipo,
-                       DATE_FORMAT(c.fecha, '%Y-%m-%d') as fecha,
-                       TIME_FORMAT(c.hora, '%H:%i') as hora,
+                       DATE_FORMAT(c.fecha, '%%Y-%%m-%%d') as fecha,
+                       TIME_FORMAT(c.hora, '%%H:%%i') as hora,
                        c.estado,
                        c.notas,
                        c.estudio_especifico
@@ -564,27 +552,29 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor()
             
-            # Verificar que el paciente exista
+            # Generar número de folio único
+            cursor.execute("SELECT COUNT(*) as count FROM citas")
+            result = cursor.fetchone()
+            count = result[0] + 1
+            numero_folio = f"FOL-{datetime.now().strftime('%Y%m%d')}-{str(count).zfill(4)}"
+            
             cursor.execute("SELECT nombre FROM pacientes WHERE Pidpaciente = %s", (Pidpaciente,))
             paciente = cursor.fetchone()
             if not paciente:
                 raise ValueError(f"Paciente con ID {Pidpaciente} no encontrado")
             
-            # Verificar que el doctor exista
             cursor.execute("SELECT nombre FROM doctores WHERE Diddoctor = %s", (Diddoctor,))
             doctor = cursor.fetchone()
             if not doctor:
                 raise ValueError(f"Doctor con ID {Diddoctor} no encontrado")
             
-            # Insertar la cita
             cursor.execute("""
-                INSERT INTO citas (Pidpaciente, Diddoctor, tipo_estudio, estudio_especifico, fecha, hora, estado, notas)
-                VALUES (%s, %s, %s, %s, %s, %s, 'pendiente', %s)
-            """, (Pidpaciente, Diddoctor, tipo_estudio, estudio_especifico, fecha, hora, notas))
+                INSERT INTO citas (numero_folio, Pidpaciente, Diddoctor, tipo_estudio, estudio_especifico, fecha, hora, estado, notas)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, 'pendiente', %s)
+            """, (numero_folio, Pidpaciente, Diddoctor, tipo_estudio, estudio_especifico, fecha, hora, notas))
             
             cita_id = cursor.lastrowid
             
-            # Crear también un estudio pendiente
             cursor.execute("""
                 INSERT INTO estudios (Pidpaciente, Diddoctor, tipo_estudio, estudio_especifico, fecha_realizacion, estado)
                 VALUES (%s, %s, %s, %s, %s, 'pendiente')
@@ -640,7 +630,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor()
             
-            # Construir la consulta de actualización
             update_fields = []
             params = []
             
@@ -699,6 +688,376 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode())
     
     # ==============================================
+    # FUNCIONES PARA ADMIN (MODIFICADAS)
+    # ==============================================
+    
+    def handle_admin_stats(self):
+        """Obtener estadísticas para el panel de admin (SOLO DOCTORES)"""
+        try:
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            cursor.execute("SELECT COUNT(*) as total FROM doctores WHERE activo = TRUE")
+            total_doctores = cursor.fetchone()['total']
+            
+            cursor.execute("SELECT COUNT(*) as total FROM citas WHERE fecha = CURDATE()")
+            citas_hoy = cursor.fetchone()['total']
+            
+            cursor.execute("SELECT COUNT(*) as total FROM estudios WHERE estado = 'pendiente'")
+            estudios_pendientes = cursor.fetchone()['total']
+            
+            cursor.execute("SELECT COUNT(*) as total FROM estudios WHERE estado = 'completado' AND MONTH(fecha_creacion) = MONTH(CURDATE())")
+            estudios_completados = cursor.fetchone()['total']
+            
+            cursor.execute("SELECT COUNT(*) as total FROM doctores WHERE fecha_registro >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)")
+            nuevos_doctores = cursor.fetchone()['total']
+            
+            cursor.execute("SELECT COUNT(DISTINCT tipo_estudio) as total FROM estudios")
+            tipos_estudios = cursor.fetchone()['total']
+            
+            cursor.close()
+            db.close()
+            
+            stats = {
+                'totalDoctores': total_doctores,
+                'citasHoy': citas_hoy,
+                'estudiosPendientes': estudios_pendientes,
+                'estudiosCompletados': estudios_completados,
+                'nuevosDoctores': nuevos_doctores,
+                'tiposEstudios': tipos_estudios
+            }
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(stats).encode())
+            
+        except Exception as e:
+            print(f"Error en stats: {str(e)}")
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'error': str(e)}).encode())
+    
+    def handle_admin_activity(self):
+        """Obtener actividad reciente"""
+        try:
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            cursor.execute("""
+                SELECT usuario_id, tipo_usuario, titulo as accion, 
+                       DATE_FORMAT(fecha_creacion, '%%Y-%%m-%%d %%H:%%i') as fecha,
+                       mensaje as detalles
+                FROM notificaciones 
+                ORDER BY fecha_creacion DESC 
+                LIMIT 10
+            """)
+            actividades = cursor.fetchall()
+            
+            cursor.close()
+            db.close()
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(actividades).encode())
+            
+        except Exception as e:
+            print(f"Error en actividad: {str(e)}")
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'error': str(e)}).encode())
+    
+    # ==============================================
+    # FUNCIONES PARA DOCTORES (MODIFICADAS)
+    # ==============================================
+    
+    def handle_get_doctores(self):
+        """Obtener lista de doctores con datos del consultorio"""
+        try:
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            cursor.execute("""
+                SELECT d.Diddoctor as id, d.nombre, d.especialidad, d.email, d.telefono, 
+                       d.telefono_consultorio, d.direccion_consultorio, d.activo,
+                       DATE_FORMAT(d.fecha_registro, '%%Y-%%m-%%d') as fecha_registro,
+                       (SELECT COUNT(*) FROM pacientes p WHERE p.doctor_asignado = d.Diddoctor) as total_pacientes
+                FROM doctores d
+                ORDER BY d.Diddoctor ASC
+            """)
+            doctores = cursor.fetchall()
+            
+            for doctor in doctores:
+                doctor['pacientes'] = doctor['total_pacientes']
+                doctor['activo'] = bool(doctor['activo'])
+            
+            cursor.close()
+            db.close()
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(doctores).encode())
+            
+        except Exception as e:
+            print(f"Error obteniendo doctores: {str(e)}")
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'error': str(e)}).encode())
+    
+    def handle_get_doctor(self, doctor_id):
+        """Obtener un doctor específico con datos del consultorio"""
+        try:
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            cursor.execute("""
+                SELECT d.Diddoctor as id, d.nombre, d.especialidad, d.email, d.telefono, 
+                       d.telefono_consultorio, d.direccion_consultorio, d.usuario, d.activo,
+                       DATE_FORMAT(d.fecha_registro, '%%Y-%%m-%%d') as fecha_registro
+                FROM doctores d
+                WHERE d.Diddoctor = %s
+            """, (doctor_id,))
+            
+            doctor = cursor.fetchone()
+            
+            if not doctor:
+                cursor.close()
+                db.close()
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': 'Doctor no encontrado'}).encode())
+                return
+            
+            doctor['activo'] = bool(doctor['activo'])
+            
+            cursor.execute("""
+                SELECT p.Pidpaciente as id, p.nombre, p.edad, p.estado_paciente
+                FROM pacientes p
+                WHERE p.doctor_asignado = %s
+            """, (doctor_id,))
+            pacientes = cursor.fetchall()
+            doctor['pacientes_asignados'] = pacientes
+            
+            cursor.close()
+            db.close()
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(doctor).encode())
+            
+        except Exception as e:
+            print(f"Error obteniendo doctor {doctor_id}: {str(e)}")
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'error': str(e)}).encode())
+    
+    def handle_get_usuario(self, user_id, tipo):
+        """Obtener usuario específico (MODIFICADO - SOLO DOCTORES)"""
+        try:
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            if tipo == 'doctor':
+                cursor.execute("""
+                    SELECT d.Diddoctor as id, d.nombre, d.especialidad, d.email, d.telefono, 
+                           d.telefono_consultorio, d.direccion_consultorio, d.usuario, d.activo,
+                           DATE_FORMAT(d.fecha_registro, '%Y-%m-%d') as fecha_registro
+                    FROM doctores d
+                    WHERE d.Diddoctor = %s
+                """, (user_id,))
+            else:
+                cursor.close()
+                db.close()
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': 'Tipo de usuario no válido'}).encode())
+                return
+            
+            usuario = cursor.fetchone()
+            
+            if not usuario:
+                cursor.close()
+                db.close()
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': 'Usuario no encontrado'}).encode())
+                return
+            
+            usuario['activo'] = bool(usuario['activo'])
+            
+            cursor.close()
+            db.close()
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(usuario).encode())
+            
+        except Exception as e:
+            print(f"Error obteniendo usuario {user_id} ({tipo}): {str(e)}")
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'error': str(e)}).encode())
+    
+    def handle_update_user(self):
+        """Actualizar usuario (MODIFICADO - SOLO DOCTORES con datos de consultorio)"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+            
+            user_id = data.get('userId')
+            user_type = data.get('userType')
+            nombre = data.get('nombre')
+            email = data.get('email')
+            telefono = data.get('telefono')
+            telefono_consultorio = data.get('telefono_consultorio')
+            direccion_consultorio = data.get('direccion_consultorio')
+            estado = data.get('estado')
+            password = data.get('password')
+            especialidad = data.get('especialidad')
+            
+            if not user_id or not user_type:
+                raise ValueError("Faltan datos requeridos")
+            
+            db = self.connect_db()
+            cursor = db.cursor()
+            
+            if user_type == 'doctor':
+                table = 'doctores'
+                id_field = 'Diddoctor'
+                
+                update_fields = []
+                params = []
+                
+                if nombre:
+                    update_fields.append("nombre = %s")
+                    params.append(nombre)
+                
+                if email:
+                    update_fields.append("email = %s")
+                    params.append(email)
+                
+                if telefono is not None:
+                    update_fields.append("telefono = %s")
+                    params.append(telefono)
+                
+                if telefono_consultorio is not None:
+                    update_fields.append("telefono_consultorio = %s")
+                    params.append(telefono_consultorio)
+                
+                if direccion_consultorio is not None:
+                    update_fields.append("direccion_consultorio = %s")
+                    params.append(direccion_consultorio)
+                
+                if especialidad:
+                    update_fields.append("especialidad = %s")
+                    params.append(especialidad)
+                
+                if estado is not None:
+                    activo = 1 if estado == 'active' else 0
+                    update_fields.append("activo = %s")
+                    params.append(activo)
+                
+                if password:
+                    update_fields.append("contrasena = %s")
+                    params.append(password)
+                
+            else:
+                raise ValueError("Tipo de usuario no válido")
+            
+            if update_fields:
+                query = f"UPDATE {table} SET {', '.join(update_fields)} WHERE {id_field} = %s"
+                params.append(user_id)
+                
+                cursor.execute(query, params)
+                db.commit()
+            
+            cursor.close()
+            db.close()
+            
+            response = {'success': True, 'message': 'Doctor actualizado correctamente'}
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+        except ValueError as ve:
+            response = {'success': False, 'message': str(ve)}
+            self.send_response(400)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+        except Exception as e:
+            print(f"Error actualizando usuario: {str(e)}")
+            response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+    
+    def handle_delete_user(self):
+        """Eliminar usuario (SOLO DOCTORES)"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+            
+            user_id = data.get('userId')
+            user_type = data.get('userType')
+            
+            if not user_id or not user_type:
+                raise ValueError("Faltan datos requeridos")
+            
+            db = self.connect_db()
+            cursor = db.cursor()
+            
+            if user_type == 'doctor':
+                table = 'doctores'
+                id_field = 'Diddoctor'
+            else:
+                raise ValueError("Tipo de usuario no válido")
+            
+            cursor.execute(f"DELETE FROM {table} WHERE {id_field} = %s", (user_id,))
+            
+            db.commit()
+            cursor.close()
+            db.close()
+            
+            response = {'success': True, 'message': 'Doctor eliminado correctamente'}
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+        except ValueError as ve:
+            response = {'success': False, 'message': str(ve)}
+            self.send_response(400)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+        except Exception as e:
+            print(f"Error eliminando doctor: {str(e)}")
+            response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+    
+    # ==============================================
     # RESTA DE FUNCIONES
     # ==============================================
     
@@ -722,7 +1081,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             user_id = ''
             user_name = ''
             
-            # Buscar en administradores
             cursor.execute("SELECT * FROM administradores WHERE usuario = %s AND contrasena = %s", 
                           (username, password))
             admin = cursor.fetchone()
@@ -733,7 +1091,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 user_name = admin['nombre']
                 print(f"[LOGIN] Usuario encontrado: admin {user_id}")
             
-            # Buscar en doctores
             if not usuario_encontrado:
                 cursor.execute("SELECT * FROM doctores WHERE usuario = %s AND contrasena = %s", 
                               (username, password))
@@ -745,7 +1102,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     user_name = doctor['nombre']
                     print(f"[LOGIN] Usuario encontrado: doctor {user_id}")
             
-            # Buscar en pacientes
             if not usuario_encontrado:
                 cursor.execute("SELECT * FROM pacientes WHERE usuario = %s AND contrasena = %s", 
                               (username, password))
@@ -803,7 +1159,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor = db.cursor(dictionary=True)
             
             cursor.execute("""
-                SELECT Diddoctor as id, nombre, especialidad, email, telefono, usuario
+                SELECT Diddoctor as id, nombre, especialidad, email, telefono, usuario,
+                       telefono_consultorio, direccion_consultorio
                 FROM doctores 
                 WHERE Diddoctor = %s
             """, (doctor_id,))
@@ -835,7 +1192,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({'error': str(e)}).encode())
     
     def handle_get_doctor_patients(self):
-        """Obtener pacientes asignados a un doctor específico con filtros"""
+        """Obtener pacientes asignados a un doctor específico"""
         try:
             parsed_url = urlparse(self.path)
             query_params = parse_qs(parsed_url.query)
@@ -851,7 +1208,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             query = """
                 SELECT p.Pidpaciente as id, p.nombre, p.edad, p.email, p.telefono,
                        p.estado_paciente as estado, 
-                       DATE_FORMAT(p.fecha_registro, '%Y-%m-%d') as fecha_registro,
+                       DATE_FORMAT(p.fecha_registro, '%%Y-%%m-%%d') as fecha_registro,
                        p.doctor_asignado,
                        d.nombre as doctor_nombre
                 FROM pacientes p
@@ -909,7 +1266,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 paciente['estudios_pendientes'] = resultado['count'] if resultado else 0
                 
                 cursor.execute("""
-                    SELECT DATE_FORMAT(fecha, '%Y-%m-%d') as fecha, tipo_estudio 
+                    SELECT DATE_FORMAT(fecha, '%%Y-%%m-%%d') as fecha, tipo_estudio 
                     FROM citas 
                     WHERE Pidpaciente = %s 
                     ORDER BY fecha DESC 
@@ -951,8 +1308,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.execute("""
                 SELECT c.id_cita as id, 
                        c.tipo_estudio as tipo,
-                       DATE_FORMAT(c.fecha, '%Y-%m-%d') as fecha,
-                       TIME_FORMAT(c.hora, '%H:%i') as hora,
+                       DATE_FORMAT(c.fecha, '%%Y-%%m-%%d') as fecha,
+                       TIME_FORMAT(c.hora, '%%H:%%i') as hora,
                        c.estado,
                        c.notas,
                        d.nombre as doctor_nombre
@@ -967,8 +1324,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.execute("""
                 SELECT c.id_cita as id, 
                        c.tipo_estudio as tipo,
-                       DATE_FORMAT(c.fecha, '%Y-%m-%d') as fecha,
-                       TIME_FORMAT(c.hora, '%H:%i') as hora,
+                       DATE_FORMAT(c.fecha, '%%Y-%%m-%%d') as fecha,
+                       TIME_FORMAT(c.hora, '%%H:%%i') as hora,
                        c.estado,
                        c.notas,
                        d.nombre as doctor_nombre
@@ -1054,63 +1411,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps(response).encode())
     
-    def handle_admin_stats(self):
-        """Obtener estadísticas para el panel de admin"""
-        try:
-            db = self.connect_db()
-            cursor = db.cursor(dictionary=True)
-            
-            cursor.execute("SELECT COUNT(*) as total FROM pacientes WHERE activo = TRUE")
-            total_pacientes = cursor.fetchone()['total']
-            
-            cursor.execute("SELECT COUNT(*) as total FROM doctores WHERE activo = TRUE")
-            total_doctores = cursor.fetchone()['total']
-            
-            cursor.execute("SELECT COUNT(*) as total FROM citas WHERE fecha = CURDATE()")
-            citas_hoy = cursor.fetchone()['total']
-            
-            cursor.execute("SELECT COUNT(*) as total FROM estudios WHERE estado = 'pendiente'")
-            estudios_pendientes = cursor.fetchone()['total']
-            
-            cursor.execute("SELECT COUNT(*) as total FROM estudios WHERE estado = 'completado' AND MONTH(fecha_creacion) = MONTH(CURDATE())")
-            estudios_completados = cursor.fetchone()['total']
-            
-            cursor.execute("SELECT COUNT(*) as total FROM pacientes WHERE fecha_registro >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)")
-            nuevos_pacientes = cursor.fetchone()['total']
-            
-            cursor.execute("SELECT COUNT(*) as total FROM doctores WHERE fecha_registro >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)")
-            nuevos_doctores = cursor.fetchone()['total']
-            
-            nuevos_registros = nuevos_pacientes + nuevos_doctores
-            
-            cursor.close()
-            db.close()
-            
-            stats = {
-                'totalPacientes': total_pacientes,
-                'totalDoctores': total_doctores,
-                'citasHoy': citas_hoy,
-                'estudiosPendientes': estudios_pendientes,
-                'totalUsuarios': total_pacientes + total_doctores + 1,
-                'citasDelDia': citas_hoy,
-                'estudiosCompletados': estudios_completados,
-                'nuevosRegistros': nuevos_registros
-            }
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(stats).encode())
-            
-        except Exception as e:
-            print(f"Error en stats: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
     def handle_dashboard_doctor_data(self, doctor_id):
-        """Obtener todos los datos del dashboard para un doctor en una sola llamada"""
+        """Obtener todos los datos del dashboard para un doctor"""
         try:
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
@@ -1152,7 +1454,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
             citas_detalle = cursor.fetchall()
         
             cursor.execute("""
-                SELECT Diddoctor as id, nombre, especialidad, email, telefono, usuario
+                SELECT Diddoctor as id, nombre, especialidad, email, telefono, usuario,
+                       telefono_consultorio, direccion_consultorio
                 FROM doctores 
                 WHERE Diddoctor = %s
             """, (doctor_id,))
@@ -1259,7 +1562,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             estudios_pendientes = result_estudios['total'] if result_estudios else 0
             
             cursor.execute("""
-                SELECT c.id_cita, c.tipo_estudio, c.estado, TIME_FORMAT(c.hora, '%H:%i') as hora,
+                SELECT c.id_cita, c.tipo_estudio, c.estado, TIME_FORMAT(c.hora, '%%H:%%i') as hora,
                        p.nombre as paciente_nombre
                 FROM citas c
                 JOIN pacientes p ON c.Pidpaciente = p.Pidpaciente
@@ -1292,223 +1595,42 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({'error': str(e)}).encode())
     
-    def handle_admin_activity(self):
-        """Obtener actividad reciente"""
-        try:
-            db = self.connect_db()
-            cursor = db.cursor(dictionary=True)
-            
-            cursor.execute("""
-                SELECT usuario_id, tipo_usuario, titulo as accion, 
-                       DATE_FORMAT(fecha_creacion, '%Y-%m-%d %H:%i') as fecha,
-                       mensaje as detalles
-                FROM notificaciones 
-                ORDER BY fecha_creacion DESC 
-                LIMIT 10
-            """)
-            actividades = cursor.fetchall()
-            
-            cursor.close()
-            db.close()
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(actividades).encode())
-            
-        except Exception as e:
-            print(f"Error en actividad: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
-    def handle_get_pacientes(self):
-        """Obtener lista de pacientes"""
-        try:
-            db = self.connect_db()
-            cursor = db.cursor(dictionary=True)
-            
-            cursor.execute("""
-                SELECT p.Pidpaciente as id, p.nombre, p.edad, p.email, p.telefono,
-                       d.nombre as doctor_nombre, p.activo, p.estado_paciente,
-                       DATE_FORMAT(p.fecha_registro, '%Y-%m-%d') as fecha_registro
-                FROM pacientes p
-                LEFT JOIN doctores d ON p.doctor_asignado = d.Diddoctor
-                ORDER BY p.Pidpaciente ASC 
-            """)
-            pacientes = cursor.fetchall()
-            
-            for paciente in pacientes:
-                paciente['doctor'] = paciente['doctor_nombre'] if paciente['doctor_nombre'] else 'Sin asignar'
-                paciente['activo'] = bool(paciente['activo'])
-            
-            cursor.close()
-            db.close()
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(pacientes).encode())
-            
-        except Exception as e:
-            print(f"Error obteniendo pacientes: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
-    def handle_get_paciente(self, paciente_id):
-        """Obtener un paciente específico"""
-        try:
-            db = self.connect_db()
-            cursor = db.cursor(dictionary=True)
-            
-            cursor.execute("""
-                SELECT p.Pidpaciente as id, p.nombre, p.edad, p.email, p.telefono,
-                       p.direccion, p.doctor_asignado, p.activo, p.estado_paciente,
-                       DATE_FORMAT(p.fecha_registro, '%Y-%m-%d') as fecha_registro,
-                       d.nombre as doctor_nombre, d.usuario as doctor_usuario
-                FROM pacientes p
-                LEFT JOIN doctores d ON p.doctor_asignado = d.Diddoctor
-                WHERE p.Pidpaciente = %s
-            """, (paciente_id,))
-            
-            paciente = cursor.fetchone()
-            
-            if not paciente:
-                cursor.close()
-                db.close()
-                self.send_response(404)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'error': 'Paciente no encontrado'}).encode())
-                return
-            
-            paciente['activo'] = bool(paciente['activo'])
-            
-            cursor.close()
-            db.close()
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(paciente).encode())
-            
-        except Exception as e:
-            print(f"Error obteniendo paciente {paciente_id}: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
-    def handle_get_doctores(self):
-        """Obtener lista de doctores"""
-        try:
-            db = self.connect_db()
-            cursor = db.cursor(dictionary=True)
-            
-            cursor.execute("""
-                SELECT d.Diddoctor as id, d.nombre, d.especialidad, d.email, d.telefono, d.activo,
-                       DATE_FORMAT(d.fecha_registro, '%Y-%m-%d') as fecha_registro,
-                       (SELECT COUNT(*) FROM pacientes p WHERE p.doctor_asignado = d.Diddoctor) as total_pacientes
-                FROM doctores d
-                ORDER BY d.Diddoctor ASC
-            """)
-            doctores = cursor.fetchall()
-            
-            for doctor in doctores:
-                doctor['pacientes'] = doctor['total_pacientes']
-                doctor['activo'] = bool(doctor['activo'])
-            
-            cursor.close()
-            db.close()
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(doctores).encode())
-            
-        except Exception as e:
-            print(f"Error obteniendo doctores: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
-    def handle_get_doctor(self, doctor_id):
-        """Obtener un doctor específico"""
-        try:
-            db = self.connect_db()
-            cursor = db.cursor(dictionary=True)
-            
-            cursor.execute("""
-                SELECT d.Diddoctor as id, d.nombre, d.especialidad, d.email, d.telefono, 
-                       d.usuario, d.activo,
-                       DATE_FORMAT(d.fecha_registro, '%Y-%m-%d') as fecha_registro
-                FROM doctores d
-                WHERE d.Diddoctor = %s
-            """, (doctor_id,))
-            
-            doctor = cursor.fetchone()
-            
-            if not doctor:
-                cursor.close()
-                db.close()
-                self.send_response(404)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'error': 'Doctor no encontrado'}).encode())
-                return
-            
-            doctor['activo'] = bool(doctor['activo'])
-            
-            cursor.execute("""
-                SELECT p.Pidpaciente as id, p.nombre, p.edad, p.estado_paciente
-                FROM pacientes p
-                WHERE p.doctor_asignado = %s
-            """, (doctor_id,))
-            pacientes = cursor.fetchall()
-            doctor['pacientes_asignados'] = pacientes
-            
-            cursor.close()
-            db.close()
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(doctor).encode())
-            
-        except Exception as e:
-            print(f"Error obteniendo doctor {doctor_id}: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
     def handle_get_citas(self):
-        """Obtener lista de citas"""
+        """Obtener lista de citas para admin - MODIFICADO para mostrar solo N° Folio, Paciente, Doctor, Fecha, Hora"""
         try:
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            cursor.execute("""
+            parsed_url = urlparse(self.path)
+            query_params = parse_qs(parsed_url.query)
+            filter_type = query_params.get('filter', ['all'])[0]
+            
+            # Construir query base
+            query = """
                 SELECT c.id_cita as id, 
-                       p.Pidpaciente as paciente_id,
+                       c.numero_folio as folio,
                        p.nombre as paciente_nombre,
-                       d.Diddoctor as doctor_id,
                        d.nombre as doctor_nombre,
-                       c.tipo_estudio as tipo,
-                       DATE_FORMAT(c.fecha, '%Y-%m-%d') as fecha,
-                       TIME_FORMAT(c.hora, '%H:%i') as hora,
-                       c.estado,
-                       c.notas
+                       DATE_FORMAT(c.fecha, '%%Y-%%m-%%d') as fecha,
+                       TIME_FORMAT(c.hora, '%%H:%%i') as hora,
+                       CASE 
+                           WHEN c.documento_pdf IS NOT NULL THEN 1 
+                           ELSE 0 
+                       END as tiene_pdf
                 FROM citas c
                 LEFT JOIN pacientes p ON c.Pidpaciente = p.Pidpaciente
                 LEFT JOIN doctores d ON c.Diddoctor = d.Diddoctor
-                ORDER BY c.fecha DESC, c.hora DESC
-                LIMIT 50
-            """)
+            """
+            
+            # Aplicar filtros
+            if filter_type == 'today':
+                query += " WHERE c.fecha = CURDATE()"
+            else:
+                query += " WHERE 1=1"
+            
+            query += " ORDER BY c.fecha DESC, c.hora DESC"
+            
+            cursor.execute(query)
             citas = cursor.fetchall()
             
             cursor.close()
@@ -1534,16 +1656,22 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
             cursor.execute("""
                 SELECT c.id_cita as id, 
+                       c.numero_folio as folio,
                        c.Pidpaciente as paciente_id,
                        p.nombre as paciente_nombre,
                        c.Diddoctor as doctor_id,
                        d.nombre as doctor_nombre,
                        c.tipo_estudio as tipo,
-                       DATE_FORMAT(c.fecha, '%Y-%m-%d') as fecha,
-                       TIME_FORMAT(c.hora, '%H:%i') as hora,
+                       DATE_FORMAT(c.fecha, '%%Y-%%m-%%d') as fecha,
+                       TIME_FORMAT(c.hora, '%%H:%%i') as hora,
                        c.estado,
                        c.notas,
-                       DATE_FORMAT(c.fecha_creacion, '%Y-%m-%d %H:%i') as fecha_creacion
+                       CASE 
+                           WHEN c.documento_pdf IS NOT NULL THEN 1 
+                           ELSE 0 
+                       END as tiene_pdf,
+                       c.documento_nombre,
+                       DATE_FORMAT(c.fecha_creacion, '%%Y-%%m-%%d %%H:%%i') as fecha_creacion
                 FROM citas c
                 LEFT JOIN pacientes p ON c.Pidpaciente = p.Pidpaciente
                 LEFT JOIN doctores d ON c.Diddoctor = d.Diddoctor
@@ -1594,10 +1722,10 @@ class CustomHandler(SimpleHTTPRequestHandler):
                        e.Diddoctor as doctor_id,
                        d.nombre as doctor_nombre,
                        e.tipo_estudio as tipo,
-                       DATE_FORMAT(e.fecha_realizacion, '%Y-%m-%d') as fecha,
+                       DATE_FORMAT(e.fecha_realizacion, '%%Y-%%m-%%d') as fecha,
                        e.resultado,
                        e.estado,
-                       DATE_FORMAT(e.fecha_creacion, '%Y-%m-%d %H:%i') as fecha_creacion
+                       DATE_FORMAT(e.fecha_creacion, '%%Y-%%m-%%d %%H:%%i') as fecha_creacion
                 FROM estudios e
                 LEFT JOIN pacientes p ON e.Pidpaciente = p.Pidpaciente
                 LEFT JOIN doctores d ON e.Diddoctor = d.Diddoctor
@@ -1633,248 +1761,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
-    def handle_get_usuario(self, user_id, tipo):
-        """Obtener usuario específico (paciente o doctor)"""
-        try:
-            db = self.connect_db()
-            cursor = db.cursor(dictionary=True)
-            
-            if tipo == 'paciente':
-                cursor.execute("""
-                    SELECT p.Pidpaciente as id, p.nombre, p.edad, p.email, p.telefono,
-                           p.direccion, p.doctor_asignado, p.activo, p.usuario, p.estado_paciente,
-                           DATE_FORMAT(p.fecha_registro, '%Y-%m-%d') as fecha_registro
-                    FROM pacientes p
-                    WHERE p.Pidpaciente = %s
-                """, (user_id,))
-            elif tipo == 'doctor':
-                cursor.execute("""
-                    SELECT d.Diddoctor as id, d.nombre, d.especialidad, d.email, d.telefono, 
-                           d.usuario, d.activo,
-                           DATE_FORMAT(d.fecha_registro, '%Y-%m-%d') as fecha_registro
-                    FROM doctores d
-                    WHERE d.Diddoctor = %s
-                """, (user_id,))
-            else:
-                cursor.close()
-                db.close()
-                self.send_response(400)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'error': 'Tipo de usuario no válido'}).encode())
-                return
-            
-            usuario = cursor.fetchone()
-            
-            if not usuario:
-                cursor.close()
-                db.close()
-                self.send_response(404)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'error': 'Usuario no encontrado'}).encode())
-                return
-            
-            usuario['activo'] = bool(usuario['activo'])
-            
-            cursor.close()
-            db.close()
-            
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(usuario).encode())
-            
-        except Exception as e:
-            print(f"Error obteniendo usuario {user_id} ({tipo}): {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
-    def handle_update_user(self):
-        """Actualizar usuario (paciente o doctor)"""
-        try:
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = json.loads(post_data.decode())
-            
-            user_id = data.get('userId')
-            user_type = data.get('userType')
-            nombre = data.get('nombre')
-            email = data.get('email')
-            telefono = data.get('telefono')
-            estado = data.get('estado')
-            password = data.get('password')
-            especialidad = data.get('especialidad')
-            edad = data.get('edad')
-            direccion = data.get('direccion')
-            doctor_asignado = data.get('doctor_asignado')
-            
-            if not user_id or not user_type:
-                raise ValueError("Faltan datos requeridos")
-            
-            db = self.connect_db()
-            cursor = db.cursor()
-            
-            if user_type == 'paciente':
-                table = 'pacientes'
-                id_field = 'Pidpaciente'
-                
-                update_fields = []
-                params = []
-                
-                if nombre:
-                    update_fields.append("nombre = %s")
-                    params.append(nombre)
-                
-                if email:
-                    update_fields.append("email = %s")
-                    params.append(email)
-                
-                if telefono:
-                    update_fields.append("telefono = %s")
-                    params.append(telefono)
-                
-                if edad:
-                    update_fields.append("edad = %s")
-                    params.append(edad)
-                
-                if direccion:
-                    update_fields.append("direccion = %s")
-                    params.append(direccion)
-                
-                if doctor_asignado:
-                    update_fields.append("doctor_asignado = %s")
-                    params.append(doctor_asignado)
-                
-                if estado is not None:
-                    activo = 1 if estado == 'active' else 0
-                    update_fields.append("activo = %s")
-                    params.append(activo)
-                
-                if password:
-                    update_fields.append("contrasena = %s")
-                    params.append(password)
-                
-            elif user_type == 'doctor':
-                table = 'doctores'
-                id_field = 'Diddoctor'
-                
-                update_fields = []
-                params = []
-                
-                if nombre:
-                    update_fields.append("nombre = %s")
-                    params.append(nombre)
-                
-                if email:
-                    update_fields.append("email = %s")
-                    params.append(email)
-                
-                if telefono:
-                    update_fields.append("telefono = %s")
-                    params.append(telefono)
-                
-                if especialidad:
-                    update_fields.append("especialidad = %s")
-                    params.append(especialidad)
-                
-                if estado is not None:
-                    activo = 1 if estado == 'active' else 0
-                    update_fields.append("activo = %s")
-                    params.append(activo)
-                
-                if password:
-                    update_fields.append("contrasena = %s")
-                    params.append(password)
-                
-            else:
-                raise ValueError("Tipo de usuario no válido")
-            
-            if update_fields:
-                query = f"UPDATE {table} SET {', '.join(update_fields)} WHERE {id_field} = %s"
-                params.append(user_id)
-                
-                cursor.execute(query, params)
-                db.commit()
-            
-            cursor.close()
-            db.close()
-            
-            response = {'success': True, 'message': 'Usuario actualizado correctamente'}
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
-            
-        except ValueError as ve:
-            response = {'success': False, 'message': str(ve)}
-            self.send_response(400)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
-            
-        except Exception as e:
-            print(f"Error actualizando usuario: {str(e)}")
-            response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
-    
-    def handle_delete_user(self):
-        """Eliminar usuario (paciente o doctor)"""
-        try:
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = json.loads(post_data.decode())
-            
-            user_id = data.get('userId')
-            user_type = data.get('userType')
-            
-            if not user_id or not user_type:
-                raise ValueError("Faltan datos requeridos")
-            
-            db = self.connect_db()
-            cursor = db.cursor()
-            
-            if user_type == 'paciente':
-                table = 'pacientes'
-                id_field = 'Pidpaciente'
-            elif user_type == 'doctor':
-                table = 'doctores'
-                id_field = 'Diddoctor'
-            else:
-                raise ValueError("Tipo de usuario no válido")
-            
-            cursor.execute(f"DELETE FROM {table} WHERE {id_field} = %s", (user_id,))
-            
-            db.commit()
-            cursor.close()
-            db.close()
-            
-            response = {'success': True, 'message': 'Usuario eliminado correctamente'}
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
-            
-        except ValueError as ve:
-            response = {'success': False, 'message': str(ve)}
-            self.send_response(400)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
-            
-        except Exception as e:
-            print(f"Error eliminando usuario: {str(e)}")
-            response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
     
     def handle_delete_cita(self):
         """Eliminar una cita"""
@@ -1919,99 +1805,99 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(response).encode())
     
     def handle_registro(self):
-        """Manejar el registro de nuevos usuarios"""
+        """Manejar el registro de nuevos doctores"""
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         data = parse_qs(post_data.decode())
         
         try:
+            # Obtener datos del formulario
             nombre_completo = data.get('nombre', [''])[0] + " " + data.get('apellidos', [''])[0]
-            edad = int(data.get('edad', [0])[0])
-            telefono = data.get('telefono', [''])[0]
-            email = data.get('correo', [''])[0]
             usuario = data.get('usuario', [''])[0]
             contrasena = data.get('contrasena', [''])[0]
-            tipo_usuario = data.get('tipo_usuario', [''])[0]
-            doctor_asignado_input = data.get('doctor_username', [''])[0]
-            tiene_doctor = data.get('doctor_asignado', [''])[0]
+            especialidad = data.get('especialidad', [''])[0]
+            email = data.get('correo', [''])[0]
+            telefono = data.get('telefono', [''])[0]
+            direccion_consultorio = data.get('direccion_consultorio', [''])[0]
+            telefono_consultorio = data.get('telefono_consultorio', [''])[0]
             
-            if not all([nombre_completo, edad, telefono, email, usuario, contrasena, tipo_usuario]):
-                raise ValueError("Faltan campos obligatorios")
+            # Validar campos obligatorios
+            if not all([nombre_completo, usuario, contrasena, especialidad, email, telefono, direccion_consultorio, telefono_consultorio]):
+                missing = []
+                if not nombre_completo: missing.append('nombre completo')
+                if not usuario: missing.append('usuario')
+                if not contrasena: missing.append('contraseña')
+                if not especialidad: missing.append('especialidad')
+                if not email: missing.append('email')
+                if not telefono: missing.append('teléfono')
+                if not direccion_consultorio: missing.append('dirección del consultorio')
+                if not telefono_consultorio: missing.append('teléfono del consultorio')
+                raise ValueError(f"Faltan campos obligatorios: {', '.join(missing)}")
             
             db = self.connect_db()
             cursor = db.cursor()
             
+            # Verificar si el usuario ya existe
             cursor.execute("SELECT usuario FROM doctores WHERE usuario = %s UNION SELECT usuario FROM pacientes WHERE usuario = %s UNION SELECT usuario FROM administradores WHERE usuario = %s", 
                           (usuario, usuario, usuario))
             if cursor.fetchone():
                 raise ValueError("El nombre de usuario ya está en uso")
             
+            # Verificar si el email ya existe
             cursor.execute("SELECT email FROM doctores WHERE email = %s UNION SELECT email FROM pacientes WHERE email = %s UNION SELECT email FROM administradores WHERE email = %s", 
                           (email, email, email))
             if cursor.fetchone():
                 raise ValueError("El correo electrónico ya está registrado")
             
-            if tipo_usuario == 'doctor':
-                cursor.execute("SELECT MAX(CAST(SUBSTRING(Diddoctor, 2) AS UNSIGNED)) as max_id FROM doctores")
-                result = cursor.fetchone()
-                max_id = result[0] if result[0] else 0
-                nuevo_id = f"D{str(max_id + 1).zfill(3)}"
-                
-                cursor.execute("""
-                    INSERT INTO doctores (Diddoctor, nombre, usuario, contrasena, email, telefono, especialidad)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """, (nuevo_id, nombre_completo, usuario, contrasena, email, telefono, "Por definir"))
-                
-                response = {
-                    'success': True,
-                    'message': f'Doctor registrado exitosamente. Su ID es: {nuevo_id}',
-                    'redirect': '/'
-                }
-                
-            elif tipo_usuario == 'paciente':
-                cursor.execute("SELECT MAX(CAST(SUBSTRING(Pidpaciente, 2) AS UNSIGNED)) as max_id FROM pacientes")
-                result = cursor.fetchone()
-                max_id = result[0] if result[0] else 0
-                nuevo_id = f"P{str(max_id + 1).zfill(3)}"
-                
-                doctor_asignado_id = None
-                
-                if tiene_doctor == 'si' and doctor_asignado_input:
-                    cursor.execute("SELECT Diddoctor FROM doctores WHERE usuario = %s", (doctor_asignado_input,))
-                    doctor = cursor.fetchone()
-                    if doctor:
-                        doctor_asignado_id = doctor[0]
-                    else:
-                        raise ValueError("No se encontró el doctor con ese nombre de usuario")
-                else:
-                    cursor.execute("SELECT Diddoctor FROM doctores WHERE activo = TRUE ORDER BY RAND() LIMIT 1")
-                    doctor = cursor.fetchone()
-                    if doctor:
-                        doctor_asignado_id = doctor[0]
-                
-                cursor.execute("""
-                    INSERT INTO pacientes (Pidpaciente, nombre, usuario, contrasena, edad, email, telefono, doctor_asignado, estado_paciente)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'agudo')
-                """, (nuevo_id, nombre_completo, usuario, contrasena, edad, email, telefono, doctor_asignado_id))
-                
-                if doctor_asignado_id:
-                    cursor.execute("SELECT nombre FROM doctores WHERE Diddoctor = %s", (doctor_asignado_id,))
-                    doctor_nombre = cursor.fetchone()[0]
-                    response = {
-                        'success': True,
-                        'message': f'Paciente registrado exitosamente. Su ID es: {nuevo_id}. Doctor asignado: {doctor_nombre}',
-                        'redirect': '/'
-                    }
-                else:
-                    response = {
-                        'success': True,
-                        'message': f'Paciente registrado exitosamente. Su ID es: {nuevo_id}',
-                        'redirect': '/'
-                    }
+            # Generar nuevo ID para doctor
+            cursor.execute("SELECT MAX(CAST(SUBSTRING(Diddoctor, 2) AS UNSIGNED)) as max_id FROM doctores")
+            result = cursor.fetchone()
+            max_id = result[0] if result[0] else 0
+            nuevo_id = f"D{str(max_id + 1).zfill(3)}"
+            
+            # Insertar nuevo doctor con todos los campos
+            cursor.execute("""
+                INSERT INTO doctores (
+                    Diddoctor, 
+                    nombre, 
+                    usuario, 
+                    contrasena, 
+                    especialidad, 
+                    email, 
+                    telefono, 
+                    direccion_consultorio, 
+                    telefono_consultorio,
+                    fecha_registro,
+                    activo
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), 1)
+            """, (
+                nuevo_id, 
+                nombre_completo, 
+                usuario, 
+                contrasena, 
+                especialidad, 
+                email, 
+                telefono, 
+                direccion_consultorio, 
+                telefono_consultorio
+            ))
+            
+            # Crear notificación de bienvenida
+            cursor.execute("""
+                INSERT INTO notificaciones (usuario_id, tipo_usuario, titulo, mensaje)
+                VALUES (%s, 'doctor', 'Bienvenido al sistema', %s)
+            """, (nuevo_id, f'Bienvenido Dr. {nombre_completo}. Su cuenta ha sido creada exitosamente.'))
             
             db.commit()
             cursor.close()
             db.close()
+            
+            response = {
+                'success': True,
+                'message': f'Doctor registrado exitosamente. Su ID es: {nuevo_id}',
+                'redirect': '/'
+            }
             
             self.send_response(200)
             self.send_header('Content-type', 'application/json')

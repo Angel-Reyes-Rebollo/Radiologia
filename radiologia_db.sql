@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 06-02-2026 a las 20:16:56
+-- Tiempo de generación: 12-02-2026 a las 01:00:43
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -52,28 +52,18 @@ INSERT INTO `administradores` (`Aidadmin`, `nombre`, `usuario`, `contrasena`, `e
 
 CREATE TABLE `citas` (
   `id_cita` int(11) NOT NULL,
-  `Pidpaciente` varchar(20) DEFAULT NULL,
-  `Diddoctor` varchar(20) DEFAULT NULL,
-  `tipo_estudio` varchar(100) DEFAULT NULL,
-  `estudio_especifico` varchar(100) DEFAULT NULL,
+  `numero_folio` varchar(20) NOT NULL,
+  `paciente` varchar(100) NOT NULL,
+  `doctor_id` varchar(20) NOT NULL,
   `fecha` date NOT NULL,
   `hora` time NOT NULL,
-  `estado` enum('pendiente','confirmada','completada','cancelada') DEFAULT 'pendiente',
-  `notas` text DEFAULT NULL,
+  `documento_nombre` varchar(255) DEFAULT NULL,
+  `documento_pdf` longblob DEFAULT NULL,
+  `documento_tamano` int(11) DEFAULT NULL,
+  `documento_tipo` varchar(100) DEFAULT NULL,
+  `fecha_carga_documento` timestamp NULL DEFAULT NULL,
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `citas`
---
-
-INSERT INTO `citas` (`id_cita`, `Pidpaciente`, `Diddoctor`, `tipo_estudio`, `estudio_especifico`, `fecha`, `hora`, `estado`, `notas`, `fecha_creacion`) VALUES
-(1, 'P001', 'D001', 'RX Torax', 'RX Torax', '2026-02-06', '10:00:00', 'confirmada', NULL, '2026-02-04 20:11:56'),
-(2, 'P002', 'D002', 'Análisis de Sangre', 'Análisis de Sangre', '2023-11-25', '11:30:00', 'confirmada', NULL, '2026-02-04 20:11:56'),
-(3, 'P003', 'D001', 'Consulta de Resultados', 'Consulta de Resultados', '2026-02-06', '14:00:00', 'pendiente', NULL, '2026-02-04 20:11:56'),
-(4, 'P001', 'D001', 'Rayos X', NULL, '2026-02-10', '09:00:00', 'cancelada', '', '2026-02-04 22:22:58'),
-(5, 'P001', 'D001', 'Rayos X', NULL, '2026-02-09', '09:00:00', 'pendiente', '', '2026-02-05 01:26:35'),
-(6, 'P001', 'D001', 'Tomografía', NULL, '2026-02-11', '17:09:00', 'pendiente', '', '2026-02-05 01:27:13');
 
 -- --------------------------------------------------------
 
@@ -89,6 +79,8 @@ CREATE TABLE `doctores` (
   `especialidad` varchar(100) DEFAULT NULL,
   `email` varchar(100) NOT NULL,
   `telefono` varchar(20) DEFAULT NULL,
+  `direccion_consultorio` text DEFAULT NULL,
+  `telefono_consultorio` varchar(20) DEFAULT NULL,
   `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp(),
   `activo` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -97,11 +89,11 @@ CREATE TABLE `doctores` (
 -- Volcado de datos para la tabla `doctores`
 --
 
-INSERT INTO `doctores` (`Diddoctor`, `nombre`, `usuario`, `contrasena`, `especialidad`, `email`, `telefono`, `fecha_registro`, `activo`) VALUES
-('D001', 'Dr. Alejandro Rodríguez', 'dr.rodriguez', 'doctor123', 'Radiología General', 'dr.rodriguez@radiologia.com', '5512345678', '2026-02-04 20:11:56', 1),
-('D002', 'Dra. María García', 'dr.garcia', 'doctor123', 'Tomografía Computarizada', 'dr.garcia@radiologia.com', '5523456789', '2026-02-04 20:11:56', 1),
-('D003', 'Dr. Roberto Martínez', 'dr.martinez', 'doctor123', 'Resonancia Magnética', 'dr.martinez@radiologia.com', '5534567890', '2026-02-04 20:11:56', 1),
-('D004', 'Angel Soriano', 'DR_ASoriano', 'Cosmic$21', 'Por definir', 'x@gmail.com', '1234567891', '2026-02-04 20:13:35', 1);
+INSERT INTO `doctores` (`Diddoctor`, `nombre`, `usuario`, `contrasena`, `especialidad`, `email`, `telefono`, `direccion_consultorio`, `telefono_consultorio`, `fecha_registro`, `activo`) VALUES
+('D001', 'Dr. Alejandro Rodríguez', 'dr.rodriguez', 'doctor123', 'Radiología General', 'dr.rodriguez@radiologia.com', '5512345678', 'Av. Insurgentes Sur 1234, Col. Del Valle, Ciudad de México, CP 03100', '5555123456', '2026-02-04 20:11:56', 0),
+('D002', 'Dra. María García', 'dr.garcia', 'doctor123', 'Tomografía Computarizada', 'dr.garcia@radiologia.com', '5523456789', 'Torre Médica Reforma, Piso 8, Av. Paseo de la Reforma 250, Col. Juárez, Ciudad de México, CP 06600', '5555234567', '2026-02-04 20:11:56', 1),
+('D003', 'Dr. Roberto Martínez', 'dr.martinez', 'doctor123', 'Resonancia Magnética', 'dr.martinez@radiologia.com', '5534567890', 'Centro Médico Santa Fe, Av. Santa Fe 150, Col. Santa Fe, Ciudad de México, CP 05348', '5555345678', '2026-02-04 20:11:56', 1),
+('D004', 'Angel Soriano', 'DR_ASoriano', 'Cosmic$21', 'Por definir', 'x@gmail.com', '1234567891', 'Consultorios Médicos Polanco, Av. Presidente Masaryk 311, Col. Polanco, Ciudad de México, CP 11560', '5555456789', '2026-02-04 20:13:35', 1);
 
 -- --------------------------------------------------------
 
@@ -138,7 +130,11 @@ INSERT INTO `estudios` (`id_estudio`, `Pidpaciente`, `Diddoctor`, `tipo_estudio`
 (9, 'P003', 'D003', 'Tomografía', 'TC Torácica', '2024-03-19', NULL, NULL, 'pendiente', '2026-02-04 21:38:37'),
 (10, 'P001', 'D001', 'Rayos X', NULL, '2026-02-04', NULL, NULL, 'pendiente', '2026-02-04 22:22:58'),
 (11, 'P001', 'D001', 'Rayos X', NULL, '2026-02-04', NULL, NULL, 'pendiente', '2026-02-05 01:26:35'),
-(12, 'P001', 'D001', 'Tomografía', NULL, '2026-02-04', NULL, NULL, 'pendiente', '2026-02-05 01:27:13');
+(12, 'P001', 'D001', 'Tomografía', NULL, '2026-02-04', NULL, NULL, 'pendiente', '2026-02-05 01:27:13'),
+(13, 'P004', 'D001', 'Resonancia Magnética', 'Resonancia Magnética', '2026-02-09', NULL, NULL, 'pendiente', '2026-02-08 15:10:55'),
+(14, 'P001', 'D001', 'Resonancia Magnética', 'Resonancia Magnética', '2026-02-12', NULL, NULL, 'pendiente', '2026-02-09 15:49:47'),
+(15, 'P001', 'D001', 'Tomografía', 'Ejemplo 1', '2026-02-23', NULL, NULL, 'pendiente', '2026-02-09 16:10:23'),
+(16, 'P004', 'D001', 'Resonancia Magnética', 'Resonancia Magnética', '2026-02-10', NULL, NULL, 'pendiente', '2026-02-10 20:18:22');
 
 -- --------------------------------------------------------
 
@@ -185,46 +181,10 @@ INSERT INTO `notificaciones` (`id_notificacion`, `usuario_id`, `tipo_usuario`, `
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `pacientes`
---
-
-CREATE TABLE `pacientes` (
-  `Pidpaciente` varchar(20) NOT NULL,
-  `nombre` varchar(100) NOT NULL,
-  `usuario` varchar(50) NOT NULL,
-  `contrasena` varchar(255) NOT NULL,
-  `edad` int(11) DEFAULT NULL,
-  `email` varchar(100) NOT NULL,
-  `telefono` varchar(20) DEFAULT NULL,
-  `direccion` text DEFAULT NULL,
-  `doctor_asignado` varchar(20) DEFAULT NULL,
-  `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp(),
-  `activo` tinyint(1) DEFAULT 1,
-  `estado_paciente` enum('agudo','cronico','seguimiento','recuperado') DEFAULT 'agudo'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `pacientes`
---
-
-INSERT INTO `pacientes` (`Pidpaciente`, `nombre`, `usuario`, `contrasena`, `edad`, `email`, `telefono`, `direccion`, `doctor_asignado`, `fecha_registro`, `activo`, `estado_paciente`) VALUES
-('P001', 'Carlos López', 'carlos.lopez', 'paciente123', 35, 'carlos@email.com', '5545678901', NULL, 'D001', '2026-02-04 20:11:56', 1, 'agudo'),
-('P002', 'María González', 'maria.gonzalez', 'paciente123', 42, 'maria@email.com', '5556789012', NULL, 'D002', '2026-02-04 20:11:56', 1, 'agudo'),
-('P003', 'Roberto Sánchez', 'roberto.sanchez', 'paciente123', 28, 'roberto@email.com', '5567890123', NULL, 'D003', '2026-02-04 20:11:56', 1, 'agudo'),
-('P004', 'Cosmic Rebollo', 'Cosmic', 'Cosmic$21', 35, 'V@gmail.com', '1234567892', NULL, 'D001', '2026-02-06 19:13:04', 1, 'cronico');
-
--- --------------------------------------------------------
-
---
 -- Estructura Stand-in para la vista `vista_dashboard_doctor`
 -- (Véase abajo para la vista actual)
 --
 CREATE TABLE `vista_dashboard_doctor` (
-`Diddoctor` varchar(20)
-,`doctor_nombre` varchar(100)
-,`citas_hoy` bigint(21)
-,`total_pacientes` bigint(21)
-,`estudios_pendientes` bigint(21)
 );
 
 -- --------------------------------------------------------
@@ -254,8 +214,8 @@ ALTER TABLE `administradores`
 --
 ALTER TABLE `citas`
   ADD PRIMARY KEY (`id_cita`),
-  ADD KEY `idx_citas_paciente` (`Pidpaciente`),
-  ADD KEY `idx_citas_doctor` (`Diddoctor`);
+  ADD UNIQUE KEY `idx_folio_unico` (`numero_folio`),
+  ADD KEY `idx_citas_doctor` (`doctor_id`);
 
 --
 -- Indices de la tabla `doctores`
@@ -281,16 +241,6 @@ ALTER TABLE `notificaciones`
   ADD PRIMARY KEY (`id_notificacion`);
 
 --
--- Indices de la tabla `pacientes`
---
-ALTER TABLE `pacientes`
-  ADD PRIMARY KEY (`Pidpaciente`),
-  ADD UNIQUE KEY `usuario` (`usuario`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `doctor_asignado` (`doctor_asignado`),
-  ADD KEY `idx_pacientes_usuario` (`usuario`);
-
---
 -- AUTO_INCREMENT de las tablas volcadas
 --
 
@@ -298,13 +248,13 @@ ALTER TABLE `pacientes`
 -- AUTO_INCREMENT de la tabla `citas`
 --
 ALTER TABLE `citas`
-  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `estudios`
 --
 ALTER TABLE `estudios`
-  MODIFY `id_estudio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_estudio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`
@@ -320,21 +270,7 @@ ALTER TABLE `notificaciones`
 -- Filtros para la tabla `citas`
 --
 ALTER TABLE `citas`
-  ADD CONSTRAINT `citas_ibfk_1` FOREIGN KEY (`Pidpaciente`) REFERENCES `pacientes` (`Pidpaciente`) ON DELETE CASCADE,
-  ADD CONSTRAINT `citas_ibfk_2` FOREIGN KEY (`Diddoctor`) REFERENCES `doctores` (`Diddoctor`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `estudios`
---
-ALTER TABLE `estudios`
-  ADD CONSTRAINT `estudios_ibfk_1` FOREIGN KEY (`Pidpaciente`) REFERENCES `pacientes` (`Pidpaciente`) ON DELETE CASCADE,
-  ADD CONSTRAINT `estudios_ibfk_2` FOREIGN KEY (`Diddoctor`) REFERENCES `doctores` (`Diddoctor`) ON DELETE CASCADE;
-
---
--- Filtros para la tabla `pacientes`
---
-ALTER TABLE `pacientes`
-  ADD CONSTRAINT `pacientes_ibfk_1` FOREIGN KEY (`doctor_asignado`) REFERENCES `doctores` (`Diddoctor`) ON DELETE SET NULL;
+  ADD CONSTRAINT `fk_citas_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctores` (`Diddoctor`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

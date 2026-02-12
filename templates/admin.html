@@ -288,7 +288,7 @@
             transform: translateY(-2px);
         }
         
-        /* Filtros */
+        /* Filtros - MODIFICADO: Solo "Todas" y "Hoy" */
         .filters {
             display: flex;
             gap: 15px;
@@ -376,6 +376,7 @@
         .action-buttons {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
         
         .btn-action {
@@ -401,6 +402,11 @@
             color: #f57c00;
         }
         
+        .btn-modify {
+            background: #e8eaf6;
+            color: #3f51b5;
+        }
+        
         .btn-delete {
             background: #ffebee;
             color: #d32f2f;
@@ -409,6 +415,52 @@
         .btn-action:hover {
             transform: translateY(-2px);
             opacity: 0.9;
+        }
+        
+        /* PDF Viewer */
+        .pdf-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #e1e5ee;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .pdf-viewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .no-pdf-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #666;
+        }
+        
+        .no-pdf-message i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #999;
+        }
+        
+        /* Mensaje sin citas */
+        .empty-message {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .empty-message i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #999;
         }
         
         /* Modales */
@@ -433,7 +485,7 @@
             background: white;
             border-radius: 15px;
             width: 90%;
-            max-width: 600px;
+            max-width: 700px;
             max-height: 90vh;
             overflow-y: auto;
             animation: modalSlide 0.3s ease;
@@ -553,6 +605,22 @@
         .btn-save:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(26, 41, 128, 0.2);
+        }
+        
+        .btn-info {
+            padding: 12px 25px;
+            background: #17a2b8;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
         }
         
         /* Estadísticas detalladas */
@@ -727,10 +795,6 @@
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('pacientes')">
-                    <i class="fas fa-user-injured"></i>
-                    <span>Gestión de Pacientes</span>
-                </a>
                 <a href="#" class="nav-item" onclick="showSection('doctores')">
                     <i class="fas fa-user-md"></i>
                     <span>Gestión de Doctores</span>
@@ -748,26 +812,6 @@
                     <span>Reportes y Análisis</span>
                 </a>
             </nav>
-            
-            <div class="stats-card">
-                <h3><i class="fas fa-chart-line"></i> Estadísticas Rápidas</h3>
-                <div class="stat-item">
-                    <span class="stat-label">Pacientes Activos</span>
-                    <span class="stat-value" id="totalPacientes">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Doctores Activos</span>
-                    <span class="stat-value" id="totalDoctores">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Citas Hoy</span>
-                    <span class="stat-value" id="citasHoy">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Estudios Pendientes</span>
-                    <span class="stat-value" id="estudiosPendientes">0</span>
-                </div>
-            </div>
         </aside>
 
         <!-- Contenido principal -->
@@ -777,7 +821,7 @@
                 <div class="content-header">
                     <h2><i class="fas fa-tachometer-alt"></i> Dashboard del Administrador</h2>
                     <div class="search-box">
-                        <input type="text" id="searchGlobal" placeholder="Buscar pacientes, doctores, citas...">
+                        <input type="text" id="searchGlobal" placeholder="Buscar doctores, citas...">
                         <button class="search-btn" onclick="searchGlobal()">
                             <i class="fas fa-search"></i> Buscar
                         </button>
@@ -786,8 +830,8 @@
 
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <h4><i class="fas fa-users"></i> Total de Usuarios</h4>
-                        <div class="value" id="totalUsuarios">0</div>
+                        <h4><i class="fas fa-user-md"></i> Doctores Activos</h4>
+                        <div class="value" id="totalDoctoresDashboard">0</div>
                         <div class="trend">
                             <i class="fas fa-sync-alt"></i> Datos en tiempo real
                         </div>
@@ -807,7 +851,7 @@
                         </div>
                     </div>
                     <div class="stat-card">
-                        <h4><i class="fas fa-user-clock"></i> Nuevos Registros</h4>
+                        <h4><i class="fas fa-user-clock"></i> Nuevos Doctores</h4>
                         <div class="value" id="nuevosRegistros">0</div>
                         <div class="trend">
                             <i class="fas fa-user-plus"></i> Últimos 7 días
@@ -835,51 +879,6 @@
                             <tr>
                                 <td colspan="5" style="text-align: center; padding: 30px;">
                                     <i class="fas fa-spinner fa-spin"></i> Cargando actividad...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Gestión de Pacientes -->
-            <div id="pacientes-section" class="content-section" style="display: none;">
-                <div class="content-header">
-                    <h2><i class="fas fa-user-injured"></i> Gestión de Pacientes</h2>
-                    <div class="search-box">
-                        <input type="text" id="searchPacientes" placeholder="Buscar pacientes...">
-                        <button class="search-btn" onclick="searchPacientes()">
-                            <i class="fas fa-search"></i> Buscar
-                        </button>
-                    </div>
-                </div>
-
-                <div class="filters">
-                    <button class="filter-btn active" onclick="filterPacientes('all')">Todos</button>
-                    <button class="filter-btn" onclick="filterPacientes('active')">Activos</button>
-                    <button class="filter-btn" onclick="filterPacientes('inactive')">Inactivos</button>
-                    <button class="filter-btn" onclick="filterPacientes('no-doctor')">Sin Doctor</button>
-                </div>
-
-                <div class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre</th>
-                                <th>Edad</th>
-                                <th>Email</th>
-                                <th>Teléfono</th>
-                                <th>Doctor Asignado</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pacientesTable">
-                            <!-- Datos cargados dinámicamente -->
-                            <tr>
-                                <td colspan="8" style="text-align: center; padding: 30px;">
-                                    <i class="fas fa-spinner fa-spin"></i> Cargando pacientes...
                                 </td>
                             </tr>
                         </tbody>
@@ -931,44 +930,40 @@
                 </div>
             </div>
 
-            <!-- Gestión de Citas -->
+            <!-- Gestión de Citas - MODIFICADA según requisitos -->
             <div id="citas-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-calendar-check"></i> Gestión de Citas</h2>
                     <div class="search-box">
-                        <input type="text" id="searchCitas" placeholder="Buscar citas...">
+                        <input type="text" id="searchCitas" placeholder="Buscar por folio, paciente o doctor...">
                         <button class="search-btn" onclick="searchCitas()">
                             <i class="fas fa-search"></i> Buscar
                         </button>
                     </div>
                 </div>
 
+                <!-- Filtros: SOLO Todas y Hoy -->
                 <div class="filters">
                     <button class="filter-btn active" onclick="filterCitas('all')">Todas</button>
                     <button class="filter-btn" onclick="filterCitas('today')">Hoy</button>
-                    <button class="filter-btn" onclick="filterCitas('pending')">Pendientes</button>
-                    <button class="filter-btn" onclick="filterCitas('confirmed')">Confirmadas</button>
-                    <button class="filter-btn" onclick="filterCitas('cancelled')">Canceladas</button>
                 </div>
 
                 <div class="table-container">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>N° Folio</th>
                                 <th>Paciente</th>
-                                <th>Doctor</th>
-                                <th>Tipo de Estudio</th>
+                                <th>Nombre Doctor</th>
                                 <th>Fecha</th>
                                 <th>Hora</th>
-                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="citasTable">
                             <!-- Datos cargados dinámicamente -->
                             <tr>
-                                <td colspan="8" style="text-align: center; padding: 30px;">
+                                <td colspan="6" style="text-align: center; padding: 30px;">
                                     <i class="fas fa-spinner fa-spin"></i> Cargando citas...
                                 </td>
                             </tr>
@@ -1072,11 +1067,81 @@
         <p>Última actualización: <span id="lastUpdate">Cargando...</span></p>
     </footer>
 
-    <!-- Modal para ver detalles de paciente/doctor -->
+    <!-- Modal para ver PDF de cita -->
+    <div id="pdfModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-pdf"></i> <span id="pdfTitle">Documento de Cita</span></h3>
+                <button class="close-modal" onclick="closePdfModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="pdfContent">
+                    <!-- El PDF se cargará aquí -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closePdfModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar cita -->
+    <div id="editCitaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-edit"></i> Editar Cita</h3>
+                <button class="close-modal" onclick="closeEditCitaModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editCitaForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editCitaFolio">N° Folio</label>
+                            <input type="text" id="editCitaFolio" class="form-control" readonly disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCitaPaciente">Paciente</label>
+                            <input type="text" id="editCitaPaciente" class="form-control" readonly disabled>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editCitaDoctor">Doctor</label>
+                            <input type="text" id="editCitaDoctor" class="form-control" readonly disabled>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editCitaFecha">Fecha *</label>
+                            <input type="date" id="editCitaFecha" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCitaHora">Hora *</label>
+                            <input type="time" id="editCitaHora" class="form-control" required>
+                        </div>
+                    </div>
+                    <input type="hidden" id="editCitaId">
+                </form>
+            </div>
+            <div class="modal-actions" style="justify-content: space-between;">
+                <div>
+                    <button type="button" class="btn-info" onclick="showFutureFunctionMessage()">
+                        <i class="fas fa-flask"></i> Modificar Estudio
+                    </button>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <button type="button" class="btn-cancel" onclick="closeEditCitaModal()">Cancelar</button>
+                    <button type="button" class="btn-save" onclick="saveCitaChanges()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de doctor -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="detailTitle"><i class="fas fa-user"></i> Detalles</h3>
+                <h3 id="detailTitle"><i class="fas fa-user-md"></i> Detalles del Doctor</h3>
                 <button class="close-modal" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -1091,11 +1156,11 @@
         </div>
     </div>
 
-    <!-- Modal para editar paciente/doctor -->
+    <!-- Modal para editar doctor -->
     <div id="editUserModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="editUserTitle"><i class="fas fa-edit"></i> Editar</h3>
+                <h3 id="editUserTitle"><i class="fas fa-edit"></i> Editar Doctor</h3>
                 <button class="close-modal" onclick="closeEditUserModal()">&times;</button>
             </div>
             <div class="modal-body">
@@ -1112,8 +1177,22 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="editTelefono">Teléfono</label>
+                            <label for="editTelefono">Teléfono Personal</label>
                             <input type="text" id="editTelefono" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="editTelefonoConsultorio">Teléfono Consultorio</label>
+                            <input type="text" id="editTelefonoConsultorio" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDireccionConsultorio">Dirección del Consultorio</label>
+                        <textarea id="editDireccionConsultorio" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editEspecialidad">Especialidad</label>
+                            <input type="text" id="editEspecialidad" class="form-control">
                         </div>
                         <div class="form-group">
                             <label for="editEstado">Estado</label>
@@ -1122,20 +1201,6 @@
                                 <option value="inactive">Inactivo</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-row" id="pacienteFields" style="display: none;">
-                        <div class="form-group">
-                            <label for="editEdad">Edad</label>
-                            <input type="number" id="editEdad" class="form-control" min="1" max="120">
-                        </div>
-                        <div class="form-group">
-                            <label for="editDireccion">Dirección</label>
-                            <input type="text" id="editDireccion" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group" id="doctorFields" style="display: none;">
-                        <label for="editEspecialidad">Especialidad</label>
-                        <input type="text" id="editEspecialidad" class="form-control">
                     </div>
                     <div class="form-group">
                         <label for="editPassword">Nueva Contraseña (dejar vacío para no cambiar)</label>
@@ -1148,54 +1213,6 @@
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeEditUserModal()">Cancelar</button>
                 <button type="button" class="btn-save" onclick="saveUserChanges()">Guardar Cambios</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para editar cita -->
-    <div id="editCitaModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-calendar-edit"></i> Editar Cita</h3>
-                <button class="close-modal" onclick="closeEditCitaModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="editCitaForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editCitaFecha">Fecha *</label>
-                            <input type="date" id="editCitaFecha" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editCitaHora">Hora *</label>
-                            <input type="time" id="editCitaHora" class="form-control" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="editCitaEstado">Estado</label>
-                            <select id="editCitaEstado" class="form-control">
-                                <option value="pendiente">Pendiente</option>
-                                <option value="confirmada">Confirmada</option>
-                                <option value="completada">Completada</option>
-                                <option value="cancelada">Cancelada</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="editCitaTipo">Tipo de Estudio</label>
-                            <input type="text" id="editCitaTipo" class="form-control">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="editCitaNotas">Notas</label>
-                        <textarea id="editCitaNotas" class="form-control" rows="3"></textarea>
-                    </div>
-                    <input type="hidden" id="editCitaId">
-                </form>
-            </div>
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="closeEditCitaModal()">Cancelar</button>
-                <button type="button" class="btn-save" onclick="saveCitaChanges()">Guardar Cambios</button>
             </div>
         </div>
     </div>
@@ -1226,6 +1243,8 @@
         let currentUserTypeToEdit = null;
         let currentSection = 'dashboard';
         let doctoresList = [];
+        let currentCitaToEdit = null;
+        let currentCitaToViewPdf = null;
 
         // Cargar datos al iniciar
         document.addEventListener('DOMContentLoaded', function() {
@@ -1235,14 +1254,22 @@
             // Cargar datos iniciales
             setTimeout(() => {
                 loadActivityLog();
-                loadPacientes();
                 loadDoctores();
-                loadCitas('all');  // Cargar citas con filtro 'all' por defecto
+                loadCitas('all'); // Cargar todas las citas por defecto
                 loadEstudios();
             }, 500);
             
             // Actualizar datos cada 30 segundos
             setInterval(loadAdminData, 30000);
+            setInterval(() => {
+                if (currentSection === 'citas') {
+                    const activeFilter = document.querySelector('#citas-section .filter-btn.active');
+                    if (activeFilter) {
+                        const filter = activeFilter.textContent.trim().toLowerCase() === 'hoy' ? 'today' : 'all';
+                        loadCitas(filter);
+                    }
+                }
+            }, 30000);
         });
 
         // Funciones de navegación
@@ -1270,12 +1297,18 @@
             }
             
             currentSection = sectionId;
+            
+            // Recargar datos si es necesario
+            if (sectionId === 'citas') {
+                const activeFilter = document.querySelector('#citas-section .filter-btn.active');
+                const filter = activeFilter && activeFilter.textContent.trim().toLowerCase() === 'hoy' ? 'today' : 'all';
+                loadCitas(filter);
+            }
         }
 
         function getSectionTitle(sectionId) {
             const titles = {
                 'dashboard': 'Dashboard',
-                'pacientes': 'Gestión de Pacientes',
                 'doctores': 'Gestión de Doctores',
                 'citas': 'Gestión de Citas',
                 'estudios': 'Estudios Médicos',
@@ -1295,29 +1328,28 @@
                 const data = await response.json();
                 
                 // Actualizar estadísticas en el sidebar
-                document.getElementById('totalPacientes').textContent = data.totalPacientes || '0';
                 document.getElementById('totalDoctores').textContent = data.totalDoctores || '0';
                 document.getElementById('citasHoy').textContent = data.citasHoy || '0';
                 document.getElementById('estudiosPendientes').textContent = data.estudiosPendientes || '0';
                 
                 // Actualizar estadísticas en el dashboard
-                document.getElementById('totalUsuarios').textContent = data.totalUsuarios || '0';
+                document.getElementById('totalDoctoresDashboard').textContent = data.totalDoctores || '0';
                 document.getElementById('citasDelDia').textContent = data.citasHoy || '0';
                 document.getElementById('estudiosCompletados').textContent = data.estudiosCompletados || '0';
-                document.getElementById('nuevosRegistros').textContent = data.nuevosRegistros || '0';
+                document.getElementById('nuevosRegistros').textContent = data.nuevosDoctores || '0';
                 
                 // Actualizar reportes
                 document.getElementById('citasMes').textContent = data.citasHoy || '0';
+                document.getElementById('tiposEstudios').textContent = data.tiposEstudios || '0';
                 document.getElementById('doctoresActivos').textContent = data.totalDoctores || '0';
                 
             } catch (error) {
                 console.error('Error cargando datos:', error);
                 // Mostrar ceros si hay error
-                document.getElementById('totalPacientes').textContent = '0';
                 document.getElementById('totalDoctores').textContent = '0';
                 document.getElementById('citasHoy').textContent = '0';
                 document.getElementById('estudiosPendientes').textContent = '0';
-                document.getElementById('totalUsuarios').textContent = '0';
+                document.getElementById('totalDoctoresDashboard').textContent = '0';
                 document.getElementById('citasDelDia').textContent = '0';
                 document.getElementById('estudiosCompletados').textContent = '0';
                 document.getElementById('nuevosRegistros').textContent = '0';
@@ -1354,8 +1386,6 @@
                     // Formatear la fecha
                     let fechaFormateada = activity.fecha || 'Fecha desconocida';
                     if (activity.fecha) {
-                        // Formato original: "2026-02-04 20:13"
-                        // Convertir a: "04/02/2026 20:13"
                         const partes = activity.fecha.split(' ');
                         if (partes.length === 2) {
                             const [fechaParte, horaParte] = partes;
@@ -1381,70 +1411,6 @@
                     <tr>
                         <td colspan="5" style="text-align: center; padding: 30px; color: #dc3545;">
                             <i class="fas fa-exclamation-triangle"></i> Error al cargar actividad
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-
-        // Cargar pacientes
-        async function loadPacientes() {
-            try {
-                const response = await fetch('/api/pacientes');
-                if (!response.ok) {
-                    throw new Error('Error al cargar pacientes');
-                }
-                
-                const pacientes = await response.json();
-                const table = document.getElementById('pacientesTable');
-                
-                if (pacientes.length === 0) {
-                    table.innerHTML = `
-                        <tr>
-                            <td colspan="8" style="text-align: center; padding: 30px;">
-                                <i class="fas fa-info-circle"></i> No hay pacientes registrados
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-                
-                table.innerHTML = '';
-                
-                pacientes.forEach(paciente => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${paciente.id || 'N/A'}</td>
-                        <td>${paciente.nombre || 'Sin nombre'}</td>
-                        <td>${paciente.edad || 'N/A'}</td>
-                        <td>${paciente.email || 'Sin email'}</td>
-                        <td>${paciente.telefono || 'Sin teléfono'}</td>
-                        <td>${paciente.doctor || 'Sin asignar'}</td>
-                        <td><span class="status-badge ${paciente.activo ? 'status-active' : 'status-inactive'}">${paciente.activo ? 'Activo' : 'Inactivo'}</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-action btn-view" onclick="viewUserDetails('${paciente.id}', 'paciente')">
-                                    <i class="fas fa-eye"></i> Ver
-                                </button>
-                                <button class="btn-action btn-edit" onclick="editUser('${paciente.id}', 'paciente')">
-                                    <i class="fas fa-edit"></i> Editar
-                                </button>
-                                <button class="btn-action btn-delete" onclick="confirmDeleteUser('${paciente.id}', 'paciente', '${paciente.nombre}')">
-                                    <i class="fas fa-trash"></i> Eliminar
-                                </button>
-                            </div>
-                        </td>
-                    `;
-                    table.appendChild(row);
-                });
-                
-            } catch (error) {
-                console.error('Error cargando pacientes:', error);
-                const table = document.getElementById('pacientesTable');
-                table.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 30px; color: #dc3545;">
-                            <i class="fas fa-exclamation-triangle"></i> Error al cargar pacientes
                         </td>
                     </tr>
                 `;
@@ -1518,92 +1484,120 @@
             }
         }
 
-        // Cargar citas con filtro
-async function loadCitas(filter = 'all') {
-    try {
-        let url = '/api/citas';
-        
-        // Agregar parámetro de filtro si no es 'all'
-        if (filter !== 'all') {
-            url += `?filter=${filter}`;
+        // Cargar citas - MODIFICADA según requisitos
+        async function loadCitas(filter = 'all') {
+            try {
+                let url = '/api/citas';
+                
+                if (filter === 'today') {
+                    url += '?filter=today';
+                }
+                
+                console.log(`Cargando citas con URL: ${url}`);
+                
+                const response = await fetch(url);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error ${response.status}: ${errorText}`);
+                }
+                
+                const citas = await response.json();
+                const table = document.getElementById('citasTable');
+                
+                console.log(`Citas recibidas: ${citas.length}`);
+                
+                // Verificar si no hay citas
+                if (citas.length === 0) {
+                    table.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="empty-message">
+                                <i class="fas fa-calendar-times"></i>
+                                <p>No hay citas por el momento</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                table.innerHTML = '';
+                
+                citas.forEach(cita => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${cita.folio || 'N/A'}</strong></td>
+                        <td>${cita.paciente_nombre || 'Sin nombre'}</td>
+                        <td>${cita.doctor_nombre || 'Sin doctor'}</td>
+                        <td>${formatDate(cita.fecha) || 'Sin fecha'}</td>
+                        <td>${cita.hora || 'Sin hora'}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action btn-view" onclick="viewCitaPdf('${cita.id}')" ${cita.tiene_pdf ? '' : 'disabled style="opacity: 0.5;"'}>
+                                    <i class="fas fa-file-pdf"></i> Ver PDF
+                                </button>
+                                <button class="btn-action btn-edit" onclick="editCita('${cita.id}')">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button class="btn-action btn-modify" onclick="showFutureFunctionMessage()">
+                                    <i class="fas fa-flask"></i> Modificar Estudio
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    table.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Error cargando citas:', error);
+                const table = document.getElementById('citasTable');
+                table.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 30px; color: #dc3545;">
+                            <i class="fas fa-exclamation-triangle"></i> Error al cargar citas: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
         }
-        
-        console.log(`Cargando citas con URL: ${url}`);
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Error ${response.status}: ${errorText}`);
-        }
-        
-        const citas = await response.json();
-        const table = document.getElementById('citasTable');
-        
-        console.log(`Citas recibidas: ${citas.length}`);
-        
-        if (citas.length === 0) {
-            table.innerHTML = `
-                <tr>
-                    <td colspan="8" style="text-align: center; padding: 30px;">
-                        <i class="fas fa-info-circle"></i> No hay citas ${filter !== 'all' ? 'con el filtro seleccionado' : 'registradas'}
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        
-        table.innerHTML = '';
-        
-        citas.forEach(cita => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${cita.id || 'N/A'}</td>
-                <td>${cita.paciente_nombre || 'Sin nombre'}</td>
-                <td>${cita.doctor_nombre || 'Sin doctor'}</td>
-                <td>${cita.tipo || 'Sin tipo'}</td>
-                <td>${cita.fecha || 'Sin fecha'}</td>
-                <td>${cita.hora || 'Sin hora'}</td>
-                <td><span class="status-badge ${getStatusBadgeClass(cita.estado)}">${cita.estado || 'Desconocido'}</span></td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="btn-action btn-view" onclick="viewCitaDetails('${cita.id}')">
-                            <i class="fas fa-eye"></i> Ver
-                        </button>
-                        <button class="btn-action btn-edit" onclick="editCita('${cita.id}')">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
-                        <button class="btn-action btn-delete" onclick="confirmDeleteCita('${cita.id}', '${cita.paciente_nombre || ''}', '${cita.doctor_nombre || ''}')">
-                            <i class="fas fa-trash"></i> Eliminar
-                        </button>
-                    </div>
-                </td>
-            `;
-            table.appendChild(row);
-        });
-        
-    } catch (error) {
-        console.error('Error cargando citas:', error);
-        const table = document.getElementById('citasTable');
-        table.innerHTML = `
-            <tr>
-                <td colspan="8" style="text-align: center; padding: 30px; color: #dc3545;">
-                    <i class="fas fa-exclamation-triangle"></i> Error al cargar citas: ${error.message}
-                </td>
-            </tr>
-        `;
-    }
-}
 
-// Función auxiliar para determinar la clase del badge de estado
-function getStatusBadgeClass(estado) {
-    if (estado === 'confirmada' || estado === 'completada') {
-        return 'status-active';
-    } else if (estado === 'pendiente') {
-        return 'status-pending';
-    } else {
-        return 'status-inactive';
-    }
-}
+        // Función para ver PDF de cita
+        async function viewCitaPdf(citaId) {
+            try {
+                console.log(`Solicitando PDF para cita ID: ${citaId}`);
+                
+                const response = await fetch(`/api/cita-pdf/${citaId}`);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al cargar el PDF');
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.pdf_data) {
+                    // Crear un blob con los datos del PDF
+                    const binaryString = atob(data.pdf_data);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    const blob = new Blob([bytes], { type: data.tipo || 'application/pdf' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    // Mostrar el PDF en el modal
+                    document.getElementById('pdfTitle').textContent = data.nombre || 'Documento de Cita';
+                    document.getElementById('pdfContent').innerHTML = `
+                        <iframe src="${url}" class="pdf-viewer" style="width: 100%; height: 600px;" frameborder="0"></iframe>
+                    `;
+                    
+                    document.getElementById('pdfModal').classList.add('active');
+                } else {
+                    alert('No se pudo cargar el PDF');
+                }
+                
+            } catch (error) {
+                console.error('Error cargando PDF:', error);
+                alert(`Error al cargar el PDF: ${error.message}`);
+            }
+        }
 
         // Cargar estudios
         async function loadEstudios() {
@@ -1636,7 +1630,7 @@ function getStatusBadgeClass(estado) {
                         <td>${estudio.paciente_nombre || 'Sin nombre'}</td>
                         <td>${estudio.doctor_nombre || 'Sin doctor'}</td>
                         <td>${estudio.tipo || 'Sin tipo'}</td>
-                        <td>${estudio.fecha || 'Sin fecha'}</td>
+                        <td>${formatDate(estudio.fecha) || 'Sin fecha'}</td>
                         <td>${estudio.resultado ? (estudio.resultado.substring(0, 50) + '...') : 'Sin resultado'}</td>
                         <td><span class="status-badge ${estudio.estado === 'completado' ? 'status-active' : estudio.estado === 'pendiente' ? 'status-pending' : 'status-inactive'}">${estudio.estado || 'Desconocido'}</span></td>
                         <td>
@@ -1666,12 +1660,16 @@ function getStatusBadgeClass(estado) {
             }
         }
 
-        // Ver detalles de usuario
+        // Función para mostrar mensaje de "Función futura"
+        function showFutureFunctionMessage() {
+            alert("Esta función vendrá en un futuro");
+        }
+
+        // Ver detalles de doctor
         async function viewUserDetails(userId, userType) {
             try {
                 console.log(`Cargando detalles de ${userType} con ID: ${userId}`);
                 
-                // Construir la URL correctamente
                 const url = `/api/usuarios/${userType}/${userId}`;
                 console.log(`URL de la API: ${url}`);
                 
@@ -1685,108 +1683,59 @@ function getStatusBadgeClass(estado) {
                 console.log('Datos recibidos:', user);
                 
                 // Configurar título
-                document.getElementById('detailTitle').innerHTML = `<i class="fas fa-user"></i> Detalles del ${userType === 'paciente' ? 'Paciente' : 'Doctor'}`;
+                document.getElementById('detailTitle').innerHTML = `<i class="fas fa-user-md"></i> Detalles del Doctor`;
                 
-                // Construir contenido según el tipo de usuario
-                let content = '';
-                
-                if (userType === 'paciente') {
-                    content = `
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>ID:</label>
-                                <p><strong>${user.id || 'N/A'}</strong></p>
-                            </div>
-                            <div class="form-group">
-                                <label>Fecha de Registro:</label>
-                                <p><strong>${user.fecha_registro || 'N/A'}</strong></p>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Nombre Completo:</label>
-                                <p><strong>${user.nombre || 'Sin nombre'}</strong></p>
-                            </div>
-                            <div class="form-group">
-                                <label>Edad:</label>
-                                <p><strong>${user.edad || 'N/A'} años</strong></p>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Email:</label>
-                                <p><strong>${user.email || 'Sin email'}</strong></p>
-                            </div>
-                            <div class="form-group">
-                                <label>Teléfono:</label>
-                                <p><strong>${user.telefono || 'Sin teléfono'}</strong></p>
-                            </div>
+                // Construir contenido con teléfono y dirección del consultorio
+                let content = `
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ID:</label>
+                            <p><strong>${user.id || 'N/A'}</strong></p>
                         </div>
                         <div class="form-group">
-                            <label>Dirección:</label>
-                            <p><strong>${user.direccion || 'Sin dirección'}</strong></p>
+                            <label>Fecha de Registro:</label>
+                            <p><strong>${user.fecha_registro || 'N/A'}</strong></p>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Doctor Asignado:</label>
-                                <p><strong>${user.doctor_asignado || 'Sin doctor asignado'}</strong></p>
-                            </div>
-                            <div class="form-group">
-                                <label>Estado:</label>
-                                <p><span class="status-badge ${user.activo ? 'status-active' : 'status-inactive'}">${user.activo ? 'Activo' : 'Inactivo'}</span></p>
-                            </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre Completo:</label>
+                            <p><strong>${user.nombre || 'Sin nombre'}</strong></p>
                         </div>
+                        <div class="form-group">
+                            <label>Especialidad:</label>
+                            <p><strong>${user.especialidad || 'Sin especialidad'}</strong></p>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <p><strong>${user.email || 'Sin email'}</strong></p>
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono Personal:</label>
+                            <p><strong>${user.telefono || 'Sin teléfono'}</strong></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono del Consultorio:</label>
+                        <p><strong>${user.telefono_consultorio || 'No especificado'}</strong></p>
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección del Consultorio:</label>
+                        <p><strong>${user.direccion_consultorio || 'No especificada'}</strong></p>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <label>Usuario:</label>
                             <p><strong>${user.usuario || 'N/A'}</strong></p>
                         </div>
-                    `;
-                } else if (userType === 'doctor') {
-                    content = `
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>ID:</label>
-                                <p><strong>${user.id || 'N/A'}</strong></p>
-                            </div>
-                            <div class="form-group">
-                                <label>Fecha de Registro:</label>
-                                <p><strong>${user.fecha_registro || 'N/A'}</strong></p>
-                            </div>
+                        <div class="form-group">
+                            <label>Estado:</label>
+                            <p><span class="status-badge ${user.activo ? 'status-active' : 'status-inactive'}">${user.activo ? 'Activo' : 'Inactivo'}</span></p>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Nombre Completo:</label>
-                                <p><strong>${user.nombre || 'Sin nombre'}</strong></p>
-                            </div>
-                            <div class="form-group">
-                                <label>Especialidad:</label>
-                                <p><strong>${user.especialidad || 'Sin especialidad'}</strong></p>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Email:</label>
-                                <p><strong>${user.email || 'Sin email'}</strong></p>
-                            </div>
-                            <div class="form-group">
-                                <label>Teléfono:</label>
-                                <p><strong>${user.telefono || 'Sin teléfono'}</strong></p>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Estado:</label>
-                                <p><span class="status-badge ${user.activo ? 'status-active' : 'status-inactive'}">${user.activo ? 'Activo' : 'Inactivo'}</span></p>
-                            </div>
-                            <div class="form-group">
-                                <label>Usuario:</label>
-                                <p><strong>${user.usuario || 'N/A'}</strong></p>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    content = `<p class="text-danger">Tipo de usuario no válido</p>`;
-                }
+                    </div>
+                `;
                 
                 document.getElementById('detailContent').innerHTML = content;
                 
@@ -1799,7 +1748,7 @@ function getStatusBadgeClass(estado) {
                 
             } catch (error) {
                 console.error('Error cargando detalles:', error);
-                alert(`Error al cargar los detalles del usuario: ${error.message}`);
+                alert(`Error al cargar los detalles del doctor: ${error.message}`);
                 document.getElementById('detailContent').innerHTML = `
                     <div class="alert alert-danger">
                         <i class="fas fa-exclamation-triangle"></i> Error: ${error.message}
@@ -1808,78 +1757,34 @@ function getStatusBadgeClass(estado) {
             }
         }
 
-        async function viewCitaDetails(citaId) {
+        // Editar cita
+        async function editCita(citaId) {
             try {
                 const response = await fetch(`/api/citas/${citaId}`);
                 if (!response.ok) {
-                    throw new Error('Error al cargar detalles de la cita');
+                    throw new Error('Error al cargar datos de la cita');
                 }
                 
                 const cita = await response.json();
                 
-                // Configurar título
-                document.getElementById('detailTitle').innerHTML = `<i class="fas fa-calendar-check"></i> Detalles de la Cita`;
+                document.getElementById('editCitaFolio').value = cita.folio || '';
+                document.getElementById('editCitaPaciente').value = cita.paciente_nombre || '';
+                document.getElementById('editCitaDoctor').value = cita.doctor_nombre || '';
+                document.getElementById('editCitaFecha').value = cita.fecha || '';
+                document.getElementById('editCitaHora').value = cita.hora || '';
+                document.getElementById('editCitaId').value = citaId;
                 
-                // Construir contenido
-                const content = `
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>ID:</label>
-                            <p><strong>${cita.id || 'N/A'}</strong></p>
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha de Creación:</label>
-                            <p><strong>${cita.fecha_creacion || 'N/A'}</strong></p>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Paciente:</label>
-                            <p><strong>${cita.paciente_nombre || 'Sin nombre'} (ID: ${cita.paciente_id || 'N/A'})</strong></p>
-                        </div>
-                        <div class="form-group">
-                            <label>Doctor:</label>
-                            <p><strong>${cita.doctor_nombre || 'Sin doctor'} (ID: ${cita.doctor_id || 'N/A'})</strong></p>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Fecha:</label>
-                            <p><strong>${cita.fecha || 'Sin fecha'}</strong></p>
-                        </div>
-                        <div class="form-group">
-                            <label>Hora:</label>
-                            <p><strong>${cita.hora || 'Sin hora'}</strong></p>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Tipo de Estudio:</label>
-                            <p><strong>${cita.tipo || 'Sin tipo'}</strong></p>
-                        </div>
-                        <div class="form-group">
-                            <label>Estado:</label>
-                            <p><span class="status-badge ${cita.estado === 'confirmada' ? 'status-active' : cita.estado === 'pendiente' ? 'status-pending' : cita.estado === 'completada' ? 'status-active' : 'status-inactive'}">${cita.estado || 'Desconocido'}</span></p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Notas:</label>
-                        <p><strong>${cita.notas || 'Sin notas'}</strong></p>
-                    </div>
-                `;
+                currentCitaToEdit = citaId;
                 
-                document.getElementById('detailContent').innerHTML = content;
-                
-                // Mostrar modal
-                document.getElementById('detailModal').classList.add('active');
+                document.getElementById('editCitaModal').classList.add('active');
                 
             } catch (error) {
-                console.error('Error cargando detalles de cita:', error);
-                alert('Error al cargar los detalles de la cita');
+                console.error('Error cargando datos de cita:', error);
+                alert('Error al cargar los datos de la cita para editar');
             }
         }
 
-        // Editar usuario
+        // Editar doctor
         async function editUser(userId, userType) {
             try {
                 console.log(`Cargando datos para editar ${userType} con ID: ${userId}`);
@@ -1894,66 +1799,28 @@ function getStatusBadgeClass(estado) {
                 
                 const user = await response.json();
                 
-                // Configurar título
-                document.getElementById('editUserTitle').innerHTML = `<i class="fas fa-edit"></i> Editar ${userType === 'paciente' ? 'Paciente' : 'Doctor'}`;
+                document.getElementById('editUserTitle').innerHTML = `<i class="fas fa-edit"></i> Editar Doctor`;
                 
                 // Llenar formulario
                 document.getElementById('editNombre').value = user.nombre || '';
                 document.getElementById('editEmail').value = user.email || '';
                 document.getElementById('editTelefono').value = user.telefono || '';
+                document.getElementById('editTelefonoConsultorio').value = user.telefono_consultorio || '';
+                document.getElementById('editDireccionConsultorio').value = user.direccion_consultorio || '';
+                document.getElementById('editEspecialidad').value = user.especialidad || '';
                 document.getElementById('editEstado').value = user.activo ? 'active' : 'inactive';
                 document.getElementById('editUserId').value = userId;
                 document.getElementById('editUserType').value = userType;
                 document.getElementById('editPassword').value = '';
                 
-                // Mostrar campos específicos según el tipo
-                if (userType === 'paciente') {
-                    document.getElementById('pacienteFields').style.display = 'grid';
-                    document.getElementById('doctorFields').style.display = 'none';
-                    document.getElementById('editEdad').value = user.edad || '';
-                    document.getElementById('editDireccion').value = user.direccion || '';
-                } else if (userType === 'doctor') {
-                    document.getElementById('pacienteFields').style.display = 'none';
-                    document.getElementById('doctorFields').style.display = 'block';
-                    document.getElementById('editEspecialidad').value = user.especialidad || '';
-                }
-                
-                // Mostrar modal
                 document.getElementById('editUserModal').classList.add('active');
                 
             } catch (error) {
                 console.error('Error cargando datos para editar:', error);
-                alert(`Error al cargar los datos del usuario para editar: ${error.message}`);
+                alert(`Error al cargar los datos del doctor para editar: ${error.message}`);
             }
         }
 
-        async function editCita(citaId) {
-            try {
-                const response = await fetch(`/api/citas/${citaId}`);
-                if (!response.ok) {
-                    throw new Error('Error al cargar datos de la cita');
-                }
-                
-                const cita = await response.json();
-                
-                // Llenar formulario
-                document.getElementById('editCitaFecha').value = cita.fecha || '';
-                document.getElementById('editCitaHora').value = cita.hora || '';
-                document.getElementById('editCitaEstado').value = cita.estado || 'pendiente';
-                document.getElementById('editCitaTipo').value = cita.tipo || '';
-                document.getElementById('editCitaNotas').value = cita.notas || '';
-                document.getElementById('editCitaId').value = citaId;
-                
-                // Mostrar modal
-                document.getElementById('editCitaModal').classList.add('active');
-                
-            } catch (error) {
-                console.error('Error cargando datos de cita:', error);
-                alert('Error al cargar los datos de la cita para editar');
-            }
-        }
-
-        // Función para editar desde el modal de detalles
         function editCurrentUser() {
             closeModal();
             if (currentUserToEdit && currentUserTypeToEdit) {
@@ -1961,97 +1828,12 @@ function getStatusBadgeClass(estado) {
             }
         }
 
-        // Funciones para guardar cambios
-        async function saveUserChanges() {
-            const userId = document.getElementById('editUserId').value;
-            const userType = document.getElementById('editUserType').value;
-            const nombre = document.getElementById('editNombre').value;
-            const email = document.getElementById('editEmail').value;
-            const telefono = document.getElementById('editTelefono').value;
-            const estado = document.getElementById('editEstado').value;
-            const password = document.getElementById('editPassword').value;
-            
-            // Datos específicos por tipo
-            let edad, direccion, especialidad;
-            
-            if (userType === 'paciente') {
-                edad = document.getElementById('editEdad').value;
-                direccion = document.getElementById('editDireccion').value;
-            } else if (userType === 'doctor') {
-                especialidad = document.getElementById('editEspecialidad').value;
-            }
-            
-            // Validación básica
-            if (!nombre || !email) {
-                alert('Por favor complete los campos obligatorios (Nombre y Email)');
-                return;
-            }
-            
-            try {
-                const data = {
-                    userId: userId,
-                    userType: userType,
-                    nombre: nombre,
-                    email: email,
-                    telefono: telefono,
-                    estado: estado
-                };
-                
-                // Agregar campos específicos
-                if (userType === 'paciente') {
-                    data.edad = edad;
-                    data.direccion = direccion;
-                } else if (userType === 'doctor') {
-                    data.especialidad = especialidad;
-                }
-                
-                // Agregar contraseña solo si se proporcionó
-                if (password) {
-                    data.password = password;
-                }
-                
-                const response = await fetch('/api/update-user', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Usuario actualizado correctamente');
-                    closeEditUserModal();
-                    
-                    // Recargar datos
-                    if (userType === 'paciente') {
-                        loadPacientes();
-                    } else if (userType === 'doctor') {
-                        loadDoctores();
-                    }
-                    
-                    loadActivityLog();
-                    loadAdminData();
-                } else {
-                    alert('Error: ' + result.message);
-                }
-                
-            } catch (error) {
-                console.error('Error guardando cambios:', error);
-                alert('Error al guardar los cambios');
-            }
-        }
-
+        // Guardar cambios de cita
         async function saveCitaChanges() {
             const citaId = document.getElementById('editCitaId').value;
             const fecha = document.getElementById('editCitaFecha').value;
             const hora = document.getElementById('editCitaHora').value;
-            const estado = document.getElementById('editCitaEstado').value;
-            const tipo_estudio = document.getElementById('editCitaTipo').value;
-            const notas = document.getElementById('editCitaNotas').value;
             
-            // Validación básica
             if (!fecha || !hora) {
                 alert('Por favor complete los campos obligatorios (Fecha y Hora)');
                 return;
@@ -2061,10 +1843,7 @@ function getStatusBadgeClass(estado) {
                 const data = {
                     citaId: citaId,
                     fecha: fecha,
-                    hora: hora,
-                    estado: estado,
-                    tipo_estudio: tipo_estudio,
-                    notas: notas
+                    hora: hora
                 };
                 
                 const response = await fetch('/api/update-cita', {
@@ -2081,8 +1860,11 @@ function getStatusBadgeClass(estado) {
                     alert('Cita actualizada correctamente');
                     closeEditCitaModal();
                     
-                    // Recargar datos
-                    loadCitas('all');  // Recargar citas con el filtro actual
+                    // Recargar citas según el filtro activo
+                    const activeFilter = document.querySelector('#citas-section .filter-btn.active');
+                    const filter = activeFilter && activeFilter.textContent.trim().toLowerCase() === 'hoy' ? 'today' : 'all';
+                    loadCitas(filter);
+                    
                     loadActivityLog();
                     loadAdminData();
                 } else {
@@ -2095,13 +1877,73 @@ function getStatusBadgeClass(estado) {
             }
         }
 
-        // Funciones para confirmar eliminación
+        // Guardar cambios de doctor
+        async function saveUserChanges() {
+            const userId = document.getElementById('editUserId').value;
+            const userType = document.getElementById('editUserType').value;
+            const nombre = document.getElementById('editNombre').value;
+            const email = document.getElementById('editEmail').value;
+            const telefono = document.getElementById('editTelefono').value;
+            const telefono_consultorio = document.getElementById('editTelefonoConsultorio').value;
+            const direccion_consultorio = document.getElementById('editDireccionConsultorio').value;
+            const especialidad = document.getElementById('editEspecialidad').value;
+            const estado = document.getElementById('editEstado').value;
+            const password = document.getElementById('editPassword').value;
+            
+            if (!nombre || !email) {
+                alert('Por favor complete los campos obligatorios (Nombre y Email)');
+                return;
+            }
+            
+            try {
+                const data = {
+                    userId: userId,
+                    userType: userType,
+                    nombre: nombre,
+                    email: email,
+                    telefono: telefono,
+                    telefono_consultorio: telefono_consultorio,
+                    direccion_consultorio: direccion_consultorio,
+                    especialidad: especialidad,
+                    estado: estado
+                };
+                
+                if (password) {
+                    data.password = password;
+                }
+                
+                const response = await fetch('/api/update-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Doctor actualizado correctamente');
+                    closeEditUserModal();
+                    loadDoctores();
+                    loadActivityLog();
+                    loadAdminData();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+                
+            } catch (error) {
+                console.error('Error guardando cambios:', error);
+                alert('Error al guardar los cambios');
+            }
+        }
+
         function confirmDeleteUser(userId, userType, userName) {
             currentUserToDelete = userId;
             currentUserToDeleteType = userType;
             
             document.getElementById('deleteMessage').textContent = 
-                `¿Está seguro que desea eliminar al ${userType === 'doctor' ? 'doctor' : 'paciente'} "${userName}"?\n\nEsta acción eliminará permanentemente todos los datos asociados y no se puede deshacer.`;
+                `¿Está seguro que desea eliminar al doctor "${userName}"?\n\nEsta acción eliminará permanentemente todos los datos asociados y no se puede deshacer.`;
             
             document.getElementById('deleteModal').classList.add('active');
         }
@@ -2115,7 +1957,6 @@ function getStatusBadgeClass(estado) {
             document.getElementById('deleteModal').classList.add('active');
         }
 
-        // Función para eliminar
         async function confirmDelete() {
             if (currentUserToDelete && currentUserToDeleteType) {
                 await deleteUser();
@@ -2144,16 +1985,9 @@ function getStatusBadgeClass(estado) {
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Usuario eliminado correctamente');
+                    alert('Doctor eliminado correctamente');
                     closeDeleteModal();
-                    
-                    // Recargar datos
-                    if (currentUserToDeleteType === 'paciente') {
-                        loadPacientes();
-                    } else if (currentUserToDeleteType === 'doctor') {
-                        loadDoctores();
-                    }
-                    
+                    loadDoctores();
                     loadActivityLog();
                     loadAdminData();
                 } else {
@@ -2161,8 +1995,8 @@ function getStatusBadgeClass(estado) {
                 }
                 
             } catch (error) {
-                console.error('Error eliminando usuario:', error);
-                alert('Error al eliminar el usuario');
+                console.error('Error eliminando doctor:', error);
+                alert('Error al eliminar el doctor');
             } finally {
                 currentUserToDelete = null;
                 currentUserToDeleteType = null;
@@ -2191,8 +2025,11 @@ function getStatusBadgeClass(estado) {
                     alert('Cita eliminada correctamente');
                     closeDeleteModal();
                     
-                    // Recargar datos
-                    loadCitas('all');  // Recargar citas con el filtro actual
+                    // Recargar citas según el filtro activo
+                    const activeFilter = document.querySelector('#citas-section .filter-btn.active');
+                    const filter = activeFilter && activeFilter.textContent.trim().toLowerCase() === 'hoy' ? 'today' : 'all';
+                    loadCitas(filter);
+                    
                     loadActivityLog();
                     loadAdminData();
                 } else {
@@ -2207,7 +2044,6 @@ function getStatusBadgeClass(estado) {
             }
         }
 
-        // Funciones para cerrar modales
         function closeModal() {
             document.getElementById('detailModal').classList.remove('active');
             currentUserToEdit = null;
@@ -2221,6 +2057,13 @@ function getStatusBadgeClass(estado) {
 
         function closeEditCitaModal() {
             document.getElementById('editCitaModal').classList.remove('active');
+            document.getElementById('editCitaForm').reset();
+            currentCitaToEdit = null;
+        }
+
+        function closePdfModal() {
+            document.getElementById('pdfModal').classList.remove('active');
+            document.getElementById('pdfContent').innerHTML = '';
         }
 
         function closeDeleteModal() {
@@ -2231,31 +2074,6 @@ function getStatusBadgeClass(estado) {
         }
 
         // Funciones de búsqueda
-        function searchPacientes() {
-            const searchTerm = document.getElementById('searchPacientes').value.toLowerCase();
-            const rows = document.querySelectorAll('#pacientesTable tr');
-            
-            let hasVisibleRows = false;
-            rows.forEach(row => {
-                if (row.cells.length > 1) {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
-                    if (row.style.display !== 'none') hasVisibleRows = true;
-                }
-            });
-            
-            if (!hasVisibleRows && searchTerm) {
-                const table = document.getElementById('pacientesTable');
-                table.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 30px;">
-                            <i class="fas fa-search"></i> No se encontraron pacientes con "${searchTerm}"
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-
         function searchDoctores() {
             const searchTerm = document.getElementById('searchDoctores').value.toLowerCase();
             const rows = document.querySelectorAll('#doctoresTable tr');
@@ -2298,7 +2116,7 @@ function getStatusBadgeClass(estado) {
                 const table = document.getElementById('citasTable');
                 table.innerHTML = `
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 30px;">
+                        <td colspan="6" style="text-align: center; padding: 30px;">
                             <i class="fas fa-search"></i> No se encontraron citas con "${searchTerm}"
                         </td>
                     </tr>
@@ -2334,83 +2152,62 @@ function getStatusBadgeClass(estado) {
         function searchGlobal() {
             const searchTerm = document.getElementById('searchGlobal').value.toLowerCase();
             if (!searchTerm) return;
-            
-            alert(`Búsqueda global: "${searchTerm}"\n\nEn una versión completa, esta funcionalidad buscaría en todas las tablas.`);
+            alert(`Búsqueda global: "${searchTerm}"\n\nBuscando en doctores, citas y estudios...`);
         }
-// Funciones de filtro
-function filterPacientes(filter) {
-    const buttons = document.querySelectorAll('#pacientes-section .filter-btn');
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Encontrar el botón clickeado
-    let clickedButton = event.target;
-    if (clickedButton.tagName !== 'BUTTON') {
-        clickedButton = clickedButton.closest('button');
-    }
-    if (clickedButton) {
-        clickedButton.classList.add('active');
-    }
-    
-    // En una versión completa, aquí se filtrarían los pacientes
-    loadPacientes();
-}
 
-function filterDoctores(filter) {
-    const buttons = document.querySelectorAll('#doctores-section .filter-btn');
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    let clickedButton = event.target;
-    if (clickedButton.tagName !== 'BUTTON') {
-        clickedButton = clickedButton.closest('button');
-    }
-    if (clickedButton) {
-        clickedButton.classList.add('active');
-    }
-    
-    loadDoctores();
-}
+        function filterDoctores(filter) {
+            const buttons = document.querySelectorAll('#doctores-section .filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            let clickedButton = event.target;
+            if (clickedButton.tagName !== 'BUTTON') {
+                clickedButton = clickedButton.closest('button');
+            }
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
+            
+            loadDoctores();
+        }
 
-function filterCitas(filter) {
-    const buttons = document.querySelectorAll('#citas-section .filter-btn');
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    let clickedButton = event.target;
-    if (clickedButton.tagName !== 'BUTTON') {
-        clickedButton = clickedButton.closest('button');
-    }
-    if (clickedButton) {
-        clickedButton.classList.add('active');
-    }
-    
-    // Recargar citas con el filtro seleccionado
-    console.log(`Filtrando citas por: ${filter}`);
-    loadCitas(filter);
-}
+        // Filtro de citas - MODIFICADO: Solo "Todas" y "Hoy"
+        function filterCitas(filter) {
+            const buttons = document.querySelectorAll('#citas-section .filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            let clickedButton = event.target;
+            if (clickedButton.tagName !== 'BUTTON') {
+                clickedButton = clickedButton.closest('button');
+            }
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
+            
+            console.log(`Filtrando citas por: ${filter}`);
+            loadCitas(filter);
+        }
 
-function filterEstudios(filter) {
-    const buttons = document.querySelectorAll('#estudios-section .filter-btn');
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    let clickedButton = event.target;
-    if (clickedButton.tagName !== 'BUTTON') {
-        clickedButton = clickedButton.closest('button');
-    }
-    if (clickedButton) {
-        clickedButton.classList.add('active');
-    }
-    
-    loadEstudios();
-}
+        function filterEstudios(filter) {
+            const buttons = document.querySelectorAll('#estudios-section .filter-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            let clickedButton = event.target;
+            if (clickedButton.tagName !== 'BUTTON') {
+                clickedButton = clickedButton.closest('button');
+            }
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
+            
+            loadEstudios();
+        }
 
-        // Funciones auxiliares
         function viewStudyDetails(studyId) {
             alert(`Ver detalles de estudio ${studyId}\n\nEsta funcionalidad se implementará en el futuro.`);
         }
@@ -2445,7 +2242,17 @@ function filterEstudios(filter) {
             }
         }
 
-        // Actualizar cada minuto
+        // Funciones de utilidad
+        function formatDate(dateString) {
+            if (!dateString) return 'Sin fecha';
+            try {
+                const [year, month, day] = dateString.split('-');
+                return `${day}/${month}/${year}`;
+            } catch (e) {
+                return dateString;
+            }
+        }
+
         setInterval(updateLastUpdate, 60000);
     </script>
 </body>
