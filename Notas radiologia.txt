@@ -10,7 +10,6 @@
 
 
 ****Se borro la pestaña de paciente y la tabla de paciente de la base de datos****
-Hice algunos cambios a la base de datos, asi que vuélvela a cargar*/
 
 
 
@@ -64,13 +63,12 @@ PLANTEAMIENTOS
 
 
 FORMULARIO
-    Al terminar el formulario el boton de completar cumple 2 funciones.
-        1. subir los datos y el pdf a la base de datos (el pdf es el formulario convertido a este formato)
-        2. descargar el archivo para el doctor o el administrador
+    ****Al terminar el formulario el boton de completar cumple 2 funciones.****
+        ****1. subir los datos y el pdf a la base de datos (el pdf es el formulario convertido a este formato)****
+        ****2. descargar el archivo para el doctor o el administrador****
 
 
-NOTAS PARA CHECAR
-Ya quite la parte de la agenda tanto del git como de las pantallas del doctor.
+
 
 
 
