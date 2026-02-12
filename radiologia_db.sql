@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 12-02-2026 a las 01:00:43
+-- Tiempo de generación: 12-02-2026 a las 23:56:02
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -61,9 +61,19 @@ CREATE TABLE `citas` (
   `documento_pdf` longblob DEFAULT NULL,
   `documento_tamano` int(11) DEFAULT NULL,
   `documento_tipo` varchar(100) DEFAULT NULL,
-  `fecha_carga_documento` timestamp NULL DEFAULT NULL,
-  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
+  `resultado` longblob DEFAULT NULL,
+  `resultado_nombre` varchar(255) DEFAULT NULL,
+  `resultado_tipo` varchar(100) DEFAULT NULL,
+  `resultado_tamano` int(11) DEFAULT NULL,
+  `resultado_fecha_carga` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `citas`
+--
+
+INSERT INTO `citas` (`id_cita`, `numero_folio`, `paciente`, `doctor_id`, `fecha`, `hora`, `documento_nombre`, `documento_pdf`, `documento_tamano`, `documento_tipo`, `resultado`, `resultado_nombre`, `resultado_tipo`, `resultado_tamano`, `resultado_fecha_carga`) VALUES
+(0, 'FOL-20260212-00001', 'sdasdasdsadasdas', 'D001', '2026-02-12', '16:22:31', 'sdasdasdsadasdas_FOL-20260212-00001.pdf', 0x255044462d312e340a25938c8b9e205265706f72744c61622047656e6572617465642050444620646f63756d656e7420286f70656e736f75726365290a312030206f626a0a3c3c0a2f4631203220302052202f4632203320302052202f46332035203020520a3e3e0a656e646f626a0a322030206f626a0a3c3c0a2f42617365466f6e74202f48656c766574696361202f456e636f64696e67202f57696e416e7369456e636f64696e67202f4e616d65202f4631202f53756274797065202f5479706531202f54797065202f466f6e740a3e3e0a656e646f626a0a332030206f626a0a3c3c0a2f42617365466f6e74202f48656c7665746963612d426f6c64202f456e636f64696e67202f57696e416e7369456e636f64696e67202f4e616d65202f4632202f53756274797065202f5479706531202f54797065202f466f6e740a3e3e0a656e646f626a0a342030206f626a0a3c3c0a2f436f6e74656e747320313020302052202f4d65646961426f78205b203020302037393220363132205d202f506172656e74203920302052202f5265736f7572636573203c3c0a2f466f6e74203120302052202f50726f63536574205b202f504446202f54657874202f496d61676542202f496d61676543202f496d61676549205d0a3e3e202f526f746174652030202f5472616e73203c3c0a0a3e3e200a20202f54797065202f506167650a3e3e0a656e646f626a0a352030206f626a0a3c3c0a2f42617365466f6e74202f48656c7665746963612d426f6c644f626c69717565202f456e636f64696e67202f57696e416e7369456e636f64696e67202f4e616d65202f4633202f53756274797065202f5479706531202f54797065202f466f6e740a3e3e0a656e646f626a0a362030206f626a0a3c3c0a2f436f6e74656e747320313120302052202f4d65646961426f78205b203020302037393220363132205d202f506172656e74203920302052202f5265736f7572636573203c3c0a2f466f6e74203120302052202f50726f63536574205b202f504446202f54657874202f496d61676542202f496d61676543202f496d61676549205d0a3e3e202f526f746174652030202f5472616e73203c3c0a0a3e3e200a20202f54797065202f506167650a3e3e0a656e646f626a0a372030206f626a0a3c3c0a2f506167654d6f6465202f5573654e6f6e65202f5061676573203920302052202f54797065202f436174616c6f670a3e3e0a656e646f626a0a382030206f626a0a3c3c0a2f417574686f7220285c28616e6f6e796d6f75735c2929202f4372656174696f6e446174652028443a32303236303231323136323233312d30362730302729202f43726561746f7220285c28756e7370656369666965645c2929202f4b6579776f726473202829202f4d6f64446174652028443a32303236303231323136323233312d30362730302729202f50726f647563657220285265706f72744c616220504446204c696272617279202d205c286f70656e736f757263655c2929200a20202f5375626a65637420285c28756e7370656369666965645c2929202f5469746c6520285c28616e6f6e796d6f75735c2929202f54726170706564202f46616c73650a3e3e0a656e646f626a0a392030206f626a0a3c3c0a2f436f756e742032202f4b696473205b203420302052203620302052205d202f54797065202f50616765730a3e3e0a656e646f626a0a31302030206f626a0a3c3c0a2f46696c746572205b202f415343494938354465636f6465202f466c6174654465636f6465205d202f4c656e67746820313035370a3e3e0a73747265616d0a4761746d393936386957252932252f693842364e292f5d284164506f5e403b4b5c33505a2e505267666f672d2b2f6b295851574c5f2f37303d57385a6522694d64273e38506d405923272a233a6f7437447275507534687474425d4e5b2e212a304d374b5022382d705958672c40394e5c3e354b563767535c6a6d57485058562341404040436f224a5640626d574f323a665272512f52624f5447255540533e334e705b5f2c6d59234b4925466b265d6627232228224d5c482d74563c3d2f68473145223771223a713b2354442534242e5a5d53304d572864652b596d6946532f636b5d70716b4e5667573f41663c3256455367573a2e647243653a4c6e2a444c583372623a4358624875657045466e724c27685b286c2c47522968595b304865404564274c336957383d53296c2372683828732f494f4261583b574c234a55345a6d6e3e663b6a615f58733151683d3c314a3c3f4b5d245f68414d2533612e334d32684475622d5a373e4731644e5e7565525f6a2a4f536f4d6e316a63254d365e2f75332c2b3c48504349313b2e333975212d6a6b4d23365c6e65704a23345c3f3d2362325f7255296660736b2d304c5628287558533e5f474e24393e52324d623f216b5b2f455a634e28336e315b6a6827282936254b553c4f66575951424e545c44712468375b3854423934556051294d2f323f3f3e614a4e3773283d692b365a563a7474326c6e452f4a5249516e7264716a495b48254c5f7061664159423d2165472a235c3344694340625e283322393261345846492c5e3d5f684d42287123676e655840686f3e394050313b633b6758746a29295e593e4f5e494d544233224d506b6c69723545414626562e66616246426e26295b2c695b2d66636a374d2a34613626403259523d3829222c406134254d66426f2a725959644230476b72453b6f282b306373694c4229365d2c6867576225655b375d544f42293c522356234b3d513d4a425b494a582e48634b4534253f32664326684341232e71653326686d646d7153662b34693d466d466b462747425c34236667693b6660434c5c734a4564742c3b57325435455e2c48484f66662438553d466c4b3f3f4b7358466a4d512f58422d513927496c71415c2b48423a43662a4b3762435f362f6038673843562a6f44712f6856674f4b5b4f6a3f63333736504a62366d4d44565832646f6c6a606e2c576b282422573641733836303f4253616a5a394f683c632a455566504c65414d7146605d596f372c706f5658466a2f332e4868706c3036346b2c656e717134285734543a4a53355c53715a224968262d45542f4f55462d4f645e41605d405d3d2974396e2b225f522a412e23574258664c216c5864463c644051235f3c31385370462546684e4c373a716d5a612c5f50564e563e42622647684f596b5d315444416e7058535a256139644173265c223e4b576e3a4b5f304c7e3e656e6473747265616d0a656e646f626a0a31312030206f626a0a3c3c0a2f46696c746572205b202f415343494938354465636f6465202f466c6174654465636f6465205d202f4c656e677468203331340a3e3e0a73747265616d0a476175484334263c614a26446d222f5e344046725f592a605464266a366757575961332c39612a5a2c3a5f435328445f485f2850603e61555e6546373d6e5e5c396d58234b6a23476c58582237413a6b244e5f645025454a65575e566d68336844347221532e72332d2a5465443d646b3a5e394b404e6a723b372664327173462a25546938434e2b412726267069676156285e536d485973496522722b6e43345071753c2f334a2d2f2a3f6653233d61235b364034593b442e3d412c697540235843636231293e44467475502f516c3d55743a6a5459426a2c523b654968443837315b21682d544e5a2e2c497130242a305b342a714c4e34586f4e726c5a3e48356c515834512c49236044547070492b346424682d453b4128744c4135726b346f5f3d473a6a5854683e5360577460586821382672736b357e3e656e6473747265616d0a656e646f626a0a787265660a302031320a303030303030303030302036353533352066200a30303030303030303631203030303030206e200a30303030303030313132203030303030206e200a30303030303030323139203030303030206e200a30303030303030333331203030303030206e200a30303030303030353235203030303030206e200a30303030303030363434203030303030206e200a30303030303030383338203030303030206e200a30303030303030393036203030303030206e200a30303030303031313836203030303030206e200a30303030303031323531203030303030206e200a30303030303032343030203030303030206e200a747261696c65720a3c3c0a2f4944200a5b3c64643231313738643634336134653539613838643930623962323661613730313e3c64643231313738643634336134653539613838643930623962323661613730313e5d0a25205265706f72744c61622067656e6572617465642050444620646f63756d656e74202d2d2064696765737420286f70656e736f75726365290a0a2f496e666f2038203020520a2f526f6f742037203020520a2f53697a652031320a3e3e0a7374617274787265660a323830350a2525454f460a, 3258, 'application/pdf', NULL, NULL, NULL, NULL, '2026-02-12 22:22:31');
 
 -- --------------------------------------------------------
 
@@ -90,51 +100,10 @@ CREATE TABLE `doctores` (
 --
 
 INSERT INTO `doctores` (`Diddoctor`, `nombre`, `usuario`, `contrasena`, `especialidad`, `email`, `telefono`, `direccion_consultorio`, `telefono_consultorio`, `fecha_registro`, `activo`) VALUES
-('D001', 'Dr. Alejandro Rodríguez', 'dr.rodriguez', 'doctor123', 'Radiología General', 'dr.rodriguez@radiologia.com', '5512345678', 'Av. Insurgentes Sur 1234, Col. Del Valle, Ciudad de México, CP 03100', '5555123456', '2026-02-04 20:11:56', 0),
-('D002', 'Dra. María García', 'dr.garcia', 'doctor123', 'Tomografía Computarizada', 'dr.garcia@radiologia.com', '5523456789', 'Torre Médica Reforma, Piso 8, Av. Paseo de la Reforma 250, Col. Juárez, Ciudad de México, CP 06600', '5555234567', '2026-02-04 20:11:56', 1),
+('D001', 'Dr. Alejandro Rodríguez', 'dr.rodriguez', 'doctor123', 'Radiología General', 'dr.rodriguez@radiologia.com', '5512345678', 'Av. Insurgentes Sur 1234, Col. Del Valle, Ciudad de México, CP 03100', '5555123456', '2026-02-04 20:11:56', 1),
+('D002', 'Dra. María García', 'dr.garcia', 'doctor1234', 'Tomografía Computarizada', 'dr.garcia@radiologia.com', '5523456789', 'Torre Médica Reforma, Piso 8, Av. Paseo de la Reforma 250, Col. Juárez, Ciudad de México, CP 06600', '5555234567', '2026-02-04 20:11:56', 1),
 ('D003', 'Dr. Roberto Martínez', 'dr.martinez', 'doctor123', 'Resonancia Magnética', 'dr.martinez@radiologia.com', '5534567890', 'Centro Médico Santa Fe, Av. Santa Fe 150, Col. Santa Fe, Ciudad de México, CP 05348', '5555345678', '2026-02-04 20:11:56', 1),
 ('D004', 'Angel Soriano', 'DR_ASoriano', 'Cosmic$21', 'Por definir', 'x@gmail.com', '1234567891', 'Consultorios Médicos Polanco, Av. Presidente Masaryk 311, Col. Polanco, Ciudad de México, CP 11560', '5555456789', '2026-02-04 20:13:35', 1);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `estudios`
---
-
-CREATE TABLE `estudios` (
-  `id_estudio` int(11) NOT NULL,
-  `Pidpaciente` varchar(20) DEFAULT NULL,
-  `Diddoctor` varchar(20) DEFAULT NULL,
-  `tipo_estudio` varchar(100) NOT NULL,
-  `estudio_especifico` varchar(100) DEFAULT NULL,
-  `fecha_realizacion` date NOT NULL,
-  `resultado` text DEFAULT NULL,
-  `archivo_url` varchar(255) DEFAULT NULL,
-  `estado` enum('pendiente','completado','revision') DEFAULT 'pendiente',
-  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `estudios`
---
-
-INSERT INTO `estudios` (`id_estudio`, `Pidpaciente`, `Diddoctor`, `tipo_estudio`, `estudio_especifico`, `fecha_realizacion`, `resultado`, `archivo_url`, `estado`, `fecha_creacion`) VALUES
-(1, 'P001', 'D001', 'Radiografía de Tórax', 'Radiografía de Tórax', '2023-11-15', 'Resultados normales, sin hallazgos patológicos.', NULL, 'completado', '2026-02-04 20:11:56'),
-(2, 'P002', 'D002', 'Resonancia Magnética Cerebral', 'Resonancia Magnética Cerebral', '2023-11-10', 'Estudio dentro de parámetros normales.', NULL, 'completado', '2026-02-04 20:11:56'),
-(3, 'P003', 'D001', 'Ecografía Abdominal', 'Ecografía Abdominal', '2023-10-25', 'Leve hepatomegalia, se recomienda seguimiento.', NULL, 'completado', '2026-02-04 20:11:56'),
-(4, 'P001', 'D001', 'Resonancia Magnética', 'RMN de Columna Lumbar', '2024-03-15', NULL, NULL, 'pendiente', '2026-02-04 21:38:18'),
-(5, 'P001', 'D001', 'Tomografía', 'TC de Cráneo Contrastada', '2024-03-20', NULL, NULL, 'pendiente', '2026-02-04 21:38:37'),
-(6, 'P001', 'D001', 'Ecografía', 'Eco Abdominal Doppler', '2024-03-18', NULL, NULL, 'pendiente', '2026-02-04 21:38:37'),
-(7, 'P001', 'D001', 'Rayos X', 'RX de Rodilla AP/Lateral', '2024-03-22', NULL, NULL, 'pendiente', '2026-02-04 21:38:37'),
-(8, 'P002', 'D002', 'Resonancia Magnética', 'RMN Cerebral con Contraste', '2024-03-25', NULL, NULL, 'pendiente', '2026-02-04 21:38:37'),
-(9, 'P003', 'D003', 'Tomografía', 'TC Torácica', '2024-03-19', NULL, NULL, 'pendiente', '2026-02-04 21:38:37'),
-(10, 'P001', 'D001', 'Rayos X', NULL, '2026-02-04', NULL, NULL, 'pendiente', '2026-02-04 22:22:58'),
-(11, 'P001', 'D001', 'Rayos X', NULL, '2026-02-04', NULL, NULL, 'pendiente', '2026-02-05 01:26:35'),
-(12, 'P001', 'D001', 'Tomografía', NULL, '2026-02-04', NULL, NULL, 'pendiente', '2026-02-05 01:27:13'),
-(13, 'P004', 'D001', 'Resonancia Magnética', 'Resonancia Magnética', '2026-02-09', NULL, NULL, 'pendiente', '2026-02-08 15:10:55'),
-(14, 'P001', 'D001', 'Resonancia Magnética', 'Resonancia Magnética', '2026-02-12', NULL, NULL, 'pendiente', '2026-02-09 15:49:47'),
-(15, 'P001', 'D001', 'Tomografía', 'Ejemplo 1', '2026-02-23', NULL, NULL, 'pendiente', '2026-02-09 16:10:23'),
-(16, 'P004', 'D001', 'Resonancia Magnética', 'Resonancia Magnética', '2026-02-10', NULL, NULL, 'pendiente', '2026-02-10 20:18:22');
 
 -- --------------------------------------------------------
 
@@ -176,101 +145,9 @@ INSERT INTO `notificaciones` (`id_notificacion`, `usuario_id`, `tipo_usuario`, `
 (17, 'A001', 'admin', 'Cita actualizada', 'Cita 6 actualizada: Paciente Carlos López, Doctor Dr. Alejandro Rodríguez', 0, '2026-02-05 23:09:15'),
 (18, 'P004', 'paciente', 'Bienvenido al sistema', 'Bienvenido Cosmic Rebollo. Su cuenta ha sido creada exitosamente.', 0, '2026-02-06 19:13:04'),
 (19, 'D001', 'doctor', 'Nuevo paciente asignado', 'Se le ha asignado un nuevo paciente: Cosmic Rebollo', 0, '2026-02-06 19:13:04'),
-(20, 'P004', 'doctor', 'Estado de paciente actualizado', 'Estado actualizado a: cronico para el paciente Cosmic Rebollo', 0, '2026-02-06 19:13:37');
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `vista_dashboard_doctor`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `vista_dashboard_doctor` (
-);
-
--- --------------------------------------------------------
-
---
--- Estructura para la vista `vista_dashboard_doctor`
---
-DROP TABLE IF EXISTS `vista_dashboard_doctor`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_dashboard_doctor`  AS SELECT `d`.`Diddoctor` AS `Diddoctor`, `d`.`nombre` AS `doctor_nombre`, count(distinct `c`.`id_cita`) AS `citas_hoy`, count(distinct `p`.`Pidpaciente`) AS `total_pacientes`, count(distinct `e`.`id_estudio`) AS `estudios_pendientes` FROM (((`doctores` `d` left join `citas` `c` on(`d`.`Diddoctor` = `c`.`Diddoctor` and `c`.`fecha` = curdate())) left join `pacientes` `p` on(`d`.`Diddoctor` = `p`.`doctor_asignado`)) left join `estudios` `e` on(`d`.`Diddoctor` = `e`.`Diddoctor` and `e`.`estado` = 'pendiente')) GROUP BY `d`.`Diddoctor`, `d`.`nombre` ;
-
---
--- Índices para tablas volcadas
---
-
---
--- Indices de la tabla `administradores`
---
-ALTER TABLE `administradores`
-  ADD PRIMARY KEY (`Aidadmin`),
-  ADD UNIQUE KEY `usuario` (`usuario`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `idx_administradores_usuario` (`usuario`);
-
---
--- Indices de la tabla `citas`
---
-ALTER TABLE `citas`
-  ADD PRIMARY KEY (`id_cita`),
-  ADD UNIQUE KEY `idx_folio_unico` (`numero_folio`),
-  ADD KEY `idx_citas_doctor` (`doctor_id`);
-
---
--- Indices de la tabla `doctores`
---
-ALTER TABLE `doctores`
-  ADD PRIMARY KEY (`Diddoctor`),
-  ADD UNIQUE KEY `usuario` (`usuario`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `idx_doctores_usuario` (`usuario`);
-
---
--- Indices de la tabla `estudios`
---
-ALTER TABLE `estudios`
-  ADD PRIMARY KEY (`id_estudio`),
-  ADD KEY `Diddoctor` (`Diddoctor`),
-  ADD KEY `idx_estudios_paciente` (`Pidpaciente`);
-
---
--- Indices de la tabla `notificaciones`
---
-ALTER TABLE `notificaciones`
-  ADD PRIMARY KEY (`id_notificacion`);
-
---
--- AUTO_INCREMENT de las tablas volcadas
---
-
---
--- AUTO_INCREMENT de la tabla `citas`
---
-ALTER TABLE `citas`
-  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de la tabla `estudios`
---
-ALTER TABLE `estudios`
-  MODIFY `id_estudio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
-
---
--- AUTO_INCREMENT de la tabla `notificaciones`
---
-ALTER TABLE `notificaciones`
-  MODIFY `id_notificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
-
---
--- Restricciones para tablas volcadas
---
-
---
--- Filtros para la tabla `citas`
---
-ALTER TABLE `citas`
-  ADD CONSTRAINT `fk_citas_doctor` FOREIGN KEY (`doctor_id`) REFERENCES `doctores` (`Diddoctor`) ON DELETE CASCADE;
+(20, 'P004', 'doctor', 'Estado de paciente actualizado', 'Estado actualizado a: cronico para el paciente Cosmic Rebollo', 0, '2026-02-06 19:13:37'),
+(0, 'D002', 'doctor', 'Cambio de contraseña', 'Su contraseña ha sido actualizada exitosamente', 0, '2026-02-12 20:23:34'),
+(0, 'D001', 'doctor', 'Datos actualizados', 'Su información ha sido actualizada por el administrador', 0, '2026-02-12 21:10:02');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -22,17 +22,15 @@ login
 
 
 Pestaña doctor
-    ****Quitar todo lo que tenga que ver con las citas del día de hoy
+    ****Quitar todo lo que tenga que ver con las citas del día de hoy****
     *"Colocar foto de perfil"*
     Poner filtro con estudios nuevos y últimos 7 días
-    En el apartado de pacientes, cambiar los filtros a agudo, crónico, seguimiento recuperado
-    Crear un apartado de receta virtual y estar verificando con la pagina
-    En la pantalla de login, quitar el formulario de crear cuenta nueva, y colocar en su lugar un mensaje de quieres crear una cuenta contactar y poner el link directo
-    En lugar de agendar cita ese botón debe de funcionar como vinculo de formulario virtual para no quitarlo
-    Pulir el apartado de resultados para descargar los archivos del doctor 
+    ****Crear un apartado de receta virtual y estar verificando con la pagina****
+    ****En lugar de agendar cita ese botón debe de funcionar como vinculo de formulario virtual para no quitarlo****
+    ****Pulir el apartado de resultados para descargar los archivos del doctor**** 
     Darle funcionalidad correcta a los filtros en el apartado de resultados de la pantalla del doctor
-    Agregarle y conectar la Receta V 
-    Pulir el apartado de configuración para la pantalla del doctor
+    ****Agregarle y conectar la Receta V**** 
+    ****Pulir el apartado de configuración para la pantalla del doctor****
     el doctor puede generar su historial de estudios que ha hecho con 4digital
 
 
@@ -40,21 +38,21 @@ Pestaña doctor
 
 
 BASE DE DATOS
-    En la BD crear el apartado para los resultados, donde únicamente irán los resultados, el numero de folio que se genera del paciente y el año de nacimiento del paciente. "por definir"
-    En la BD borrar citas, pacientes, modificar los estudios disponibles, 
+    ****En la BD crear el apartado para los resultados, donde únicamente irán los resultados, el numero de folio que se genera del paciente y el año de nacimiento del paciente. "por definir"****
+    ****En la BD borrar citas, pacientes, modificar los estudios disponibles,**** 
 
 
 
 
 
 ADMIN
-    ****Quitar las citas del día 
-    Se quita lo de los pacientes
-    ****En lugar de gestion de citas, será gestion de resultados
-    ****Estudios médicos se quita.
+    ****Quitar las citas del día**** 
+    ****Se quita lo de los pacientes****
+    ****En lugar de gestion de citas, será gestion de resultados****
+    ****Estudios médicos se quita.*****
     Reportes y análisis debe de ser el historial de la activad que ha tenido el doctor/consulltorio con 4digitaly que aparezca en lista 
     Agregarle y conectar la Receta V 
-    ****Agregar en la pantalla del administrador en la parte izquierda del menu de funciones el boton de crear cuenta para el doctor nuevo
+    ****Agregar en la pantalla del administrador en la parte izquierda del menu de funciones el boton de crear cuenta para el doctor nuevo****
     Agregar agenda.
 
 
