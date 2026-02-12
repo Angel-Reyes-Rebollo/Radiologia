@@ -22,7 +22,7 @@ login
 
 
 Pestaña doctor
-    Quitar todo lo que tenga que ver con las citas del día de hoy
+    ****Quitar todo lo que tenga que ver con las citas del día de hoy
     *"Colocar foto de perfil"*
     Poner filtro con estudios nuevos y últimos 7 días
     En el apartado de pacientes, cambiar los filtros a agudo, crónico, seguimiento recuperado
@@ -70,6 +70,9 @@ FORMULARIO
         1. subir los datos y el pdf a la base de datos (el pdf es el formulario convertido a este formato)
         2. descargar el archivo para el doctor o el administrador
 
+
+NOTAS PARA CHECAR
+Ya quite la parte de la agenda tanto del git como de las pantallas del doctor.
 
 
 
