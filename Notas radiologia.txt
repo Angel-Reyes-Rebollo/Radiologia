@@ -1,4 +1,3 @@
-Reportes solo para doctores
 ****Quitar pantallas de usuarios, dejar únicamente ligado a los usuarios, su numero de folio de estudio, y año de nacimiento. ****
 ****Quitar apartado de paciente la pantalla de admin****
 ****Ficha de doctor en admin: Dirección de consultorio****
@@ -11,45 +10,79 @@ Reportes solo para doctores
 
 
 ****Se borro la pestaña de paciente y la tabla de paciente de la base de datos****
-Hice algunos cambios a la base de datos, asi que vuélvela a cargar
+Hice algunos cambios a la base de datos, asi que vuélvela a cargar*/
+
+
+
+login
+    Quitar el boton de agregar cuenta
+    Agregar el QR del whats de la empresa (pendiente)
+    Del login quitar los cuadros del lado izquierdo, 
+
+
 
 Pestaña doctor
-
-Quitar todo lo que tenga que ver con las citas del día de hoy
-"Colocar foto de perfil"
-Poner filtro con estudios nuevos y últimos 7 días
-
-En el apartado de pacientes, cambiar los filtros a agudo, crónico, seguimiento recuperado
-
-Crear un apartado de receta virtual y estar verificando con la pagina
-
-En la pantalla de login, quitar el formulario de crear cuenta nueva, y colocar en su lugar un mensaje de quieres crear una cuenta contactar y poner el link directo
-
-En lugar de agendar cita ese botón debe de funcionar como vinculo de formulario virtual para no quitarlo
-
-Quitar el apartado de agenda en la sección de doctor
-
-Pulir el apartado de resultados para descargar los archivos del doctor 
-
-Darle funcionalidad correcta a los filtros en el apartado de resultados de la pantalla del doctor
-
-En la BD crear el apartado para los resultados, donde únicamente irán los resultados, el numero de folio que se genera del paciente y el año de nacimiento del paciente. "por definir"
-En la BD borrar citas, pacientes, modificar los estudios disponibles, 
+    Quitar todo lo que tenga que ver con las citas del día de hoy
+    *"Colocar foto de perfil"*
+    Poner filtro con estudios nuevos y últimos 7 días
+    En el apartado de pacientes, cambiar los filtros a agudo, crónico, seguimiento recuperado
+    Crear un apartado de receta virtual y estar verificando con la pagina
+    En la pantalla de login, quitar el formulario de crear cuenta nueva, y colocar en su lugar un mensaje de quieres crear una cuenta contactar y poner el link directo
+    En lugar de agendar cita ese botón debe de funcionar como vinculo de formulario virtual para no quitarlo
+    Quitar el apartado de agenda en la sección de doctor
+    Pulir el apartado de resultados para descargar los archivos del doctor 
+    Darle funcionalidad correcta a los filtros en el apartado de resultados de la pantalla del doctor
+    Agregarle y conectar la Receta V 
+    Pulir el apartado de configuración para la pantalla del doctor
+    el doctor puede generar su historial de estudios que ha hecho con 4digital
+    Quitar Agenda
 
 
-Pulir el apartado de configuración para la pantalla del doctor
+
+
+
+BASE DE DATOS
+    En la BD crear el apartado para los resultados, donde únicamente irán los resultados, el numero de folio que se genera del paciente y el año de nacimiento del paciente. "por definir"
+    En la BD borrar citas, pacientes, modificar los estudios disponibles, 
+
+
+
 
 
 ADMIN
-Quitar las citas del día 
-Se quita lo de los pacientes
-En lugar de gestionar de citas, será gestionado de resultados
-Estudios médicos se quita.
-Reportes y análisis debe de ser el historial de la activad que ha tenido el doctor/consulltorio con 4digitaly que aparezca en lista 
+    Quitar las citas del día 
+    Se quita lo de los pacientes
+    En lugar de gestionar de citas, será gestionado de resultados
+    Estudios médicos se quita.
+    Reportes y análisis debe de ser el historial de la activad que ha tenido el doctor/consulltorio con 4digitaly que aparezca en lista 
+    Agregarle y conectar la Receta V 
+    Agregar en la pantalla del administrador en la parte izquierda del menu de funciones el boton de crear cuenta para el doctor nuevo
+    Agregar agenda.
 
-Borrar estadísticas rápidas
 
-Del login quitar los cuadros del lado izquierdo, 
-"Plantear el mandado de mensaje de la receta virtual de manera manual por parte de doctor, lo único que deja el sistema es dejarle descargar el formulario ya lleno"
 
-En la BD borrar citas, borr
+
+PLANTEAMIENTOS
+    "Plantear el mandado de mensaje de la receta virtual de manera manual por parte de doctor, lo único que deja el sistema es dejarle descargar el formulario ya lleno"
+
+
+
+FORMULARIO
+    Al terminar el formulario el boton de completar cumple 2 funciones.
+        1. subir los datos y el pdf a la base de datos (el pdf es el formulario convertido a este formato)
+        2. descargar el archivo para el doctor o el administrador
+
+
+
+
+
+CARGA
+Para subir cambios sigue este proceso
+git add .
+git commit -m "Una nota de los cambios que hiciste"
+git push origin main
+
+DESCARGA
+ Desde la rama principal (normalmente main o master)
+git pull origin main
+ 

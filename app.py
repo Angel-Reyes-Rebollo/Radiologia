@@ -22,20 +22,18 @@ class CustomHandler(SimpleHTTPRequestHandler):
             return os.path.join(os.getcwd(), 'templates', 'login.html')
         elif path == '/dashboard':
             return os.path.join(os.getcwd(), 'templates', 'index.html')
-        elif path == '/paciente':
-            return os.path.join(os.getcwd(), 'templates', 'paciente.html')
         elif path == '/registro':
             return os.path.join(os.getcwd(), 'templates', 'registro.html')
         elif path == '/admin':
             return os.path.join(os.getcwd(), 'templates', 'admin.html')
         elif path == '/paciente-doctor':
             return os.path.join(os.getcwd(), 'templates', 'paciente-doctor.html')
-        elif path == '/agenda-doctor':
-            return os.path.join(os.getcwd(), 'templates', 'agenda-doctor.html')
         elif path == '/resultados-doctor':
             return os.path.join(os.getcwd(), 'templates', 'resultados-doctor.html')
         elif path == '/configuracion-doctor':
             return os.path.join(os.getcwd(), 'templates', 'configuracion-doctor.html')
+        elif path == '/RecetaV':
+            return os.path.join(os.getcwd(), 'templates', 'RecetaV.html')
         elif path.endswith('.html'):
             filename = os.path.basename(path)
             return os.path.join(os.getcwd(), 'templates', filename)
