@@ -100,51 +100,6 @@
             font-weight: 300;
         }
         
-        /* Características */
-        .login-features {
-            margin-top: 10px;
-        }
-        
-        .feature {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 25px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .feature:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .feature i {
-            font-size: 24px;
-            color: #26d0ce;
-            margin-right: 15px;
-            margin-top: 2px;
-            width: 30px;
-            text-align: center;
-        }
-        
-        .feature h3 {
-            font-size: 18px;
-            color: white;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        
-        .feature p {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.5;
-        }
-        
         /* Lado derecho - Formulario de login */
         .login-right {
             flex: 1;
@@ -293,32 +248,6 @@
             right: 0;
             height: 1px;
             background: #eee;
-        }
-        
-        .register-link {
-            display: block;
-            text-align: center;
-            padding: 14px;
-            border: 2px solid #1a2980;
-            color: #1a2980;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .register-link i {
-            margin-right: 10px;
-        }
-        
-        .register-link:hover {
-            background: #1a2980;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.2);
         }
         
         .login-footer {
@@ -489,10 +418,6 @@
                 font-size: 24px;
             }
             
-            .feature {
-                padding: 15px;
-            }
-            
             .form-options {
                 flex-direction: column;
                 align-items: flex-start;
@@ -515,40 +440,6 @@
                 <h1>Radiología Médica Avanzada</h1>
                 <p>Sistema de Gestión Integral</p>
                 <p class="slogan">Tecnología de vanguardia para diagnósticos precisos</p>
-            </div>
-            
-            <div class="login-features">
-                <div class="feature">
-                    <i class="fas fa-shield-alt"></i>
-                    <div>
-                        <h3>Sistema Seguro Certificado</h3>
-                        <p>Cumplimiento con normativas HIPAA y protección avanzada de datos médicos.</p>
-                    </div>
-                </div>
-                
-                <div class="feature">
-                    <i class="fas fa-bolt"></i>
-                    <div>
-                        <h3>Acceso Rápido y Eficiente</h3>
-                        <p>Interfaz optimizada para agilizar el trabajo clínico diario.</p>
-                    </div>
-                </div>
-                
-                <div class="feature">
-                    <i class="fas fa-chart-line"></i>
-                    <div>
-                        <h3>Gestión Integral</h3>
-                        <p>Control completo de pacientes, citas y resultados en un solo lugar.</p>
-                    </div>
-                </div>
-                
-                <div class="feature">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <div>
-                        <h3>Almacenamiento en la Nube</h3>
-                        <p>Acceso seguro desde cualquier dispositivo con respaldo automático.</p>
-                    </div>
-                </div>
             </div>
         </div>
         
@@ -589,14 +480,6 @@
                     <button type="submit" class="login-btn" id="loginBtn">
                         <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
                     </button>
-                    
-                    <div class="login-divider">
-                        <span>o</span>
-                    </div>
-                    
-                    <a href="registro.html" class="register-link">
-                        <i class="fas fa-user-plus"></i> Crear cuenta nueva
-                    </a>
                 </form>
                 
                 <div class="login-footer">

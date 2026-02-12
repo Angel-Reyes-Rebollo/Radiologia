@@ -113,7 +113,7 @@
             background: rgba(255, 255, 255, 0.25);
         }
         
-        /* Navegación */
+        /* Navegación - ELIMINADO AGENDA */
         .main-nav {
             background: white;
             border-bottom: 1px solid #e1e5ee;
@@ -172,6 +172,15 @@
         .breadcrumb {
             font-size: 14px;
             color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #1a2980;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
         }
         
         .header-actions {
@@ -582,6 +591,15 @@
             padding: 30px;
         }
         
+        .modal-footer {
+            padding: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            border-top: 1px solid #e1e5ee;
+            background: #f8f9fa;
+        }
+        
         /* Información del paciente en modal */
         .patient-modal-header {
             display: flex;
@@ -725,13 +743,6 @@
             font-size: 14px;
             color: #666;
             margin-bottom: 10px;
-        }
-        
-        .upload-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 20px;
         }
         
         /* Sin estudios */
@@ -986,11 +997,10 @@
             </div>
         </header>
         
-        <!-- Menú de navegación principal -->
+        <!-- Menú de navegación principal - AGENDA ELIMINADA -->
         <nav class="main-nav">
             <ul>
                 <li><a href="index.html" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li><a href="agenda-doctor.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
                 <li><a href="paciente-doctor.html" class="nav-link"><i class="fas fa-user-injured"></i> Pacientes</a></li>
                 <li><a href="resultados-doctor.html" class="nav-link active"><i class="fas fa-file-medical"></i> Resultados</a></li>
                 <li><a href="configuracion-doctor.html" class="nav-link"><i class="fas fa-cog"></i> Configuración</a></li>
@@ -1004,7 +1014,7 @@
                 <div>
                     <h1>Resultados de Estudios</h1>
                     <div class="breadcrumb">
-                        <a href="dashboard.html">Inicio</a> > <span>Resultados</span>
+                        <a href="index.html">Inicio</a> > <span>Resultados</span>
                     </div>
                 </div>
                 

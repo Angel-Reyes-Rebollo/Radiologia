@@ -15,9 +15,9 @@ Hice algunos cambios a la base de datos, asi que vuélvela a cargar*/
 
 
 login
-    Quitar el boton de agregar cuenta
+    ****Quitar el boton de agregar cuenta
     Agregar el QR del whats de la empresa (pendiente)
-    Del login quitar los cuadros del lado izquierdo, 
+    ****Del login quitar los cuadros del lado izquierdo, 
 
 
 
@@ -29,13 +29,11 @@ Pestaña doctor
     Crear un apartado de receta virtual y estar verificando con la pagina
     En la pantalla de login, quitar el formulario de crear cuenta nueva, y colocar en su lugar un mensaje de quieres crear una cuenta contactar y poner el link directo
     En lugar de agendar cita ese botón debe de funcionar como vinculo de formulario virtual para no quitarlo
-    Quitar el apartado de agenda en la sección de doctor
     Pulir el apartado de resultados para descargar los archivos del doctor 
     Darle funcionalidad correcta a los filtros en el apartado de resultados de la pantalla del doctor
     Agregarle y conectar la Receta V 
     Pulir el apartado de configuración para la pantalla del doctor
     el doctor puede generar su historial de estudios que ha hecho con 4digital
-    Quitar Agenda
 
 
 
