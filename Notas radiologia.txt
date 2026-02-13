@@ -27,12 +27,12 @@ Pestaña doctor
     ****Crear un apartado de receta virtual y estar verificando con la pagina****
     ****En lugar de agendar cita ese botón debe de funcionar como vinculo de formulario virtual para no quitarlo****
     ****Pulir el apartado de resultados para descargar los archivos del doctor****
-    Crear apartado para resultados.
+    +++++Crear apartado para resultados.+++++( este ya no lo hice porque se repetiria )
     Crear y Darle funcionalidad correcta a los filtros en el apartado de citas de la pantalla del doctor 
     Crear y Darle funcionalidad correcta a los filtros en el apartado de resultados de la pantalla del doctor
     ****Agregarle y conectar la Receta V**** 
     ****Pulir el apartado de configuración para la pantalla del doctor****
-    el doctor puede generar su historial de estudios que ha hecho con 4digital
+    ****el doctor puede generar su historial de estudios que ha hecho con 4digital****
 
 
 
@@ -73,6 +73,8 @@ FORMULARIO
 
 
 
+Nota importante:
+Necesitas volver a cargar la base de datos en el XAMP porque tuve que modificarla ya que no nos permitia generar mas citas
 
 
 
@@ -86,3 +88,14 @@ DESCARGA
  Desde la rama principal (normalmente main o master)
 git pull origin main
  
+Codigo para creacion de base de datos e importar los textos
+ -- 1. Crear la base de datos
+CREATE DATABASE IF NOT EXISTS radiologia_db
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+-- 2. Seleccionar la base de datos para usarla
+USE radiologia_db;
+
+-- 3. Verificar que se creó
+SHOW DATABASES;
