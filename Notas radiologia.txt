@@ -53,6 +53,7 @@ ADMIN
     Agregarle y conectar la Receta V 
     ****Agregar en la pantalla del administrador en la parte izquierda del menu de funciones el boton de crear cuenta para el doctor nuevo****
     Agregar agenda.
+    Solucionar bug de la descarga de pdf en el apartado de Gestion de citas.
 
 
 
