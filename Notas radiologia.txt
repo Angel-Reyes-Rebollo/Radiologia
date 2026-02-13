@@ -14,9 +14,9 @@
 
 
 login
-    ****Quitar el boton de agregar cuenta
+    ****Quitar el boton de agregar cuenta****
     Agregar el QR del whats de la empresa (pendiente)
-    ****Del login quitar los cuadros del lado izquierdo, 
+    ****Del login quitar los cuadros del lado izquierdo,**** 
 
 
 
