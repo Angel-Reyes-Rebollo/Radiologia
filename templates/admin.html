@@ -1096,6 +1096,91 @@
         .firma-placeholder i {
             color: #26d0ce;
         }
+
+        .receta-header-info {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e1e5ee;
+        }
+
+        .folio-info {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a2980;
+        }
+
+        .date-info {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* Estilos para el select de doctores */
+        .doctor-select-btn {
+            background: #1a2980;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s;
+        }
+        
+        .doctor-select-btn:hover {
+            background: #26d0ce;
+            transform: translateY(-2px);
+        }
+        
+        .doctor-list-modal {
+            max-width: 500px;
+        }
+        
+        .doctor-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #e1e5ee;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .doctor-item:hover {
+            background: #f0f7ff;
+        }
+        
+        .doctor-item.selected {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+        }
+        
+        .doctor-id {
+            font-weight: 600;
+            color: #1a2980;
+            margin-right: 10px;
+        }
+        
+        .doctor-item:hover .doctor-id {
+            color: #1a2980;
+        }
+        
+        .doctor-item.selected .doctor-id {
+            color: white;
+        }
+        
+        .selected-doctor-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 6px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -1315,9 +1400,26 @@
                 </div>
             </div>
 
-            <!-- NUEVA SECCIÓN: RECETA VIRTUAL (Formulario DRD) -->
+            <!-- NUEVA SECCIÓN: RECETA VIRTUAL (Formulario DRD) - CON APARTADO DE CITA Y SELECCIÓN DE DOCTOR -->
             <div id="receta-virtual-section" class="content-section" style="display: none;">
-                <!-- Contenido del formulario DRD -->
+                <div class="content-header">
+                    <h1>Receta Virtual / Formulario de Prescripción</h1>
+                    <div class="breadcrumb">
+                        <span>Inicio</span> > <span>Receta Virtual</span>
+                    </div>
+                </div>
+                
+                <div id="recetaMessage" class="message"></div>
+                
+                <div class="receta-header-info">
+                    <div class="folio-info" id="folioPreview">
+                        <i class="fas fa-qrcode"></i> Folio: Por generar...
+                    </div>
+                    <div class="date-info" id="currentDateTime">
+                        <i class="fas fa-calendar"></i> <span id="fechaActual"></span> | <i class="fas fa-clock"></i> <span id="horaActual"></span>
+                    </div>
+                </div>
+                
                 <div class="form-drd">
                     <!-- HEADER -->
                     <div class="drd-header">
@@ -1335,7 +1437,7 @@
                         </div>
                     </div>
 
-                    <!-- SECCIÓN PACIENTE SOLAMENTE (ELIMINADA LA SECCIÓN DOCTOR) -->
+                    <!-- SECCIÓN PACIENTE -->
                     <div class="info-card">
                         <div class="info-header">
                             <i class="fas fa-user-injured"></i>
@@ -1343,8 +1445,8 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Nombre completo</label>
-                                <input type="text" class="form-control" placeholder="Ingrese nombre" id="pacienteNombre">
+                                <label>Nombre completo *</label>
+                                <input type="text" class="form-control" placeholder="Ingrese nombre completo" id="pacienteNombre" required>
                             </div>
                         </div>
                         <div class="form-row">
@@ -1354,13 +1456,62 @@
                             </div>
                             <div class="form-group">
                                 <label>Fecha de nacimiento</label>
-                                <input type="date" class="form-control" id="pacienteFN">
+                                <input type="date" class="form-control" id="pacienteFN" max="2030-12-31">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label>Teléfono</label>
                                 <input type="tel" class="form-control" placeholder="Teléfono" id="pacienteTel">
+                            </div>
+                        </div>
+                        
+                        <!-- NUEVA SECCIÓN: AGENDAR CITA - IGUAL QUE EN INDEX -->
+                        <div class="info-header" style="margin-top: 20px;">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>AGENDAR CITA</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Fecha de la cita *</label>
+                                <input type="date" class="form-control" id="fechaCita" required>
+                                <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                                    <i class="fas fa-info-circle"></i> Sólo días hábiles (Lunes a Viernes)
+                                </small>
+                            </div>
+                            <div class="form-group">
+                                <label>Hora de la cita *</label>
+                                <select class="form-control" id="horaCita" required>
+                                    <option value="">Seleccione una hora</option>
+                                </select>
+                                <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                                    <i class="fas fa-info-circle"></i> Horario: 8:00 AM - 8:00 PM
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <!-- NUEVO CAMPO: SELECCIÓN DE DOCTOR -->
+                        <div class="info-header" style="margin-top: 20px;">
+                            <i class="fas fa-user-md"></i>
+                            <span>SELECCIONAR DOCTOR</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Doctor asignado *</label>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="text" class="form-control" id="doctorSeleccionadoDisplay" placeholder="Seleccione un doctor..." readonly style="background-color: #f5f5f5;">
+                                    <button type="button" class="doctor-select-btn" onclick="abrirSelectorDoctores()">
+                                        <i class="fas fa-search"></i> Buscar
+                                    </button>
+                                </div>
+                                <input type="hidden" id="doctorSeleccionadoId">
+                                <div id="selectedDoctorInfo" class="selected-doctor-info" style="display: none;">
+                                    <i class="fas fa-check-circle" style="color: #2e7d32;"></i>
+                                    <span id="selectedDoctorNombre"></span> (<span id="selectedDoctorId"></span>)
+                                </div>
+                                <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                                    <i class="fas fa-info-circle"></i> Seleccione el doctor que realizará el estudio
+                                </small>
                             </div>
                         </div>
                     </div>
@@ -1380,23 +1531,23 @@
                         </div>
                         <div class="options-grid">
                             <div class="option-item">
-                                <input type="checkbox" class="study-checkbox" id="ortodonCajaCarton" data-price="1050.00">
+                                <input type="checkbox" class="study-checkbox" id="ortodonCajaCarton" data-price="1050.00" data-name="Caja cartón">
                                 <label for="ortodonCajaCarton">Caja cartón <span class="price-tag">$1,050</span></label>
                             </div>
                             <div class="option-item">
-                                <input type="checkbox" class="study-checkbox" id="ortodonCajaPlastica" data-price="1100.00">
+                                <input type="checkbox" class="study-checkbox" id="ortodonCajaPlastica" data-price="1100.00" data-name="Caja plástica">
                                 <label for="ortodonCajaPlastica">Caja plástica <span class="price-tag">$1,100</span></label>
                             </div>
                             <div class="option-item">
-                                <input type="checkbox" class="study-checkbox" id="ortodonDigital" data-price="0">
+                                <input type="checkbox" class="study-checkbox" id="ortodonDigital" data-price="0" data-name="Digital">
                                 <label for="ortodonDigital">Digital <span class="price-tag">Consultar</span></label>
                             </div>
                             <div class="option-item">
-                                <input type="checkbox" class="study-checkbox" id="yesoCajaCarton" data-price="350.00">
+                                <input type="checkbox" class="study-checkbox" id="yesoCajaCarton" data-price="350.00" data-name="Yeso Caja cartón">
                                 <label for="yesoCajaCarton">Yeso Caja cartón <span class="price-tag">$350</span></label>
                             </div>
                             <div class="option-item">
-                                <input type="checkbox" class="study-checkbox" id="modeloDental3D" data-price="350.00">
+                                <input type="checkbox" class="study-checkbox" id="modeloDental3D" data-price="350.00" data-name="Modelo Dental 3D">
                                 <label for="modeloDental3D">Modelo Dental 3D <span class="price-tag">$350</span></label>
                             </div>
                         </div>
@@ -1410,19 +1561,19 @@
                         </div>
                         <div class="options-grid">
                             <div class="option-item">
-                                <input type="checkbox" class="study-checkbox" id="orthoEstandar" data-price="0">
+                                <input type="checkbox" class="study-checkbox" id="orthoEstandar" data-price="0" data-name="Orthokinético Estándar">
                                 <label for="orthoEstandar">Estándar <span class="price-tag">Cotizar</span></label>
                             </div>
                             <div class="option-item">
-                                <input type="checkbox" class="study-checkbox" id="orthoFuncional" data-price="0">
+                                <input type="checkbox" class="study-checkbox" id="orthoFuncional" data-price="0" data-name="Orthokinético Funcional">
                                 <label for="orthoFuncional">Funcional <span class="price-tag">Cotizar</span></label>
                             </div>
                             <div class="option-item">
-                                <input type="checkbox" class="study-checkbox" id="tomografiaOclusion" data-price="2300.00">
+                                <input type="checkbox" class="study-checkbox" id="tomografiaOclusion" data-price="2300.00" data-name="Tomografía en Oclusión y Máxima apertura">
                                 <label for="tomografiaOclusion">Tomografía en Oclusión y Máxima apertura <span class="price-tag">$2,300</span></label>
                             </div>
                             <div class="option-item">
-                                <input type="checkbox" class="study-checkbox" id="escaneoIntraoral" data-price="0">
+                                <input type="checkbox" class="study-checkbox" id="escaneoIntraoral" data-price="0" data-name="Escaneo Intraoral">
                                 <label for="escaneoIntraoral">Escaneo Intraoral <span class="price-tag">Consultar</span></label>
                             </div>
                         </div>
@@ -1443,25 +1594,25 @@
                         </div>
                         <!-- OPCIONES DE FORMATO DIGITAL/IMPRESO/CD/CORREO -->
                         <div style="padding: 15px 25px 0; display: flex; gap: 30px; flex-wrap: wrap; background: #f9fbfd;">
-                            <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="formatoRx" value="impreso"> DIGITAL IMPRESO</label>
-                            <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="formatoRx" value="cd"> DIGITAL CD</label>
-                            <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="formatoRx" value="email"> CORREO ELECTRÓNICO</label>
+                            <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="formatoRx" value="impreso" id="formatoImpreso"> DIGITAL IMPRESO</label>
+                            <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="formatoRx" value="cd" id="formatoCD"> DIGITAL CD</label>
+                            <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="formatoRx" value="email" id="formatoEmail"> CORREO ELECTRÓNICO</label>
                         </div>
                         <div class="options-grid">
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="ortoPano" data-price="290.00"><label for="ortoPano">Ortopantomografía o Panorámica estándar <span class="price-tag">$290</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="panoTatis" data-price="290.00"><label for="panoTatis">Panorámica para Análisis de Tatis <span class="price-tag">$290</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="atmComp" data-price="350.00"><label for="atmComp">Rx ATM comparativa Lateral boca abierta/cerrada <span class="price-tag">$350</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="waters" data-price="290.00"><label for="waters">Waters de cráneo <span class="price-tag">$290</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="paCraneo" data-price="290.00"><label for="paCraneo">P - A de cráneo <span class="price-tag">$290</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="latCraneo" data-price="290.00"><label for="latCraneo">Lateral de cráneo <span class="price-tag">$290</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="lat10x12" data-price="290.00"><label for="lat10x12">Lateral 10 x 12" <span class="price-tag">$290</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="latPNC" data-price="290.00"><label for="latPNC">Lateral PNC con plomada <span class="price-tag">$290</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="periapicalCompleta" data-price="1000.00"><label for="periapicalCompleta">Serie periapical completa (16) <span class="price-tag">$1,000</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="oclusalInf" data-price="190.00"><label for="oclusalInf">Oclusal inferior <span class="price-tag">$190</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="oclusalSup" data-price="190.00"><label for="oclusalSup">Oclusal superior <span class="price-tag">$190</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="senosParanasales" data-price="850.00"><label for="senosParanasales">Senos paranasales (3 proy.) <span class="price-tag">$850</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="digitoPalmar" data-price="290.00"><label for="digitoPalmar">Digitio-palmar <span class="price-tag">$290</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="periapicalIndiv" data-price="130.00"><label for="periapicalIndiv">Periapical individual <span class="price-tag">$130</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="ortoPano" data-price="290.00" data-name="Ortopantomografía o Panorámica estándar"><label for="ortoPano">Ortopantomografía o Panorámica estándar <span class="price-tag">$290</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="panoTatis" data-price="290.00" data-name="Panorámica para Análisis de Tatis"><label for="panoTatis">Panorámica para Análisis de Tatis <span class="price-tag">$290</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="atmComp" data-price="350.00" data-name="Rx ATM comparativa Lateral boca abierta/cerrada"><label for="atmComp">Rx ATM comparativa Lateral boca abierta/cerrada <span class="price-tag">$350</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="waters" data-price="290.00" data-name="Waters de cráneo"><label for="waters">Waters de cráneo <span class="price-tag">$290</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="paCraneo" data-price="290.00" data-name="P - A de cráneo"><label for="paCraneo">P - A de cráneo <span class="price-tag">$290</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="latCraneo" data-price="290.00" data-name="Lateral de cráneo"><label for="latCraneo">Lateral de cráneo <span class="price-tag">$290</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="lat10x12" data-price="290.00" data-name="Lateral 10 x 12"><label for="lat10x12">Lateral 10 x 12" <span class="price-tag">$290</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="latPNC" data-price="290.00" data-name="Lateral PNC con plomada"><label for="latPNC">Lateral PNC con plomada <span class="price-tag">$290</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="periapicalCompleta" data-price="1000.00" data-name="Serie periapical completa (16)"><label for="periapicalCompleta">Serie periapical completa (16) <span class="price-tag">$1,000</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="oclusalInf" data-price="190.00" data-name="Oclusal inferior"><label for="oclusalInf">Oclusal inferior <span class="price-tag">$190</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="oclusalSup" data-price="190.00" data-name="Oclusal superior"><label for="oclusalSup">Oclusal superior <span class="price-tag">$190</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="senosParanasales" data-price="850.00" data-name="Senos paranasales (3 proy.)"><label for="senosParanasales">Senos paranasales (3 proy.) <span class="price-tag">$850</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="digitoPalmar" data-price="290.00" data-name="Digitio-palmar"><label for="digitoPalmar">Digitio-palmar <span class="price-tag">$290</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="periapicalIndiv" data-price="130.00" data-name="Periapical individual"><label for="periapicalIndiv">Periapical individual <span class="price-tag">$130</span></label></div>
                         </div>
                     </div>
 
@@ -1472,10 +1623,10 @@
                             <h2>FOTOGRAFÍAS</h2>
                         </div>
                         <div class="options-grid">
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="fotoCD" data-price="350.00"><label for="fotoCD">Fotografía digital en CD <span class="price-tag">$350</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="extraorales" data-price="0"><label for="extraorales">Extraorales <span class="price-tag">Incluidas</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="impresionPapel" data-price="0"><label for="impresionPapel">Impresión digital en papel <span class="price-tag">Consultar</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="intraorales" data-price="0"><label for="intraorales">Intraorales <span class="price-tag">Incluidas</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="fotoCD" data-price="350.00" data-name="Fotografía digital en CD"><label for="fotoCD">Fotografía digital en CD <span class="price-tag">$350</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="extraorales" data-price="0" data-name="Extraorales"><label for="extraorales">Extraorales <span class="price-tag">Incluidas</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="impresionPapel" data-price="0" data-name="Impresión digital en papel"><label for="impresionPapel">Impresión digital en papel <span class="price-tag">Consultar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="intraorales" data-price="0" data-name="Intraorales"><label for="intraorales">Intraorales <span class="price-tag">Incluidas</span></label></div>
                         </div>
                     </div>
 
@@ -1527,12 +1678,12 @@
                             <h2>MODELOS DE ESTUDIO</h2>
                         </div>
                         <div class="options-grid">
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="yesoCajaCarton2" data-price="350.00"><label for="yesoCajaCarton2">Yeso Caja cartón <span class="price-tag">$350</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="yesoCajaPlastica2" data-price="380.00"><label for="yesoCajaPlastica2">Yeso Caja plástica <span class="price-tag">$380</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="acrilico" data-price="0"><label for="acrilico">Acrílico <span class="price-tag">Cotizar</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="modeloDental3D2" data-price="350.00"><label for="modeloDental3D2">Modelo Dental 3D <span class="price-tag">$350</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="modeloIntraoseo" data-price="0"><label for="modeloIntraoseo">Modelo Dental Intraóseo 3D <span class="price-tag">Consultar</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="digitales3Shape" data-price="0"><label for="digitales3Shape">Digitales 3Shape® <span class="price-tag">Consultar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="yesoCajaCarton2" data-price="350.00" data-name="Yeso Caja cartón"><label for="yesoCajaCarton2">Yeso Caja cartón <span class="price-tag">$350</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="yesoCajaPlastica2" data-price="380.00" data-name="Yeso Caja plástica"><label for="yesoCajaPlastica2">Yeso Caja plástica <span class="price-tag">$380</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="acrilico" data-price="0" data-name="Acrílico"><label for="acrilico">Acrílico <span class="price-tag">Cotizar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="modeloDental3D2" data-price="350.00" data-name="Modelo Dental 3D"><label for="modeloDental3D2">Modelo Dental 3D <span class="price-tag">$350</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="modeloIntraoseo" data-price="0" data-name="Modelo Dental Intraóseo 3D"><label for="modeloIntraoseo">Modelo Dental Intraóseo 3D <span class="price-tag">Consultar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="digitales3Shape" data-price="0" data-name="Digitales 3Shape"><label for="digitales3Shape">Digitales 3Shape® <span class="price-tag">Consultar</span></label></div>
                         </div>
                     </div>
 
@@ -1543,10 +1694,10 @@
                             <h2>ANÁLISIS DIGITAL</h2>
                         </div>
                         <div class="options-grid">
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="bolton" data-price="130.00"><label for="bolton">Bolton y Análisis de Espacio <span class="price-tag">$130</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="denticionMixta" data-price="130.00"><label for="denticionMixta">Dentición Mixta, Moyers y Tanaka-Johnston <span class="price-tag">$130</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="escaneoIntraoral2" data-price="0"><label for="escaneoIntraoral2">Escaneo Intraoral <span class="price-tag">Cotizar</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="escaneoFacial" data-price="0"><label for="escaneoFacial">Escaneo Facial 3D <span class="price-tag">Cotizar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="bolton" data-price="130.00" data-name="Bolton y Análisis de Espacio"><label for="bolton">Bolton y Análisis de Espacio <span class="price-tag">$130</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="denticionMixta" data-price="130.00" data-name="Dentición Mixta, Moyers y Tanaka-Johnston"><label for="denticionMixta">Dentición Mixta, Moyers y Tanaka-Johnston <span class="price-tag">$130</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="escaneoIntraoral2" data-price="0" data-name="Escaneo Intraoral"><label for="escaneoIntraoral2">Escaneo Intraoral <span class="price-tag">Cotizar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="escaneoFacial" data-price="0" data-name="Escaneo Facial 3D"><label for="escaneoFacial">Escaneo Facial 3D <span class="price-tag">Cotizar</span></label></div>
                         </div>
                     </div>
 
@@ -1557,28 +1708,28 @@
                             <h2>TOMOGRAFÍA VOLUMÉTRICA CONE-BEAM 3D</h2>
                         </div>
                         <div class="options-grid">
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="tvcCompleta" data-price="1800.00"><label for="tvcCompleta">Tomografía Volumétrica Completa visor OnDemand3D™ <span class="price-tag">$1,800</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="tvcRegion" data-price="1500.00"><label for="tvcRegion">Tomografía por región <span class="price-tag">$1,500</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="tvcMaxilar" data-price="1600.00"><label for="tvcMaxilar">Maxilar Superior <span class="price-tag">$1,600</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="tvcInferior" data-price="1600.00"><label for="tvcInferior">Maxilar Inferior <span class="price-tag">$1,600</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="tvcCompleta" data-price="1800.00" data-name="Tomografía Volumétrica Completa visor OnDemand3D"><label for="tvcCompleta">Tomografía Volumétrica Completa visor OnDemand3D™ <span class="price-tag">$1,800</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="tvcRegion" data-price="1500.00" data-name="Tomografía por región"><label for="tvcRegion">Tomografía por región <span class="price-tag">$1,500</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="tvcMaxilar" data-price="1600.00" data-name="Maxilar Superior"><label for="tvcMaxilar">Maxilar Superior <span class="price-tag">$1,600</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="tvcInferior" data-price="1600.00" data-name="Maxilar Inferior"><label for="tvcInferior">Maxilar Inferior <span class="price-tag">$1,600</span></label></div>
                         </div>
                         <!-- Módulos OnDemand3D opcionales con checkboxes -->
                         <div class="modules-container">
                             <p style="font-weight: 600; color: #1a2980; margin-bottom: 10px;"><i class="fas fa-puzzle-piece"></i> Módulos OnDemand3D™ opcionales:</p>
                             <div class="modules-grid">
-                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0"> X Ray Generator</label>
-                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0"> 3D Ceph</label>
-                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0"> Dynamic Lightbox</label>
-                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0"> CineX Imágenes Dinámicas</label>
-                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0"> Impresión de cortes tomográficos</label>
-                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0"> Interpretación Ortodóncica 3D</label>
-                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0"> Paquete OnDemand3D™</label>
-                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0"> Diseño Tridimensional 3D</label>
+                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0" data-name="X Ray Generator"> X Ray Generator</label>
+                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0" data-name="3D Ceph"> 3D Ceph</label>
+                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0" data-name="Dynamic Lightbox"> Dynamic Lightbox</label>
+                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0" data-name="CineX Imágenes Dinámicas"> CineX Imágenes Dinámicas</label>
+                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0" data-name="Impresión de cortes tomográficos"> Impresión de cortes tomográficos</label>
+                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0" data-name="Interpretación Ortodóncica 3D"> Interpretación Ortodóncica 3D</label>
+                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0" data-name="Paquete OnDemand3D"> Paquete OnDemand3D™</label>
+                                <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0" data-name="Diseño Tridimensional 3D"> Diseño Tridimensional 3D</label>
                             </div>
                             <!-- CAMPO DE TEXTO: especificar zona en odontograma -->
                             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                                 <span style="font-weight: 500; color: #1a2980;">Impresión de cortes tomográficos (especificar zona):</span>
-                                <input type="text" placeholder="Ej: maxilar superior derecho" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #e1e5ee;">
+                                <input type="text" placeholder="Ej: maxilar superior derecho" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #e1e5ee;" id="cortesTomograficosEsp">
                             </div>
                         </div>
                     </div>
@@ -1590,8 +1741,8 @@
                             <h2>PAQUETES ALINEADORES DENTALES / INVISIBILEN®</h2>
                         </div>
                         <div class="options-grid">
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="invisibilenI" data-price="0"><label for="invisibilenI">INVISIBILEN® I <span style="font-size: 12px; color: #4a5568;">(Tomografía + fotos intra/extra + impresión polivinil o escaneo)</span> <span class="price-tag">$ Consultar</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="invisibilenII" data-price="0"><label for="invisibilenII">INVISIBILEN® II <span style="font-size: 12px; color: #4a5568;">(+ Rx Panorámica y Rx Lateral)</span> <span class="price-tag">$ Consultar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="invisibilenI" data-price="0" data-name="INVISIBILEN I"><label for="invisibilenI">INVISIBILEN® I <span style="font-size: 12px; color: #4a5568;">(Tomografía + fotos intra/extra + impresión polivinil o escaneo)</span> <span class="price-tag">$ Consultar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="invisibilenII" data-price="0" data-name="INVISIBILEN II"><label for="invisibilenII">INVISIBILEN® II <span style="font-size: 12px; color: #4a5568;">(+ Rx Panorámica y Rx Lateral)</span> <span class="price-tag">$ Consultar</span></label></div>
                         </div>
                         <!-- CAMPOS DE TEXTO: Retenedores y Planificación PREVICS® -->
                         <div class="text-field-group">
@@ -1617,8 +1768,8 @@
                             <h2>ESTEREOLITOGRAFÍA (UNICOS EN MÉXICO)</h2>
                         </div>
                         <div class="options-grid">
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="modeloAnatomico" data-price="0"><label for="modeloAnatomico">Modelo anatómico <span class="price-tag">Cotizar</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="cdDicom" data-price="400.00"><label for="cdDicom">CD formato DICOM <span class="price-tag">$400</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="modeloAnatomico" data-price="0" data-name="Modelo anatómico"><label for="modeloAnatomico">Modelo anatómico <span class="price-tag">Cotizar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="cdDicom" data-price="400.00" data-name="CD formato DICOM"><label for="cdDicom">CD formato DICOM <span class="price-tag">$400</span></label></div>
                         </div>
                     </div>
 
@@ -1629,10 +1780,10 @@
                             <h2>GUÍAS QUIRÚRGICAS DRD 3D®</h2>
                         </div>
                         <div class="options-grid">
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="guiaBasica" data-price="0"><label for="guiaBasica">Guía Quirúrgica DRD3D® Básica <span class="price-tag">Cotizar</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="guiaPlus" data-price="0"><label for="guiaPlus">Guía Quirúrgica DRD3D® Plus <span class="price-tag">Cotizar</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="paqueteGQbasica" data-price="0"><label for="paqueteGQbasica">Paquete GQ Básica <span class="price-tag">Consultar</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="paqueteGQplus" data-price="0"><label for="paqueteGQplus">Paquete GQ Plus (TVCB + Escaneo Intraoral 3shape®) <span class="price-tag">Consultar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="guiaBasica" data-price="0" data-name="Guía Quirúrgica DRD3D Básica"><label for="guiaBasica">Guía Quirúrgica DRD3D® Básica <span class="price-tag">Cotizar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="guiaPlus" data-price="0" data-name="Guía Quirúrgica DRD3D Plus"><label for="guiaPlus">Guía Quirúrgica DRD3D® Plus <span class="price-tag">Cotizar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="paqueteGQbasica" data-price="0" data-name="Paquete GQ Básica"><label for="paqueteGQbasica">Paquete GQ Básica <span class="price-tag">Consultar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="paqueteGQplus" data-price="0" data-name="Paquete GQ Plus"><label for="paqueteGQplus">Paquete GQ Plus (TVCB + Escaneo Intraoral 3shape®) <span class="price-tag">Consultar</span></label></div>
                         </div>
                     </div>
 
@@ -1643,19 +1794,19 @@
                             <h2>ANÁLISIS CEFALOMÉTRICO DOLPHIN IMAGING®</h2>
                         </div>
                         <div class="options-grid">
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="cefaloLateral" data-price="130.00"><label for="cefaloLateral">Análisis Cefalométrico Lateral <span class="price-tag">$130</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="cefalo2D" data-price="130.00"><label for="cefalo2D">2D <span class="price-tag">$130</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="cefalo3D" data-price="130.00"><label for="cefalo3D">3D <span class="price-tag">$130</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="cefaloFrontal" data-price="130.00"><label for="cefaloFrontal">Análisis frontal (PA) <span class="price-tag">$130</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="cefaloLateral" data-price="130.00" data-name="Análisis Cefalométrico Lateral"><label for="cefaloLateral">Análisis Cefalométrico Lateral <span class="price-tag">$130</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="cefalo2D" data-price="130.00" data-name="2D"><label for="cefalo2D">2D <span class="price-tag">$130</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="cefalo3D" data-price="130.00" data-name="3D"><label for="cefalo3D">3D <span class="price-tag">$130</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="cefaloFrontal" data-price="130.00" data-name="Análisis frontal (PA)"><label for="cefaloFrontal">Análisis frontal (PA) <span class="price-tag">$130</span></label></div>
                         </div>
                         <!-- Especificaciones de técnica, impreso, CD, sobre radiografía/foto -->
                         <div style="padding: 15px 25px; display: flex; flex-wrap: wrap; gap: 25px; background: #f9fbfd; border-top: 1px solid #e1e5ee;">
-                            <div><label style="font-weight: 600;">Técnica:</label> <input type="text" placeholder="Especificar" style="padding: 8px; border-radius: 6px; border: 1px solid #e1e5ee;"></div>
+                            <div><label style="font-weight: 600;">Técnica:</label> <input type="text" placeholder="Especificar" style="padding: 8px; border-radius: 6px; border: 1px solid #e1e5ee;" id="tecnicaCefalo"></div>
                             <div><label style="font-weight: 600;">Formato:</label> 
-                                <label style="margin-left: 10px;"><input type="radio" name="formatoCefalo"> Impreso</label>
-                                <label style="margin-left: 10px;"><input type="radio" name="formatoCefalo"> CD</label>
-                                <label style="margin-left: 10px;"><input type="radio" name="formatoCefalo"> Sobre radiografía</label>
-                                <label style="margin-left: 10px;"><input type="radio" name="formatoCefalo"> Sobre fotografía</label>
+                                <label style="margin-left: 10px;"><input type="radio" name="formatoCefalo" value="impreso"> Impreso</label>
+                                <label style="margin-left: 10px;"><input type="radio" name="formatoCefalo" value="cd"> CD</label>
+                                <label style="margin-left: 10px;"><input type="radio" name="formatoCefalo" value="sobre-radiografia"> Sobre radiografía</label>
+                                <label style="margin-left: 10px;"><input type="radio" name="formatoCefalo" value="sobre-fotografia"> Sobre fotografía</label>
                             </div>
                         </div>
                     </div>
@@ -1667,13 +1818,26 @@
                             <h2>BIOTRANSFER 3D® BONDEADO DIGITAL</h2>
                         </div>
                         <div class="options-grid">
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="biotransfer" data-price="0"><label for="biotransfer">BIOTRANSFER <span class="price-tag">Consultar</span></label></div>
-                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="guiaBiotransfer" data-price="0"><label for="guiaBiotransfer">3D GUÍA <span class="price-tag">Consultar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="biotransfer" data-price="0" data-name="BIOTRANSFER"><label for="biotransfer">BIOTRANSFER <span class="price-tag">Consultar</span></label></div>
+                            <div class="option-item"><input type="checkbox" class="study-checkbox" id="guiaBiotransfer" data-price="0" data-name="3D GUÍA"><label for="guiaBiotransfer">3D GUÍA <span class="price-tag">Consultar</span></label></div>
                         </div>
                         <div class="text-field-group">
                             <div class="text-field">
                                 <label>Lauda Desinfectante / Promoción Líquido:</label>
                                 <input type="text" placeholder="Especificaciones" id="laudaPromo">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OBSERVACIONES ADICIONALES -->
+                    <div class="studies-section">
+                        <div class="section-header">
+                            <i class="fas fa-notes-medical"></i>
+                            <h2>OBSERVACIONES ADICIONALES</h2>
+                        </div>
+                        <div class="text-field-group">
+                            <div class="text-field" style="flex: 1;">
+                                <textarea placeholder="Escriba observaciones adicionales aquí..." id="observacionesAdicionales" rows="4"></textarea>
                             </div>
                         </div>
                     </div>
@@ -1685,12 +1849,12 @@
                             <span class="total-amount" id="totalAmount">$0.00</span>
                             <span class="small-note">IVA incluido</span>
                         </div>
-                        <button class="btn-completar" id="btnCompletar">
-                            <i class="fas fa-check-circle"></i> COMPLETAR
+                        <button class="btn-completar" id="btnCompletarReceta">
+                            <i class="fas fa-check-circle"></i> COMPLETAR Y GENERAR CITA
                         </button>
                     </div>
                     
-                    <!-- FOOTER -->
+                    <!-- FOOTER DEL FORMULARIO -->
                     <div style="text-align: right; margin-top: 15px; color: #718096; font-size: 13px;">
                         <i class="fas fa-file-signature"></i> DRD Diagnóstico 3D® · Eje 3 Oriente No. 143, Col. Granjas México · Tel. 55 9438-1608
                     </div>
@@ -1873,6 +2037,31 @@
         </div>
     </div>
 
+    <!-- NUEVO MODAL: Selector de Doctores -->
+    <div id="doctorSelectorModal" class="modal">
+        <div class="modal-content doctor-list-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-md"></i> Seleccionar Doctor</h3>
+                <button class="close-modal" onclick="closeModal('doctorSelectorModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 15px;">
+                    <input type="text" id="searchDoctoresSelector" class="form-control" placeholder="Buscar doctor..." onkeyup="filtrarDoctoresSelector()">
+                </div>
+                <div id="doctoresListContainer" style="max-height: 300px; overflow-y: auto; border: 1px solid #e1e5ee; border-radius: 6px;">
+                    <div style="text-align: center; padding: 20px;" id="doctoresListLoading">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando doctores...
+                    </div>
+                    <div id="doctoresList" style="display: none;"></div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('doctorSelectorModal')">Cancelar</button>
+                <button class="btn-save" onclick="seleccionarDoctorDeLista()">Seleccionar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Variables globales
         let currentUserToDelete = null;
@@ -1881,6 +2070,12 @@
         let currentSection = 'dashboard';
         let allDoctores = [];
         let currentCitaIdForModal = null;
+        let doctoresList = [];
+        let doctorSeleccionadoTemp = null;
+        let adminInfo = {
+            id: 'ADMIN',
+            nombre: 'Administrador'
+        };
 
         // Cargar datos al iniciar
         document.addEventListener('DOMContentLoaded', function() {
@@ -1896,14 +2091,35 @@
             document.getElementById('adminName').textContent = adminName;
             document.getElementById('adminEmail').textContent = adminEmail;
             
+            // Obtener ID del admin
+            const adminId = localStorage.getItem('current_user_id') || 'ADMIN';
+            adminInfo.id = adminId;
+            
             updateLastUpdate();
             setInterval(loadAdminStats, 30000);
             setInterval(updateLastUpdate, 60000);
             setInterval(loadActivityLog, 60000);
 
-            // Inicializar el cálculo de totales para la receta virtual
-            initRecetaVirtual();
+            // Inicializar fecha y hora actual
+            actualizarFechaHora();
+            setInterval(actualizarFechaHora, 1000);
         });
+
+        // ==============================================
+        // FUNCIONES DE FECHA Y HORA
+        // ==============================================
+        
+        function actualizarFechaHora() {
+            const ahora = new Date();
+            const fechaFormateada = ahora.toLocaleDateString('es-MX');
+            const horaFormateada = ahora.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+            
+            const fechaSpan = document.getElementById('fechaActual');
+            const horaSpan = document.getElementById('horaActual');
+            
+            if (fechaSpan) fechaSpan.textContent = fechaFormateada;
+            if (horaSpan) horaSpan.textContent = horaFormateada;
+        }
 
         // ==============================================
         // FUNCIONES DE NAVEGACIÓN
@@ -1957,6 +2173,9 @@
             const recetaSection = document.getElementById('receta-virtual-section');
             if (recetaSection) {
                 recetaSection.style.display = 'block';
+                
+                // Inicializar formulario de receta virtual
+                initRecetaVirtualForm();
             } else {
                 console.error('No se encontró la sección de receta virtual');
             }
@@ -1967,6 +2186,129 @@
             });
             
             currentSection = 'receta-virtual';
+        }
+
+        // ==============================================
+        // FUNCIONES DEL SELECTOR DE DOCTORES
+        // ==============================================
+        
+        async function abrirSelectorDoctores() {
+            console.log('Abriendo selector de doctores');
+            
+            // Cargar doctores si no están cargados
+            if (doctoresList.length === 0) {
+                await cargarDoctoresParaSelector();
+            } else {
+                mostrarListaDoctores();
+            }
+            
+            document.getElementById('doctorSelectorModal').classList.add('active');
+        }
+
+        async function cargarDoctoresParaSelector() {
+            try {
+                const loadingEl = document.getElementById('doctoresListLoading');
+                const listEl = document.getElementById('doctoresList');
+                
+                loadingEl.style.display = 'block';
+                listEl.style.display = 'none';
+                
+                const response = await fetch('/api/doctores');
+                
+                if (!response.ok) {
+                    throw new Error('Error al cargar doctores');
+                }
+                
+                doctoresList = await response.json();
+                console.log('Doctores cargados para selector:', doctoresList.length);
+                
+                mostrarListaDoctores();
+                
+            } catch (error) {
+                console.error('Error cargando doctores:', error);
+                document.getElementById('doctoresListContainer').innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #dc3545;">
+                        <i class="fas fa-exclamation-triangle"></i> Error al cargar doctores
+                    </div>
+                `;
+            }
+        }
+
+        function mostrarListaDoctores() {
+            const loadingEl = document.getElementById('doctoresListLoading');
+            const listEl = document.getElementById('doctoresList');
+            
+            if (!loadingEl || !listEl) return;
+            
+            loadingEl.style.display = 'none';
+            
+            if (doctoresList.length === 0) {
+                listEl.innerHTML = '<div style="text-align: center; padding: 20px;">No hay doctores disponibles</div>';
+                listEl.style.display = 'block';
+                return;
+            }
+            
+            let html = '';
+            doctoresList.forEach(doctor => {
+                const activo = doctor.activo ? '' : ' (Inactivo)';
+                const claseActivo = doctor.activo ? '' : 'style="opacity: 0.6;"';
+                html += `
+                    <div class="doctor-item" onclick="seleccionarDoctorTemp('${doctor.id}', '${doctor.nombre.replace(/'/g, "\\'")}')" ${claseActivo}>
+                        <span class="doctor-id">${doctor.id}</span>
+                        <span>${doctor.nombre}${activo} - ${doctor.especialidad || 'Sin especialidad'}</span>
+                    </div>
+                `;
+            });
+            
+            listEl.innerHTML = html;
+            listEl.style.display = 'block';
+        }
+
+        function filtrarDoctoresSelector() {
+            const searchTerm = document.getElementById('searchDoctoresSelector').value.toLowerCase();
+            const items = document.querySelectorAll('#doctoresList .doctor-item');
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        }
+
+        function seleccionarDoctorTemp(doctorId, doctorNombre) {
+            // Remover clase selected de todos
+            document.querySelectorAll('#doctoresList .doctor-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Agregar clase selected al seleccionado
+            const items = document.querySelectorAll('#doctoresList .doctor-item');
+            for (let item of items) {
+                if (item.textContent.includes(doctorId)) {
+                    item.classList.add('selected');
+                    break;
+                }
+            }
+            
+            doctorSeleccionadoTemp = { id: doctorId, nombre: doctorNombre };
+        }
+
+        function seleccionarDoctorDeLista() {
+            if (!doctorSeleccionadoTemp) {
+                alert('Por favor seleccione un doctor de la lista');
+                return;
+            }
+            
+            // Actualizar campos
+            document.getElementById('doctorSeleccionadoDisplay').value = doctorSeleccionadoTemp.nombre;
+            document.getElementById('doctorSeleccionadoId').value = doctorSeleccionadoTemp.id;
+            
+            const infoDiv = document.getElementById('selectedDoctorInfo');
+            document.getElementById('selectedDoctorNombre').textContent = doctorSeleccionadoTemp.nombre;
+            document.getElementById('selectedDoctorId').textContent = doctorSeleccionadoTemp.id;
+            infoDiv.style.display = 'flex';
+            
+            closeModal('doctorSelectorModal');
+            doctorSeleccionadoTemp = null;
         }
 
         // ==============================================
@@ -2000,7 +2342,7 @@
         }
 
         // ==============================================
-        // FUNCIONES DE ACTIVIDAD - CORREGIDAS
+        // FUNCIONES DE ACTIVIDAD
         // ==============================================
         
         async function loadActivityLog() {
@@ -2611,54 +2953,372 @@
         }
 
         // ==============================================
-        // FUNCIÓN DE INICIALIZACIÓN DE RECETA VIRTUAL
+        // FUNCIONES DE RECETA VIRTUAL (DESDE INDEX)
         // ==============================================
         
-        function initRecetaVirtual() {
-            console.log('Inicializando receta virtual');
+        function initRecetaVirtualForm() {
+            console.log('Inicializando receta virtual form');
             
-            // CALCULADORA DE TOTALES
-            function calcularTotal() {
-                const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox');
-                let total = 0;
-                checkboxes.forEach(cb => {
-                    if (cb.checked) {
-                        const price = parseFloat(cb.dataset.price);
-                        if (!isNaN(price) && price > 0) {
-                            total += price;
-                        }
-                    }
-                });
-                const totalFormateado = total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                const totalAmountElement = document.getElementById('totalAmount');
-                if (totalAmountElement) {
-                    totalAmountElement.innerHTML = `$${totalFormateado.replace('.00', '')}<small>.00</small>`;
-                }
-            }
-
-            // Asignar evento a todos los checkboxes de la sección de receta virtual
+            // Inicializar calendario de citas
+            initCalendarioCitas();
+            
+            // Configurar checkboxes para cálculo de total
             const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox');
-            checkboxes.forEach(cb => cb.addEventListener('change', calcularTotal));
+            checkboxes.forEach(cb => {
+                cb.removeEventListener('change', calcularTotalReceta);
+                cb.addEventListener('change', calcularTotalReceta);
+            });
+            
+            // Configurar botón de completar
+            const btnCompletar = document.getElementById('btnCompletarReceta');
+            if (btnCompletar) {
+                btnCompletar.removeEventListener('click', generarCitaAdmin);
+                btnCompletar.addEventListener('click', generarCitaAdmin);
+            }
             
             // Calcular total inicial
-            calcularTotal();
+            calcularTotalReceta();
+        }
 
-            // BOTÓN COMPLETAR
-            const btnCompletar = document.getElementById('btnCompletar');
-            if (btnCompletar) {
-                btnCompletar.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const nombrePaciente = document.getElementById('pacienteNombre')?.value.trim() || '';
-                    if (nombrePaciente === '') {
-                        alert('⚠️ Por favor ingrese el nombre del paciente.');
-                        document.getElementById('pacienteNombre')?.focus();
-                        return;
-                    }
-                    const totalAmount = document.getElementById('totalAmount')?.innerText || '$0.00';
-                    alert('✅ Formulario completado exitosamente.\n\nPaciente: ' + nombrePaciente + '\nTotal: ' + totalAmount);
-                    // Aquí puedes enviar los datos a tu backend
-                });
+        function initCalendarioCitas() {
+            const fechaInput = document.getElementById('fechaCita');
+            const horaSelect = document.getElementById('horaCita');
+            
+            if (!fechaInput || !horaSelect) return;
+            
+            // Configurar fecha mínima (hoy) y máxima (3 meses después)
+            const hoy = new Date();
+            const tresMesesDespues = new Date();
+            tresMesesDespues.setMonth(tresMesesDespues.getMonth() + 3);
+            
+            // Formatear fechas para input date (YYYY-MM-DD)
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            fechaInput.min = formatDate(hoy);
+            fechaInput.max = formatDate(tresMesesDespues);
+            
+            // Deshabilitar fines de semana en el date picker
+            fechaInput.removeEventListener('input', handleFechaChange);
+            fechaInput.addEventListener('input', handleFechaChange);
+            
+            // Validar también al hacer clic en el calendario
+            fechaInput.removeEventListener('click', handleFechaClick);
+            fechaInput.addEventListener('click', handleFechaClick);
+        }
+
+        function handleFechaChange(e) {
+            const fechaInput = e.target;
+            const horaSelect = document.getElementById('horaCita');
+            
+            if (!fechaInput.value) return;
+            
+            const fecha = new Date(fechaInput.value + 'T12:00:00');
+            if (isNaN(fecha.getTime())) return;
+            
+            const diaSemana = fecha.getDay();
+            
+            // Verificar si es fin de semana
+            if (diaSemana === 0 || diaSemana === 6) {
+                alert('Solo se pueden agendar citas de lunes a viernes');
+                fechaInput.value = '';
+                if (horaSelect) {
+                    horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+                    horaSelect.disabled = true;
+                }
+                return;
             }
+            
+            // Generar horas disponibles si la fecha es válida
+            generarHorasDisponibles(fecha);
+        }
+
+        function handleFechaClick() {
+            const fechaInput = document.getElementById('fechaCita');
+            const horaSelect = document.getElementById('horaCita');
+            
+            if (fechaInput.value) {
+                const fecha = new Date(fechaInput.value + 'T12:00:00');
+                if (!isNaN(fecha.getTime())) {
+                    const diaSemana = fecha.getDay();
+                    if (diaSemana === 0 || diaSemana === 6) {
+                        alert('Solo se pueden agendar citas de lunes a viernes');
+                        fechaInput.value = '';
+                        if (horaSelect) {
+                            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+                            horaSelect.disabled = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        function generarHorasDisponibles(fecha) {
+            const horaSelect = document.getElementById('horaCita');
+            if (!horaSelect) return;
+            
+            // Limpiar opciones actuales
+            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+            
+            // Generar horas de 8:00 a 20:00 (formato 24h)
+            for (let hora = 8; hora <= 20; hora++) {
+                for (let minuto = 0; minuto < 60; minuto += 30) {
+                    if (hora === 20 && minuto === 30) continue;
+                    
+                    const horaFormateada = String(hora).padStart(2, '0');
+                    const minutoFormateado = String(minuto).padStart(2, '0');
+                    const horaValue = `${horaFormateada}:${minutoFormateado}`;
+                    
+                    const hora12 = hora > 12 ? hora - 12 : hora;
+                    const ampm = hora >= 12 ? 'PM' : 'AM';
+                    const horaDisplay = `${hora12}:${minutoFormateado} ${ampm}`;
+                    
+                    const option = document.createElement('option');
+                    option.value = horaValue;
+                    option.textContent = horaDisplay;
+                    horaSelect.appendChild(option);
+                }
+            }
+            
+            horaSelect.disabled = false;
+        }
+
+        function calcularTotalReceta() {
+            const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox:checked');
+            let total = 0;
+            
+            checkboxes.forEach(cb => {
+                const price = parseFloat(cb.dataset.price);
+                if (!isNaN(price) && price > 0) {
+                    total += price;
+                }
+            });
+            
+            const totalFormateado = total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            const totalElement = document.getElementById('totalAmount');
+            if (totalElement) {
+                totalElement.innerHTML = `$${totalFormateado}<small>.00</small>`;
+            }
+            
+            return total;
+        }
+
+        async function generarCitaAdmin() {
+            const messageEl = document.getElementById('recetaMessage');
+            const paciente = document.getElementById('pacienteNombre').value.trim();
+            const fechaCita = document.getElementById('fechaCita').value;
+            const horaCita = document.getElementById('horaCita').value;
+            const fechaNacimiento = document.getElementById('pacienteFN').value;
+            const doctorId = document.getElementById('doctorSeleccionadoId').value;
+            
+            // Validaciones
+            if (!paciente) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor ingrese el nombre del paciente';
+                document.getElementById('pacienteNombre').focus();
+                return;
+            }
+            
+            if (!fechaCita) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione la fecha de la cita';
+                document.getElementById('fechaCita').focus();
+                return;
+            }
+            
+            if (!horaCita) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione la hora de la cita';
+                document.getElementById('horaCita').focus();
+                return;
+            }
+            
+            if (!doctorId) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione un doctor';
+                abrirSelectorDoctores();
+                return;
+            }
+            
+            console.log('📝 Generando cita para doctor:', doctorId);
+            
+            // Recopilar estudios seleccionados
+            const estudios = [];
+            const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox:checked');
+            
+            checkboxes.forEach(cb => {
+                if (cb.dataset.name && cb.dataset.price) {
+                    estudios.push({
+                        nombre: cb.dataset.name,
+                        precio: `$${parseFloat(cb.dataset.price).toFixed(2)}`
+                    });
+                }
+            });
+            
+            // Recopilar observaciones
+            const observaciones = [];
+            
+            const analisisDigital = document.getElementById('analisisDigitalEsp')?.value;
+            if (analisisDigital) observaciones.push(`Análisis Digital: ${analisisDigital}`);
+            
+            const histopatologico = document.getElementById('histopatologicoEsp')?.value;
+            if (histopatologico) observaciones.push(`Estudio histopatológico: ${histopatologico}`);
+            
+            const odontogramaD = document.getElementById('odontogramaDerecho')?.value;
+            if (odontogramaD) observaciones.push(`Odontograma Derecho: ${odontogramaD}`);
+            
+            const odontogramaI = document.getElementById('odontogramaIzquierdo')?.value;
+            if (odontogramaI) observaciones.push(`Odontograma Izquierdo: ${odontogramaI}`);
+            
+            const retenedorSup = document.getElementById('retenedorSup')?.value;
+            if (retenedorSup) observaciones.push(`Retenedor Superior: ${retenedorSup}`);
+            
+            const retenedorInf = document.getElementById('retenedorInf')?.value;
+            if (retenedorInf) observaciones.push(`Retenedor Inferior: ${retenedorInf}`);
+            
+            const previcsPlan = document.getElementById('previcsPlan')?.value;
+            if (previcsPlan) observaciones.push(`Planificación PREVICS: ${previcsPlan}`);
+            
+            const cortesTomograficos = document.getElementById('cortesTomograficosEsp')?.value;
+            if (cortesTomograficos) observaciones.push(`Cortes tomográficos: ${cortesTomograficos}`);
+            
+            const tecnicaCefalo = document.getElementById('tecnicaCefalo')?.value;
+            if (tecnicaCefalo) observaciones.push(`Técnica Cefalométrica: ${tecnicaCefalo}`);
+            
+            const laudaPromo = document.getElementById('laudaPromo')?.value;
+            if (laudaPromo) observaciones.push(`Lauda: ${laudaPromo}`);
+            
+            const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value;
+            if (observacionesAdicionales) observaciones.push(observacionesAdicionales);
+            
+            const formatoRx = document.querySelector('input[name="formatoRx"]:checked');
+            if (formatoRx) {
+                observaciones.push(`Formato Radiografías: ${formatoRx.value.toUpperCase()}`);
+            }
+            
+            const formatoCefalo = document.querySelector('input[name="formatoCefalo"]:checked');
+            if (formatoCefalo) {
+                observaciones.push(`Formato Cefalométrico: ${formatoCefalo.value}`);
+            }
+            
+            if (fechaNacimiento) {
+                const fechaNacimientoFormateada = new Date(fechaNacimiento).toLocaleDateString('es-MX');
+                observaciones.push(`Fecha de nacimiento: ${fechaNacimientoFormateada}`);
+            }
+            
+            try {
+                messageEl.className = 'message';
+                messageEl.innerHTML = '<div class="spinner"></div> Generando cita y PDF...';
+                
+                const response = await fetch('/api/generate-cita', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        paciente: paciente,
+                        doctor_id: doctorId,
+                        estudios: estudios,
+                        observaciones: observaciones.join('\n'),
+                        fecha_cita: fechaCita,
+                        hora_cita: horaCita
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('📡 Respuesta del servidor:', result);
+                
+                if (result.success) {
+                    messageEl.className = 'message success';
+                    
+                    const fechaCitaFormateada = new Date(fechaCita).toLocaleDateString('es-MX');
+                    const [hora, minuto] = horaCita.split(':');
+                    const hora12 = parseInt(hora) > 12 ? parseInt(hora) - 12 : parseInt(hora);
+                    const ampm = parseInt(hora) >= 12 ? 'PM' : 'AM';
+                    const horaDisplay = `${hora12}:${minuto} ${ampm}`;
+                    
+                    const doctorNombre = document.getElementById('doctorSeleccionadoDisplay').value;
+                    
+                    messageEl.innerHTML = `
+                        <i class="fas fa-check-circle"></i> 
+                        Cita generada exitosamente<br>
+                        <strong>Folio:</strong> ${result.numero_folio}<br>
+                        <strong>Doctor:</strong> ${doctorNombre}<br>
+                        <strong>Fecha de registro:</strong> ${result.fecha}<br>
+                        <strong>Hora de registro:</strong> ${result.hora}<br>
+                        <strong>Fecha de cita:</strong> ${fechaCitaFormateada}<br>
+                        <strong>Hora de cita:</strong> ${horaDisplay}
+                    `;
+                    
+                    if (result.pdf_base64) {
+                        downloadPDF(result.pdf_base64, `Receta_${result.numero_folio}_${paciente.replace(/\s+/g, '_')}.pdf`);
+                    }
+                    
+                    // Limpiar formulario
+                    limpiarFormularioReceta();
+                    
+                    setTimeout(() => {
+                        showSection('citas', null);
+                    }, 2000);
+                } else {
+                    messageEl.className = 'message error';
+                    messageEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message || 'Error al generar la cita'}`;
+                }
+            } catch (error) {
+                console.error('❌ Error generando cita:', error);
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error de conexión con el servidor';
+            }
+        }
+
+        function limpiarFormularioReceta() {
+            document.getElementById('pacienteNombre').value = '';
+            document.getElementById('pacienteEdad').value = '';
+            document.getElementById('pacienteFN').value = '';
+            document.getElementById('pacienteTel').value = '';
+            document.getElementById('fechaCita').value = '';
+            
+            const horaSelect = document.getElementById('horaCita');
+            if (horaSelect) {
+                horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+                horaSelect.disabled = true;
+            }
+            
+            document.querySelectorAll('#receta-virtual-section .study-checkbox:checked').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            document.querySelectorAll('#receta-virtual-section input[type="text"], #receta-virtual-section input[type="number"], #receta-virtual-section textarea').forEach(input => {
+                if (input.id !== 'pacienteNombre' && input.id !== 'pacienteEdad' && 
+                    input.id !== 'pacienteFN' && input.id !== 'pacienteTel' &&
+                    input.id !== 'fechaCita' && input.id !== 'doctorSeleccionadoDisplay') {
+                    input.value = '';
+                }
+            });
+            
+            document.querySelectorAll('input[name="formatoRx"]:checked, input[name="formatoCefalo"]:checked').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // Limpiar selección de doctor
+            document.getElementById('doctorSeleccionadoDisplay').value = '';
+            document.getElementById('doctorSeleccionadoId').value = '';
+            document.getElementById('selectedDoctorInfo').style.display = 'none';
+            
+            calcularTotalReceta();
+        }
+
+        function downloadPDF(pdfBase64, filename) {
+            const link = document.createElement('a');
+            link.href = 'data:application/pdf;base64,' + pdfBase64;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // ==============================================
@@ -2672,6 +3332,9 @@
             }
             if (modalId === 'citaDetailModal') {
                 currentCitaIdForModal = null;
+            }
+            if (modalId === 'doctorSelectorModal') {
+                doctorSeleccionadoTemp = null;
             }
         }
 
@@ -2708,6 +3371,31 @@
                 window.location.href = '/';
             }
         }
+
+        // Exponer funciones globalmente
+        window.showSection = showSection;
+        window.showRecetaVirtual = showRecetaVirtual;
+        window.abrirSelectorDoctores = abrirSelectorDoctores;
+        window.filtrarDoctoresSelector = filtrarDoctoresSelector;
+        window.seleccionarDoctorTemp = seleccionarDoctorTemp;
+        window.seleccionarDoctorDeLista = seleccionarDoctorDeLista;
+        window.filterDoctores = filterDoctores;
+        window.searchDoctores = searchDoctores;
+        window.searchCitas = searchCitas;
+        window.searchGlobal = searchGlobal;
+        window.viewUserDetails = viewUserDetails;
+        window.editUser = editUser;
+        window.editCurrentUser = editCurrentUser;
+        window.saveUserChanges = saveUserChanges;
+        window.showCreateDoctorModal = showCreateDoctorModal;
+        window.saveNewDoctor = saveNewDoctor;
+        window.confirmDeleteUser = confirmDeleteUser;
+        window.confirmDelete = confirmDelete;
+        window.descargarPDFCita = descargarPDFCita;
+        window.verDetallesCita = verDetallesCita;
+        window.downloadPdfFromModal = downloadPdfFromModal;
+        window.closeModal = closeModal;
+        window.logout = logout;
     </script>
 </body>
 </html>

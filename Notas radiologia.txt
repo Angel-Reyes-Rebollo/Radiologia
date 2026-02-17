@@ -52,16 +52,11 @@ ADMIN
     ****En lugar de gestion de citas, será gestion de resultados****
     ****Estudios médicos se quita.*****
     Reportes y análisis debe de ser el historial de la activad que ha tenido el doctor/consulltorio con 4digitaly que aparezca en lista 
-    Agregarle y conectar la Receta V 
+    ****Agregarle y conectar la Receta V**** 
     ****Agregar en la pantalla del administrador en la parte izquierda del menu de funciones el boton de crear cuenta para el doctor nuevo****
     Agregar agenda.
-    Solucionar bug de la descarga de pdf en el apartado de Gestion de citas.
+    ****Solucionar bug de la descarga de pdf en el apartado de Gestion de citas.****
 
-
-
-
-PLANTEAMIENTOS
-    "Plantear el mandado de mensaje de la receta virtual de manera manual por parte de doctor, lo único que deja el sistema es dejarle descargar el formulario ya lleno"
 
 
 
@@ -76,6 +71,15 @@ FORMULARIO
 Nota importante:
 Necesitas volver a cargar la base de datos en el XAMP porque tuve que modificarla ya que no nos permitia generar mas citas
 
+
+CAMBIOS 16 DE FEBRERO.
+
+    Se modifico la base de datos para mostrar agendar las citas
+    Se modifico la creacion del pdf para poner las citas y el apartado de los datos del paciente
+    Se le dio nuevo formato al formulario del admin y del doctor
+    Ya se creo el apartado de resultados en la pantalla del doctor
+    Por lo tanto neesitas volver a descargar la base de datos y volverla a subir.
+    Checar los puntos de arriba que no tengan **
 
 
 CARGA

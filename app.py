@@ -1,8 +1,9 @@
-# app.py - VERSIÓN CORREGIDA CON ADMIN FUNCIONAL Y DESCARGA DE PDF
+# app.py - VERSIÓN COMPLETA CON AGENDAMIENTO DE CITAS, DESCARGA DE PDF Y SELECCIÓN DE DOCTOR PARA ADMIN
 import base64
 import io
 import json
 import os
+import re
 from datetime import datetime
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
@@ -70,7 +71,13 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.handle_get_citas(doctor_id)
                 return
             
-            # RUTAS PARA ADMIN - CORREGIDAS
+            # RUTA PARA OBTENER RESULTADOS DEL DOCTOR
+            if self.path.startswith('/api/resultados/'):
+                doctor_id = self.path.split('/')[-1]
+                self.handle_get_resultados(doctor_id)
+                return
+            
+            # RUTAS PARA ADMIN
             if self.path == '/api/admin/stats':
                 self.handle_admin_stats()
                 return
@@ -93,6 +100,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
             if self.path.startswith('/api/descargar-pdf/'):
                 cita_id = self.path.split('/')[-1]
                 self.handle_descargar_pdf(cita_id)
+                return
+            
+            # RUTA PARA DESCARGAR RESULTADO
+            if self.path.startswith('/api/descargar-resultado/'):
+                cita_id = self.path.split('/')[-1]
+                self.handle_descargar_resultado(cita_id)
                 return
             
             super().do_GET()
@@ -119,8 +132,176 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.handle_create_doctor()
         elif self.path == '/api/generate-cita':
             self.handle_generate_cita()
+        elif self.path == '/api/upload-resultado':
+            self.handle_upload_resultado()
         else:
             self.send_error(404)
+    
+    # ==============================================
+    # FUNCIÓN PARA SUBIR RESULTADO
+    # ==============================================
+    
+    def handle_upload_resultado(self):
+        """Subir un archivo de resultado para una cita"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+            
+            cita_id = data.get('cita_id')
+            resultado_base64 = data.get('resultado_base64')
+            resultado_nombre = data.get('resultado_nombre')
+            resultado_tipo = data.get('resultado_tipo')
+            
+            if not all([cita_id, resultado_base64, resultado_nombre, resultado_tipo]):
+                raise ValueError("Faltan datos requeridos para subir el resultado")
+            
+            # Decodificar el archivo base64
+            resultado_pdf = base64.b64decode(resultado_base64)
+            resultado_tamano = len(resultado_pdf)
+            
+            db = self.connect_db()
+            cursor = db.cursor()
+            
+            cursor.execute("""
+                UPDATE citas 
+                SET resultado = %s,
+                    resultado_nombre = %s,
+                    resultado_tipo = %s,
+                    resultado_tamano = %s,
+                    resultado_fecha_carga = NOW()
+                WHERE id_cita = %s
+            """, (resultado_pdf, resultado_nombre, resultado_tipo, resultado_tamano, cita_id))
+            
+            db.commit()
+            cursor.close()
+            db.close()
+            
+            response = {
+                'success': True,
+                'message': 'Resultado subido exitosamente'
+            }
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+            
+        except Exception as e:
+            print(f"Error subiendo resultado: {str(e)}")
+            response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(response).encode())
+    
+    # ==============================================
+    # FUNCIÓN PARA DESCARGAR RESULTADO
+    # ==============================================
+    
+    def handle_descargar_resultado(self, cita_id):
+        """Descargar el resultado de una cita específica"""
+        try:
+            print(f"[API] Descargando resultado para cita ID: {cita_id}")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            cursor.execute("""
+                SELECT resultado, resultado_nombre, numero_folio, paciente
+                FROM citas 
+                WHERE id_cita = %s AND resultado IS NOT NULL
+            """, (cita_id,))
+            
+            cita = cursor.fetchone()
+            cursor.close()
+            db.close()
+            
+            if not cita or not cita['resultado']:
+                print(f"[API] No se encontró resultado para la cita {cita_id}")
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'error': 'Resultado no encontrado'}).encode())
+                return
+            
+            resultado_content = cita['resultado']
+            filename = cita['resultado_nombre'] or f"resultado_{cita['numero_folio']}.pdf"
+            
+            print(f"[API] Enviando resultado: {filename}, tamaño: {len(resultado_content)} bytes")
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/pdf')
+            self.send_header('Content-Disposition', f'attachment; filename="{filename}"')
+            self.send_header('Content-Length', str(len(resultado_content)))
+            self.end_headers()
+            self.wfile.write(resultado_content)
+            
+        except Exception as e:
+            print(f"Error descargando resultado: {str(e)}")
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'error': str(e)}).encode())
+    
+    # ==============================================
+    # FUNCIÓN PARA OBTENER RESULTADOS DEL DOCTOR
+    # ==============================================
+    
+    def handle_get_resultados(self, doctor_id):
+        """Obtener todos los resultados de un doctor específico"""
+        try:
+            print(f"[API] Obteniendo resultados para doctor_id: {doctor_id}")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            # Verificar que el doctor existe
+            cursor.execute("SELECT Diddoctor FROM doctores WHERE Diddoctor = %s", (doctor_id,))
+            doctor = cursor.fetchone()
+            
+            if not doctor:
+                print(f"[API] Doctor no encontrado: {doctor_id}")
+                cursor.close()
+                db.close()
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps([]).encode())
+                return
+            
+            # Obtener resultados de este doctor
+            cursor.execute("""
+                SELECT 
+                    id_cita,
+                    numero_folio,
+                    paciente,
+                    resultado_nombre,
+                    resultado_tamano,
+                    DATE_FORMAT(resultado_fecha_carga, '%d/%m/%Y %H:%i') as fecha_carga,
+                    resultado IS NOT NULL as tiene_resultado
+                FROM citas 
+                WHERE doctor_id = %s AND resultado IS NOT NULL
+                ORDER BY resultado_fecha_carga DESC
+            """, (doctor_id,))
+            
+            resultados = cursor.fetchall()
+            print(f"[API] Se encontraron {len(resultados)} resultados para el doctor {doctor_id}")
+            
+            cursor.close()
+            db.close()
+            
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(resultados).encode())
+            
+        except Exception as e:
+            print(f"Error obteniendo resultados: {str(e)}")
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'error': str(e)}).encode())
     
     # ==============================================
     # FUNCIÓN PARA DESCARGAR PDF DE CITA
@@ -269,11 +450,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
         story.append(Paragraph("Formulario de Prescripción / Receta Virtual", styles['CustomRight']))
         story.append(Spacer(1, 20))
         
-        # Folio y fecha
+        # Folio y fecha de registro
         folio_data = [
             [Paragraph(f"<b>Número de Folio:</b> {data['numero_folio']}", styles['CustomNormal']),
-             Paragraph(f"<b>Fecha:</b> {data['fecha']}", styles['CustomNormal']),
-             Paragraph(f"<b>Hora:</b> {data['hora']}", styles['CustomNormal'])]
+             Paragraph(f"<b>Fecha de Registro:</b> {data['fecha_registro']}", styles['CustomNormal']),
+             Paragraph(f"<b>Hora de Registro:</b> {data['hora_registro']}", styles['CustomNormal'])]
         ]
         folio_table = Table(folio_data, colWidths=[doc.width/3.0]*3)
         folio_table.setStyle(TableStyle([
@@ -286,11 +467,37 @@ class CustomHandler(SimpleHTTPRequestHandler):
         story.append(folio_table)
         story.append(Spacer(1, 20))
         
+        # Datos de la cita
+        story.append(Paragraph("DATOS DE LA CITA", styles['CustomHeading2']))
+        
+        cita_data = [
+            [Paragraph(f"<b>Fecha de Cita:</b> {data['fecha_cita']}", styles['CustomNormal']),
+             Paragraph(f"<b>Hora de Cita:</b> {data['hora_cita']}", styles['CustomNormal'])]
+        ]
+        cita_table = Table(cita_data, colWidths=[doc.width/2.0]*2)
+        cita_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+            ('FONTSIZE', (0,0), (-1,-1), 11),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+        ]))
+        story.append(cita_table)
+        story.append(Spacer(1, 20))
+        
         # Datos del paciente
         story.append(Paragraph("DATOS DEL PACIENTE", styles['CustomHeading2']))
         
+        # Extraer fecha de nacimiento de las observaciones si existe
+        fecha_nacimiento = "No especificada"
+        if data.get('observaciones'):
+            match = re.search(r'Fecha de nacimiento: (.+?)(?:\n|$)', data['observaciones'])
+            if match:
+                fecha_nacimiento = match.group(1)
+        
         paciente_data = [
-            [Paragraph(f"<b>Nombre:</b> {data['paciente']}", styles['CustomNormal'])]
+            [Paragraph(f"<b>Nombre:</b> {data['paciente']}", styles['CustomNormal'])],
+            [Paragraph(f"<b>Fecha de Nacimiento:</b> {fecha_nacimiento}", styles['CustomNormal'])]
         ]
         paciente_table = Table(paciente_data, colWidths=[doc.width])
         paciente_table.setStyle(TableStyle([
@@ -379,9 +586,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
         
         # Observaciones
         if data.get('observaciones'):
-            story.append(Paragraph("OBSERVACIONES", styles['CustomHeading2']))
-            story.append(Paragraph(data['observaciones'], styles['CustomNormal']))
-            story.append(Spacer(1, 20))
+            observaciones_limpio = re.sub(r'Fecha de nacimiento: .+?\n?', '', data['observaciones']).strip()
+            if observaciones_limpio:
+                story.append(Paragraph("OBSERVACIONES ADICIONALES", styles['CustomHeading2']))
+                story.append(Paragraph(observaciones_limpio, styles['CustomNormal']))
+                story.append(Spacer(1, 20))
         
         # Firmas
         signature_data = [
@@ -408,11 +617,9 @@ class CustomHandler(SimpleHTTPRequestHandler):
         
         return pdf
     
-   
-    
     # ==============================================
-# FUNCIÓN PARA GENERAR CITA (RECETA VIRTUAL) - CORREGIDA
-# ==============================================
+    # FUNCIÓN PARA GENERAR CITA (RECETA VIRTUAL)
+    # ==============================================
 
     def handle_generate_cita(self):
         """Generar una nueva cita desde receta virtual"""
@@ -426,9 +633,14 @@ class CustomHandler(SimpleHTTPRequestHandler):
             doctor_id = data.get('doctor_id')
             estudios = data.get('estudios', [])
             observaciones = data.get('observaciones', '')
+            fecha_cita = data.get('fecha_cita')
+            hora_cita = data.get('hora_cita')
             
             if not paciente or not doctor_id:
                 raise ValueError("Faltan datos requeridos: paciente o doctor_id")
+            
+            if not fecha_cita or not hora_cita:
+                raise ValueError("Faltan datos de la cita: fecha y hora son requeridos")
             
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
@@ -446,15 +658,21 @@ class CustomHandler(SimpleHTTPRequestHandler):
             total_citas = result['total'] + 1
             numero_folio = f"FOL-{datetime.now().strftime('%Y%m%d')}-{str(total_citas).zfill(5)}"
             
-            # Fecha y hora actual
-            fecha_actual = datetime.now().strftime('%Y-%m-%d')
-            hora_actual = datetime.now().strftime('%H:%M:%S')
+            # Fecha y hora actual de registro
+            fecha_registro = datetime.now().strftime('%Y-%m-%d')
+            hora_registro = datetime.now().strftime('%H:%M:%S')
+            
+            # Formatear fecha y hora de cita para mostrar
+            fecha_cita_formateada = datetime.strptime(fecha_cita, '%Y-%m-%d').strftime('%d/%m/%Y')
+            hora_cita_formateada = hora_cita
             
             # Generar PDF
             pdf_data = {
                 'numero_folio': numero_folio,
-                'fecha': fecha_actual,
-                'hora': hora_actual,
+                'fecha_registro': fecha_registro,
+                'hora_registro': hora_registro,
+                'fecha_cita': fecha_cita_formateada,
+                'hora_cita': hora_cita_formateada,
                 'paciente': paciente,
                 'doctor_id': doctor_id,
                 'estudios': estudios,
@@ -464,19 +682,22 @@ class CustomHandler(SimpleHTTPRequestHandler):
             pdf_content = self.generate_pdf_cita(pdf_data)
             pdf_size = len(pdf_content)
             
-            # Insertar en base de datos - CORREGIDO: Columnas y valores coinciden
+            # Insertar en base de datos
             cursor.execute("""
                 INSERT INTO citas (
                     numero_folio, paciente, doctor_id, fecha, hora, 
+                    fecha_cita, hora_cita,
                     documento_nombre, documento_pdf, documento_tamano, documento_tipo
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 numero_folio,
                 paciente,
                 doctor_id,
-                fecha_actual,
-                hora_actual,
+                fecha_registro,
+                hora_registro,
+                fecha_cita,
+                hora_cita,
                 f"{paciente}_{numero_folio}.pdf".replace(' ', '_'),
                 pdf_content,
                 pdf_size,
@@ -501,8 +722,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'message': 'Cita generada exitosamente',
                 'cita_id': cita_id,
                 'numero_folio': numero_folio,
-                'fecha': fecha_actual,
-                'hora': hora_actual,
+                'fecha': fecha_registro,
+                'hora': hora_registro,
                 'pdf_base64': pdf_base64
             }
             
@@ -553,13 +774,15 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     paciente,
                     DATE_FORMAT(fecha, '%d/%m/%Y') as fecha,
                     DATE_FORMAT(hora, '%H:%i') as hora,
+                    DATE_FORMAT(fecha_cita, '%Y-%m-%d') as fecha_cita,
+                    TIME_FORMAT(hora_cita, '%H:%i') as hora_cita,
                     documento_nombre,
                     documento_tamano,
-                    resultado,
+                    resultado IS NOT NULL as tiene_resultado,
                     DATE_FORMAT(resultado_fecha_carga, '%d/%m/%Y %H:%i') as resultado_fecha_carga
                 FROM citas 
                 WHERE doctor_id = %s
-                ORDER BY fecha DESC, hora DESC
+                ORDER BY fecha_cita DESC, hora_cita DESC
             """, (doctor_id,))
             
             citas = cursor.fetchall()
@@ -601,11 +824,14 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     d.Diddoctor as doctor_id,
                     DATE_FORMAT(c.fecha, '%d/%m/%Y') as fecha,
                     DATE_FORMAT(c.hora, '%H:%i') as hora,
+                    DATE_FORMAT(c.fecha_cita, '%Y-%m-%d') as fecha_cita,
+                    TIME_FORMAT(c.hora_cita, '%H:%i') as hora_cita,
                     c.documento_nombre,
-                    c.documento_pdf IS NOT NULL as tiene_pdf
+                    c.documento_pdf IS NOT NULL as tiene_pdf,
+                    c.resultado IS NOT NULL as tiene_resultado
                 FROM citas c
                 LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
-                ORDER BY c.fecha DESC, c.hora DESC
+                ORDER BY c.fecha_cita DESC, c.hora_cita DESC
                 LIMIT 50
             """)
             
@@ -628,7 +854,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({'error': str(e)}).encode())
     
     # ==============================================
-    # FUNCIONES PARA ADMIN - CORREGIDAS
+    # FUNCIONES PARA ADMIN
     # ==============================================
     
     def handle_admin_stats(self):
@@ -657,12 +883,16 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.execute("SELECT COUNT(*) as total FROM citas WHERE resultado IS NOT NULL")
             citas_completadas = cursor.fetchone()['total']
             
+            # Estudios pendientes (citas sin resultado)
+            cursor.execute("SELECT COUNT(*) as total FROM citas WHERE resultado IS NULL")
+            estudios_pendientes = cursor.fetchone()['total']
+            
             cursor.close()
             db.close()
             
             stats = {
                 'totalDoctores': total_doctores,
-                'estudiosPendientes': 0,
+                'estudiosPendientes': estudios_pendientes,
                 'nuevosDoctores': nuevos_doctores,
                 'estudiosCompletados': citas_completadas,
                 'totalCitas': total_citas
@@ -681,7 +911,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({'error': str(e)}).encode())
     
     def handle_admin_activity(self):
-        """Obtener actividad reciente de la base de datos - CORREGIDO"""
+        """Obtener actividad reciente de la base de datos"""
         try:
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
@@ -692,6 +922,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     CONCAT('Dr. ', d.nombre) as usuario_id,
                     'doctor' as tipo_usuario,
                     'Nueva cita' as accion,
+                    DATE_FORMAT(c.fecha, '%Y-%m-%d %H:%i') as fecha,
                     CONCAT('Paciente: ', c.paciente, ' - Folio: ', c.numero_folio) as detalles
                 FROM citas c
                 LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
@@ -863,6 +1094,15 @@ class CustomHandler(SimpleHTTPRequestHandler):
             pacientes_result = cursor.fetchone()
             doctor['total_pacientes'] = pacientes_result['total_pacientes'] if pacientes_result else 0
             
+            # Estudios pendientes (citas sin resultado)
+            cursor.execute("""
+                SELECT COUNT(*) as estudios_pendientes
+                FROM citas
+                WHERE doctor_id = %s AND resultado IS NULL
+            """, (doctor_id,))
+            pendientes_result = cursor.fetchone()
+            doctor['estudios_pendientes'] = pendientes_result['estudios_pendientes'] if pendientes_result else 0
+            
             doctor['activo'] = bool(doctor['activo'])
             
             cursor.close()
@@ -922,6 +1162,14 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 """, (doctor['id'],))
                 pacientes_result = cursor.fetchone()
                 doctor['pacientes'] = pacientes_result['total_pacientes'] if pacientes_result else 0
+                
+                cursor.execute("""
+                    SELECT COUNT(*) as estudios_pendientes
+                    FROM citas
+                    WHERE doctor_id = %s AND resultado IS NULL
+                """, (doctor['id'],))
+                pendientes_result = cursor.fetchone()
+                doctor['estudios_pendientes'] = pendientes_result['estudios_pendientes'] if pendientes_result else 0
                 
                 doctor['activo'] = bool(doctor['activo'])
             
@@ -1405,7 +1653,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
 PORT = 8000
 
 print("=" * 60)
-print("🚀 SERVIDOR RADIOLOGÍA MÉDICA - VERSIÓN CORREGIDA")
+print("🚀 SERVIDOR RADIOLOGÍA MÉDICA - VERSIÓN COMPLETA CON SELECCIÓN DE DOCTOR EN ADMIN")
 print("=" * 60)
 print(f"📊 Accede a: http://localhost:{PORT}")
 print("\n👥 Usuarios de prueba:")
@@ -1413,10 +1661,11 @@ print("   • Doctor:    dr.rodriguez / doctor123")
 print("   • Admin:     admin / admin123")
 print("\n📝 Registro disponible en: /registro")
 print("👑 Panel de administración: /admin")
-print("📄 Receta Virtual integrada en Dashboard")
-print("✅ ADMIN CORREGIDO - Carga datos reales de la BD")
-print("✅ ACTIVIDAD RECIENTE - Corregida y funcionando")
-print("✅ DESCARGA PDF - Botón disponible en Gestión de Citas")
+print("📄 Receta Virtual mejorada en Admin:")
+print("   • Agendamiento de citas (días hábiles, horario 8:00-20:00)")
+print("   • Selector de doctores con búsqueda")
+print("   • Visualización del doctor seleccionado")
+print("✅ NUEVA FUNCIONALIDAD: El admin puede asignar el doctor")
 print("=" * 60)
 
 if not os.path.exists('templates'):
