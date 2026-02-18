@@ -23,13 +23,13 @@ login
 Pestaña doctor
     ****Quitar todo lo que tenga que ver con las citas del día de hoy****
     *"Colocar foto de perfil"*
-    Poner filtro con estudios nuevos y últimos 7 días
+    ****Poner filtro con estudios nuevos y últimos 7 días**
     ****Crear un apartado de receta virtual y estar verificando con la pagina****
     ****En lugar de agendar cita ese botón debe de funcionar como vinculo de formulario virtual para no quitarlo****
     ****Pulir el apartado de resultados para descargar los archivos del doctor****
     +++++Crear apartado para resultados.+++++( este ya no lo hice porque se repetiria )
-    Crear y Darle funcionalidad correcta a los filtros en el apartado de citas de la pantalla del doctor 
-    Crear y Darle funcionalidad correcta a los filtros en el apartado de resultados de la pantalla del doctor
+    ****Crear y Darle funcionalidad correcta a los filtros en el apartado de citas de la pantalla del doctor****
+    ****Crear y Darle funcionalidad correcta a los filtros en el apartado de resultados de la pantalla del doctor****
     ****Agregarle y conectar la Receta V**** 
     ****Pulir el apartado de configuración para la pantalla del doctor****
     ****el doctor puede generar su historial de estudios que ha hecho con 4digital****
@@ -41,6 +41,7 @@ Pestaña doctor
 BASE DE DATOS
     ****En la BD crear el apartado para los resultados, donde únicamente irán los resultados, el numero de folio que se genera del paciente y el año de nacimiento del paciente. "por definir"****
     ****En la BD borrar citas, pacientes, modificar los estudios disponibles,**** 
+    En las citas, dar el costo total en el ultimo campo.
 
 
 
@@ -56,6 +57,7 @@ ADMIN
     ****Agregar en la pantalla del administrador en la parte izquierda del menu de funciones el boton de crear cuenta para el doctor nuevo****
     Agregar agenda.
     ****Solucionar bug de la descarga de pdf en el apartado de Gestion de citas.****
+    ****Agregar la receta virtual con todo igual y que pueda seleccionar al doctor****
 
 
 
@@ -68,18 +70,13 @@ FORMULARIO
 
 
 
-Nota importante:
-Necesitas volver a cargar la base de datos en el XAMP porque tuve que modificarla ya que no nos permitia generar mas citas
 
+CAMBIOS 17 DE FEBRERO.
 
-CAMBIOS 16 DE FEBRERO.
+Puse filtros de busqueda en el doctor 
+Puse bien la receta virtual 
 
-    Se modifico la base de datos para mostrar agendar las citas
-    Se modifico la creacion del pdf para poner las citas y el apartado de los datos del paciente
-    Se le dio nuevo formato al formulario del admin y del doctor
-    Ya se creo el apartado de resultados en la pantalla del doctor
-    Por lo tanto neesitas volver a descargar la base de datos y volverla a subir.
-    Checar los puntos de arriba que no tengan **
+Ya mañana te enseño padre santo
 
 
 CARGA

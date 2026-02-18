@@ -1181,6 +1181,44 @@
             align-items: center;
             gap: 10px;
         }
+
+        /* Estilos para mensajes */
+        .message {
+            display: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1a2980;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -1238,7 +1276,7 @@
                 Crear Nuevo Doctor
             </button>
             
-            <!-- Nuevo botón de Receta Virtual -->
+            <!-- Botón de Receta Virtual -->
             <button class="receta-virtual-btn" onclick="showRecetaVirtual()">
                 <i class="fas fa-prescription-bottle-alt"></i>
                 Receta Virtual
@@ -1352,7 +1390,7 @@
                 </div>
             </div>
 
-            <!-- Gestión de Citas - CON BOTÓN DE DESCARGA PDF -->
+            <!-- Gestión de Citas -->
             <div id="citas-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-calendar-check"></i> Gestión de Citas</h2>
@@ -1400,7 +1438,7 @@
                 </div>
             </div>
 
-            <!-- NUEVA SECCIÓN: RECETA VIRTUAL (Formulario DRD) - CON APARTADO DE CITA Y SELECCIÓN DE DOCTOR -->
+            <!-- RECETA VIRTUAL - COMPLETAMENTE FUNCIONAL COMO EL INDEX -->
             <div id="receta-virtual-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h1>Receta Virtual / Formulario de Prescripción</h1>
@@ -1466,7 +1504,7 @@
                             </div>
                         </div>
                         
-                        <!-- NUEVA SECCIÓN: AGENDAR CITA - IGUAL QUE EN INDEX -->
+                        <!-- SECCIÓN: AGENDAR CITA (IGUAL AL INDEX) -->
                         <div class="info-header" style="margin-top: 20px;">
                             <i class="fas fa-calendar-alt"></i>
                             <span>AGENDAR CITA</span>
@@ -1490,7 +1528,7 @@
                             </div>
                         </div>
                         
-                        <!-- NUEVO CAMPO: SELECCIÓN DE DOCTOR -->
+                        <!-- SELECCIÓN DE DOCTOR -->
                         <div class="info-header" style="margin-top: 20px;">
                             <i class="fas fa-user-md"></i>
                             <span>SELECCIONAR DOCTOR</span>
@@ -1516,14 +1554,14 @@
                         </div>
                     </div>
 
-                    <!-- ========== FORMULARIO 1 (izquierda en imagen) ========= -->
+                    <!-- ========== FORMULARIO 1 ========= -->
                     <div class="form-divider">
                         <i class="fas fa-clipboard-list" style="font-size: 28px;"></i>
                         <span>FORMULARIO 1 · ESTUDIOS ORTODÓNTICOS Y RADIOGRAFÍAS</span>
                         <div class="divider-line"></div>
                     </div>
 
-                    <!-- SECCIÓN: ESTUDIO ORTODÓNTICO COMPLETO (formulario 1) -->
+                    <!-- ESTUDIO ORTODÓNTICO COMPLETO -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-teeth"></i>
@@ -1553,7 +1591,7 @@
                         </div>
                     </div>
 
-                    <!-- SECCIÓN: ESTUDIO ORTHOKINÉTICO (formulario 1) -->
+                    <!-- ESTUDIO ORTHOKINÉTICO -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-dna"></i>
@@ -1577,7 +1615,6 @@
                                 <label for="escaneoIntraoral">Escaneo Intraoral <span class="price-tag">Consultar</span></label>
                             </div>
                         </div>
-                        <!-- CAMPO DE TEXTO: Análisis DIGITAL (Bolton) -->
                         <div class="text-field-group">
                             <div class="text-field">
                                 <label><i class="fas fa-chart-bar"></i> Análisis DIGITAL:</label>
@@ -1586,13 +1623,12 @@
                         </div>
                     </div>
 
-                    <!-- SECCIÓN: RADIOGRAFÍAS (formulario 1 detallado) -->
+                    <!-- RADIOGRAFÍAS -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-x-ray"></i>
                             <h2>RADIOGRAFÍAS</h2>
                         </div>
-                        <!-- OPCIONES DE FORMATO DIGITAL/IMPRESO/CD/CORREO -->
                         <div style="padding: 15px 25px 0; display: flex; gap: 30px; flex-wrap: wrap; background: #f9fbfd;">
                             <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="formatoRx" value="impreso" id="formatoImpreso"> DIGITAL IMPRESO</label>
                             <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="formatoRx" value="cd" id="formatoCD"> DIGITAL CD</label>
@@ -1616,7 +1652,7 @@
                         </div>
                     </div>
 
-                    <!-- SECCIÓN: FOTOGRAFÍAS (formulario 1) -->
+                    <!-- FOTOGRAFÍAS -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-camera"></i>
@@ -1630,7 +1666,7 @@
                         </div>
                     </div>
 
-                    <!-- SECCIÓN: ANATOMÍA PATOLÓGICA (formulario 1) -->
+                    <!-- ANATOMÍA PATOLÓGICA -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-microscope"></i>
@@ -1644,7 +1680,7 @@
                         </div>
                     </div>
 
-                    <!-- SECCIÓN: ODONTOGRAMA (formulario 1) -->
+                    <!-- ODONTOGRAMA -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-chart-pie"></i>
@@ -1664,14 +1700,14 @@
                         </div>
                     </div>
 
-                    <!-- ========== FORMULARIO 2 (derecha en imagen) ========= -->
+                    <!-- ========== FORMULARIO 2 ========= -->
                     <div class="form-divider">
                         <i class="fas fa-copy" style="font-size: 28px;"></i>
                         <span>FORMULARIO 2 · ESTUDIOS AVANZADOS Y DIGITALES</span>
                         <div class="divider-line"></div>
                     </div>
 
-                    <!-- MODELOS DE ESTUDIO (formulario 2) -->
+                    <!-- MODELOS DE ESTUDIO -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-tooth"></i>
@@ -1687,7 +1723,7 @@
                         </div>
                     </div>
 
-                    <!-- ANÁLISIS DIGITAL (formulario 2) -->
+                    <!-- ANÁLISIS DIGITAL -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-chart-line"></i>
@@ -1701,7 +1737,7 @@
                         </div>
                     </div>
 
-                    <!-- TOMOGRAFÍA VOLUMÉTRICA CONE-BEAM 3D (formulario 2) -->
+                    <!-- TOMOGRAFÍA VOLUMÉTRICA CONE-BEAM 3D -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-cube"></i>
@@ -1713,7 +1749,6 @@
                             <div class="option-item"><input type="checkbox" class="study-checkbox" id="tvcMaxilar" data-price="1600.00" data-name="Maxilar Superior"><label for="tvcMaxilar">Maxilar Superior <span class="price-tag">$1,600</span></label></div>
                             <div class="option-item"><input type="checkbox" class="study-checkbox" id="tvcInferior" data-price="1600.00" data-name="Maxilar Inferior"><label for="tvcInferior">Maxilar Inferior <span class="price-tag">$1,600</span></label></div>
                         </div>
-                        <!-- Módulos OnDemand3D opcionales con checkboxes -->
                         <div class="modules-container">
                             <p style="font-weight: 600; color: #1a2980; margin-bottom: 10px;"><i class="fas fa-puzzle-piece"></i> Módulos OnDemand3D™ opcionales:</p>
                             <div class="modules-grid">
@@ -1726,7 +1761,6 @@
                                 <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0" data-name="Paquete OnDemand3D"> Paquete OnDemand3D™</label>
                                 <label class="module-item"><input type="checkbox" class="study-checkbox" data-price="0" data-name="Diseño Tridimensional 3D"> Diseño Tridimensional 3D</label>
                             </div>
-                            <!-- CAMPO DE TEXTO: especificar zona en odontograma -->
                             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
                                 <span style="font-weight: 500; color: #1a2980;">Impresión de cortes tomográficos (especificar zona):</span>
                                 <input type="text" placeholder="Ej: maxilar superior derecho" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #e1e5ee;" id="cortesTomograficosEsp">
@@ -1734,7 +1768,7 @@
                         </div>
                     </div>
 
-                    <!-- PAQUETES ALINEADORES / INVISIBILEN® (formulario 2) -->
+                    <!-- PAQUETES ALINEADORES / INVISIBILEN® -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-align-center"></i>
@@ -1744,7 +1778,6 @@
                             <div class="option-item"><input type="checkbox" class="study-checkbox" id="invisibilenI" data-price="0" data-name="INVISIBILEN I"><label for="invisibilenI">INVISIBILEN® I <span style="font-size: 12px; color: #4a5568;">(Tomografía + fotos intra/extra + impresión polivinil o escaneo)</span> <span class="price-tag">$ Consultar</span></label></div>
                             <div class="option-item"><input type="checkbox" class="study-checkbox" id="invisibilenII" data-price="0" data-name="INVISIBILEN II"><label for="invisibilenII">INVISIBILEN® II <span style="font-size: 12px; color: #4a5568;">(+ Rx Panorámica y Rx Lateral)</span> <span class="price-tag">$ Consultar</span></label></div>
                         </div>
-                        <!-- CAMPOS DE TEXTO: Retenedores y Planificación PREVICS® -->
                         <div class="text-field-group">
                             <div class="text-field">
                                 <label>Retenedor Superior:</label>
@@ -1761,7 +1794,7 @@
                         </div>
                     </div>
 
-                    <!-- ESTEREOLITOGRAFÍA (formulario 2) -->
+                    <!-- ESTEREOLITOGRAFÍA -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-print"></i>
@@ -1773,7 +1806,7 @@
                         </div>
                     </div>
 
-                    <!-- GUÍAS QUIRÚRGICAS DRD 3D (formulario 2) -->
+                    <!-- GUÍAS QUIRÚRGICAS DRD 3D -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-syringe"></i>
@@ -1787,7 +1820,7 @@
                         </div>
                     </div>
 
-                    <!-- ANÁLISIS CEFALOMÉTRICO DOLPHIN IMAGING® (formulario 2) -->
+                    <!-- ANÁLISIS CEFALOMÉTRICO DOLPHIN IMAGING® -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-dolphin"></i>
@@ -1799,7 +1832,6 @@
                             <div class="option-item"><input type="checkbox" class="study-checkbox" id="cefalo3D" data-price="130.00" data-name="3D"><label for="cefalo3D">3D <span class="price-tag">$130</span></label></div>
                             <div class="option-item"><input type="checkbox" class="study-checkbox" id="cefaloFrontal" data-price="130.00" data-name="Análisis frontal (PA)"><label for="cefaloFrontal">Análisis frontal (PA) <span class="price-tag">$130</span></label></div>
                         </div>
-                        <!-- Especificaciones de técnica, impreso, CD, sobre radiografía/foto -->
                         <div style="padding: 15px 25px; display: flex; flex-wrap: wrap; gap: 25px; background: #f9fbfd; border-top: 1px solid #e1e5ee;">
                             <div><label style="font-weight: 600;">Técnica:</label> <input type="text" placeholder="Especificar" style="padding: 8px; border-radius: 6px; border: 1px solid #e1e5ee;" id="tecnicaCefalo"></div>
                             <div><label style="font-weight: 600;">Formato:</label> 
@@ -1811,7 +1843,7 @@
                         </div>
                     </div>
 
-                    <!-- BIOTRANSFER 3D® BONDEADO DIGITAL (formulario 2) -->
+                    <!-- BIOTRANSFER 3D® BONDEADO DIGITAL -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-bond"></i>
@@ -1842,7 +1874,7 @@
                         </div>
                     </div>
 
-                    <!-- ========== TOTAL Y BOTÓN COMPLETAR ========= -->
+                    <!-- TOTAL Y BOTÓN COMPLETAR -->
                     <div class="total-container">
                         <div class="total-box">
                             <span class="total-label"><i class="fas fa-calculator" style="color: #26d0ce;"></i> TOTAL ESTUDIOS:</span>
@@ -2478,7 +2510,7 @@
         }
 
         // ==============================================
-        // FUNCIONES DE CITAS - CON BOTÓN DE DESCARGA PDF
+        // FUNCIONES DE CITAS
         // ==============================================
         
         async function loadAllCitas() {
@@ -2633,327 +2665,7 @@
         }
 
         // ==============================================
-        // FUNCIONES DE DETALLES Y EDICIÓN
-        // ==============================================
-        
-        async function viewUserDetails(userId) {
-            try {
-                console.log('Viendo detalles del doctor:', userId);
-                const response = await fetch(`/api/usuarios/doctor/${userId}`);
-                
-                if (!response.ok) {
-                    throw new Error('Error al cargar detalles');
-                }
-                
-                const user = await response.json();
-                
-                const content = `
-                    <div class="info-grid">
-                        <div>
-                            <div class="info-label">ID:</div>
-                            <div class="info-value">${user.id || 'N/A'}</div>
-                            
-                            <div class="info-label">Nombre:</div>
-                            <div class="info-value">${user.nombre || 'N/A'}</div>
-                            
-                            <div class="info-label">Usuario:</div>
-                            <div class="info-value">${user.usuario || 'N/A'}</div>
-                            
-                            <div class="info-label">Especialidad:</div>
-                            <div class="info-value">${user.especialidad || 'N/A'}</div>
-                            
-                            <div class="info-label">Email:</div>
-                            <div class="info-value">${user.email || 'N/A'}</div>
-                        </div>
-                        <div>
-                            <div class="info-label">Teléfono Personal:</div>
-                            <div class="info-value">${user.telefono || 'N/A'}</div>
-                            
-                            <div class="info-label">Teléfono Consultorio:</div>
-                            <div class="info-value">${user.telefono_consultorio || 'N/A'}</div>
-                            
-                            <div class="info-label">Dirección:</div>
-                            <div class="info-value">${user.direccion_consultorio || 'N/A'}</div>
-                            
-                            <div class="info-label">Fecha Registro:</div>
-                            <div class="info-value">${user.fecha_registro || 'N/A'}</div>
-                            
-                            <div class="info-label">Estado:</div>
-                            <div class="info-value"><span class="status-badge ${user.activo ? 'status-active' : 'status-inactive'}">${user.activo ? 'Activo' : 'Inactivo'}</span></div>
-                            
-                            <div class="info-label">Total Citas:</div>
-                            <div class="info-value">${user.total_citas || '0'}</div>
-                            
-                            <div class="info-label">Pacientes:</div>
-                            <div class="info-value">${user.total_pacientes || '0'}</div>
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('detailContent').innerHTML = content;
-                currentUserToEdit = userId;
-                document.getElementById('detailModal').classList.add('active');
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al cargar detalles del doctor');
-            }
-        }
-
-        async function editUser(userId) {
-            try {
-                console.log('Editando doctor:', userId);
-                const response = await fetch(`/api/usuarios/doctor/${userId}`);
-                
-                if (!response.ok) {
-                    throw new Error('Error al cargar datos');
-                }
-                
-                const user = await response.json();
-                
-                document.getElementById('editNombre').value = user.nombre || '';
-                document.getElementById('editUsuario').value = user.usuario || '';
-                document.getElementById('editEmail').value = user.email || '';
-                document.getElementById('editEspecialidad').value = user.especialidad || '';
-                document.getElementById('editTelefono').value = user.telefono || '';
-                document.getElementById('editTelefonoConsultorio').value = user.telefono_consultorio || '';
-                document.getElementById('editDireccionConsultorio').value = user.direccion_consultorio || '';
-                document.getElementById('editEstado').value = user.activo ? 'active' : 'inactive';
-                document.getElementById('editUserId').value = userId;
-                document.getElementById('editUserType').value = 'doctor';
-                document.getElementById('editPassword').value = '';
-                
-                document.getElementById('editUserModal').classList.add('active');
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al cargar datos del doctor');
-            }
-        }
-
-        function editCurrentUser() {
-            closeModal('detailModal');
-            if (currentUserToEdit) {
-                editUser(currentUserToEdit);
-            }
-        }
-
-        async function saveUserChanges() {
-            const userId = document.getElementById('editUserId').value;
-            const userType = document.getElementById('editUserType').value;
-            
-            const data = {
-                userId: userId,
-                userType: userType,
-                nombre: document.getElementById('editNombre').value,
-                usuario: document.getElementById('editUsuario').value,
-                email: document.getElementById('editEmail').value,
-                especialidad: document.getElementById('editEspecialidad').value,
-                telefono: document.getElementById('editTelefono').value,
-                telefono_consultorio: document.getElementById('editTelefonoConsultorio').value,
-                direccion_consultorio: document.getElementById('editDireccionConsultorio').value,
-                estado: document.getElementById('editEstado').value
-            };
-            
-            const password = document.getElementById('editPassword').value;
-            if (password && password.trim() !== '') {
-                data.password = password;
-            }
-            
-            try {
-                console.log('Guardando cambios:', data);
-                const response = await fetch('/api/update-user', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Doctor actualizado correctamente');
-                    closeModal('editUserModal');
-                    loadDoctores();
-                    loadAdminStats();
-                    loadActivityLog();
-                } else {
-                    alert('Error: ' + result.message);
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al guardar los cambios');
-            }
-        }
-
-        // ==============================================
-        // FUNCIONES DE CREACIÓN
-        // ==============================================
-        
-        function showCreateDoctorModal() {
-            document.getElementById('createDoctorForm').reset();
-            document.getElementById('createDoctorModal').classList.add('active');
-        }
-
-        async function saveNewDoctor() {
-            const data = {
-                nombre: document.getElementById('createNombre').value,
-                usuario: document.getElementById('createUsuario').value,
-                email: document.getElementById('createEmail').value,
-                password: document.getElementById('createPassword').value,
-                especialidad: document.getElementById('createEspecialidad').value,
-                telefono: document.getElementById('createTelefono').value,
-                telefono_consultorio: document.getElementById('createTelefonoConsultorio').value,
-                direccion_consultorio: document.getElementById('createDireccionConsultorio').value
-            };
-            
-            if (!data.nombre || !data.usuario || !data.email || !data.password) {
-                alert('Complete todos los campos obligatorios (*)');
-                return;
-            }
-            
-            try {
-                console.log('Creando doctor:', data);
-                const response = await fetch('/api/create-doctor', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Doctor creado correctamente');
-                    closeModal('createDoctorModal');
-                    loadDoctores();
-                    loadAdminStats();
-                    loadActivityLog();
-                } else {
-                    alert('Error: ' + result.message);
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al crear el doctor');
-            }
-        }
-
-        // ==============================================
-        // FUNCIONES DE ELIMINACIÓN
-        // ==============================================
-        
-        function confirmDeleteUser(userId, userType, userName) {
-            currentUserToDelete = userId;
-            currentUserToDeleteType = userType;
-            document.getElementById('deleteMessage').textContent = `¿Eliminar al doctor "${userName}"? Esta acción no se puede deshacer.`;
-            document.getElementById('deleteModal').classList.add('active');
-        }
-
-        async function confirmDelete() {
-            if (!currentUserToDelete) return;
-            
-            try {
-                console.log('Eliminando doctor:', currentUserToDelete);
-                const response = await fetch('/api/delete-user', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        userId: currentUserToDelete,
-                        userType: currentUserToDeleteType
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Doctor eliminado correctamente');
-                    closeModal('deleteModal');
-                    loadDoctores();
-                    loadAdminStats();
-                    loadActivityLog();
-                } else {
-                    alert('Error: ' + result.message);
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error al eliminar el doctor');
-            }
-        }
-
-        // ==============================================
-        // FUNCIONES DE FILTROS Y BÚSQUEDA
-        // ==============================================
-        
-        function filterDoctores(filter, event) {
-            if (event) {
-                event.preventDefault();
-                const buttons = document.querySelectorAll('#doctores-section .filter-btn');
-                buttons.forEach(btn => btn.classList.remove('active'));
-                event.currentTarget.classList.add('active');
-            }
-            
-            const rows = document.querySelectorAll('#doctoresTable tr');
-            
-            rows.forEach(row => {
-                if (row.cells.length > 1 && 
-                    row.cells[0].textContent !== 'Cargando doctores...' && 
-                    row.cells[0].textContent !== 'No hay doctores registrados' &&
-                    !row.cells[0].textContent.includes('Error')) {
-                    
-                    const estadoCelda = row.cells[11];
-                    if (estadoCelda) {
-                        const estado = estadoCelda.textContent;
-                        if (filter === 'all') {
-                            row.style.display = '';
-                        } else if (filter === 'active') {
-                            row.style.display = estado.includes('Activo') ? '' : 'none';
-                        } else if (filter === 'inactive') {
-                            row.style.display = estado.includes('Inactivo') ? '' : 'none';
-                        }
-                    }
-                }
-            });
-        }
-
-        function searchDoctores() {
-            const searchTerm = document.getElementById('searchDoctores').value.toLowerCase();
-            const rows = document.querySelectorAll('#doctoresTable tr');
-            
-            rows.forEach(row => {
-                if (row.cells.length > 1 && 
-                    row.cells[0].textContent !== 'Cargando doctores...' && 
-                    row.cells[0].textContent !== 'No hay doctores registrados' &&
-                    !row.cells[0].textContent.includes('Error')) {
-                    
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
-                }
-            });
-        }
-
-        function searchCitas() {
-            const searchTerm = document.getElementById('searchCitas').value.toLowerCase();
-            const rows = document.querySelectorAll('#citasTable tr');
-            
-            rows.forEach(row => {
-                if (row.cells.length > 1 && 
-                    row.cells[0].textContent !== 'Cargando citas...' && 
-                    row.cells[0].textContent !== 'No hay citas registradas' &&
-                    !row.cells[0].textContent.includes('Error')) {
-                    
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
-                }
-            });
-        }
-
-        function searchGlobal() {
-            alert('Búsqueda global en desarrollo');
-        }
-
-        // ==============================================
-        // FUNCIONES DE RECETA VIRTUAL (DESDE INDEX)
+        // FUNCIONES DE RECETA VIRTUAL (IGUAL AL INDEX)
         // ==============================================
         
         function initRecetaVirtualForm() {
@@ -3319,6 +3031,326 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        // ==============================================
+        // FUNCIONES DE DETALLES Y EDICIÓN
+        // ==============================================
+        
+        async function viewUserDetails(userId) {
+            try {
+                console.log('Viendo detalles del doctor:', userId);
+                const response = await fetch(`/api/usuarios/doctor/${userId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Error al cargar detalles');
+                }
+                
+                const user = await response.json();
+                
+                const content = `
+                    <div class="info-grid">
+                        <div>
+                            <div class="info-label">ID:</div>
+                            <div class="info-value">${user.id || 'N/A'}</div>
+                            
+                            <div class="info-label">Nombre:</div>
+                            <div class="info-value">${user.nombre || 'N/A'}</div>
+                            
+                            <div class="info-label">Usuario:</div>
+                            <div class="info-value">${user.usuario || 'N/A'}</div>
+                            
+                            <div class="info-label">Especialidad:</div>
+                            <div class="info-value">${user.especialidad || 'N/A'}</div>
+                            
+                            <div class="info-label">Email:</div>
+                            <div class="info-value">${user.email || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div class="info-label">Teléfono Personal:</div>
+                            <div class="info-value">${user.telefono || 'N/A'}</div>
+                            
+                            <div class="info-label">Teléfono Consultorio:</div>
+                            <div class="info-value">${user.telefono_consultorio || 'N/A'}</div>
+                            
+                            <div class="info-label">Dirección:</div>
+                            <div class="info-value">${user.direccion_consultorio || 'N/A'}</div>
+                            
+                            <div class="info-label">Fecha Registro:</div>
+                            <div class="info-value">${user.fecha_registro || 'N/A'}</div>
+                            
+                            <div class="info-label">Estado:</div>
+                            <div class="info-value"><span class="status-badge ${user.activo ? 'status-active' : 'status-inactive'}">${user.activo ? 'Activo' : 'Inactivo'}</span></div>
+                            
+                            <div class="info-label">Total Citas:</div>
+                            <div class="info-value">${user.total_citas || '0'}</div>
+                            
+                            <div class="info-label">Pacientes:</div>
+                            <div class="info-value">${user.total_pacientes || '0'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('detailContent').innerHTML = content;
+                currentUserToEdit = userId;
+                document.getElementById('detailModal').classList.add('active');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar detalles del doctor');
+            }
+        }
+
+        async function editUser(userId) {
+            try {
+                console.log('Editando doctor:', userId);
+                const response = await fetch(`/api/usuarios/doctor/${userId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Error al cargar datos');
+                }
+                
+                const user = await response.json();
+                
+                document.getElementById('editNombre').value = user.nombre || '';
+                document.getElementById('editUsuario').value = user.usuario || '';
+                document.getElementById('editEmail').value = user.email || '';
+                document.getElementById('editEspecialidad').value = user.especialidad || '';
+                document.getElementById('editTelefono').value = user.telefono || '';
+                document.getElementById('editTelefonoConsultorio').value = user.telefono_consultorio || '';
+                document.getElementById('editDireccionConsultorio').value = user.direccion_consultorio || '';
+                document.getElementById('editEstado').value = user.activo ? 'active' : 'inactive';
+                document.getElementById('editUserId').value = userId;
+                document.getElementById('editUserType').value = 'doctor';
+                document.getElementById('editPassword').value = '';
+                
+                document.getElementById('editUserModal').classList.add('active');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar datos del doctor');
+            }
+        }
+
+        function editCurrentUser() {
+            closeModal('detailModal');
+            if (currentUserToEdit) {
+                editUser(currentUserToEdit);
+            }
+        }
+
+        async function saveUserChanges() {
+            const userId = document.getElementById('editUserId').value;
+            const userType = document.getElementById('editUserType').value;
+            
+            const data = {
+                userId: userId,
+                userType: userType,
+                nombre: document.getElementById('editNombre').value,
+                usuario: document.getElementById('editUsuario').value,
+                email: document.getElementById('editEmail').value,
+                especialidad: document.getElementById('editEspecialidad').value,
+                telefono: document.getElementById('editTelefono').value,
+                telefono_consultorio: document.getElementById('editTelefonoConsultorio').value,
+                direccion_consultorio: document.getElementById('editDireccionConsultorio').value,
+                estado: document.getElementById('editEstado').value
+            };
+            
+            const password = document.getElementById('editPassword').value;
+            if (password && password.trim() !== '') {
+                data.password = password;
+            }
+            
+            try {
+                console.log('Guardando cambios:', data);
+                const response = await fetch('/api/update-user', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Doctor actualizado correctamente');
+                    closeModal('editUserModal');
+                    loadDoctores();
+                    loadAdminStats();
+                    loadActivityLog();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al guardar los cambios');
+            }
+        }
+
+        // ==============================================
+        // FUNCIONES DE CREACIÓN
+        // ==============================================
+        
+        function showCreateDoctorModal() {
+            document.getElementById('createDoctorForm').reset();
+            document.getElementById('createDoctorModal').classList.add('active');
+        }
+
+        async function saveNewDoctor() {
+            const data = {
+                nombre: document.getElementById('createNombre').value,
+                usuario: document.getElementById('createUsuario').value,
+                email: document.getElementById('createEmail').value,
+                password: document.getElementById('createPassword').value,
+                especialidad: document.getElementById('createEspecialidad').value,
+                telefono: document.getElementById('createTelefono').value,
+                telefono_consultorio: document.getElementById('createTelefonoConsultorio').value,
+                direccion_consultorio: document.getElementById('createDireccionConsultorio').value
+            };
+            
+            if (!data.nombre || !data.usuario || !data.email || !data.password) {
+                alert('Complete todos los campos obligatorios (*)');
+                return;
+            }
+            
+            try {
+                console.log('Creando doctor:', data);
+                const response = await fetch('/api/create-doctor', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Doctor creado correctamente');
+                    closeModal('createDoctorModal');
+                    loadDoctores();
+                    loadAdminStats();
+                    loadActivityLog();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al crear el doctor');
+            }
+        }
+
+        // ==============================================
+        // FUNCIONES DE ELIMINACIÓN
+        // ==============================================
+        
+        function confirmDeleteUser(userId, userType, userName) {
+            currentUserToDelete = userId;
+            currentUserToDeleteType = userType;
+            document.getElementById('deleteMessage').textContent = `¿Eliminar al doctor "${userName}"? Esta acción no se puede deshacer.`;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        async function confirmDelete() {
+            if (!currentUserToDelete) return;
+            
+            try {
+                console.log('Eliminando doctor:', currentUserToDelete);
+                const response = await fetch('/api/delete-user', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        userId: currentUserToDelete,
+                        userType: currentUserToDeleteType
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Doctor eliminado correctamente');
+                    closeModal('deleteModal');
+                    loadDoctores();
+                    loadAdminStats();
+                    loadActivityLog();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar el doctor');
+            }
+        }
+
+        // ==============================================
+        // FUNCIONES DE FILTROS Y BÚSQUEDA
+        // ==============================================
+        
+        function filterDoctores(filter, event) {
+            if (event) {
+                event.preventDefault();
+                const buttons = document.querySelectorAll('#doctores-section .filter-btn');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+            }
+            
+            const rows = document.querySelectorAll('#doctoresTable tr');
+            
+            rows.forEach(row => {
+                if (row.cells.length > 1 && 
+                    row.cells[0].textContent !== 'Cargando doctores...' && 
+                    row.cells[0].textContent !== 'No hay doctores registrados' &&
+                    !row.cells[0].textContent.includes('Error')) {
+                    
+                    const estadoCelda = row.cells[11];
+                    if (estadoCelda) {
+                        const estado = estadoCelda.textContent;
+                        if (filter === 'all') {
+                            row.style.display = '';
+                        } else if (filter === 'active') {
+                            row.style.display = estado.includes('Activo') ? '' : 'none';
+                        } else if (filter === 'inactive') {
+                            row.style.display = estado.includes('Inactivo') ? '' : 'none';
+                        }
+                    }
+                }
+            });
+        }
+
+        function searchDoctores() {
+            const searchTerm = document.getElementById('searchDoctores').value.toLowerCase();
+            const rows = document.querySelectorAll('#doctoresTable tr');
+            
+            rows.forEach(row => {
+                if (row.cells.length > 1 && 
+                    row.cells[0].textContent !== 'Cargando doctores...' && 
+                    row.cells[0].textContent !== 'No hay doctores registrados' &&
+                    !row.cells[0].textContent.includes('Error')) {
+                    
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                }
+            });
+        }
+
+        function searchCitas() {
+            const searchTerm = document.getElementById('searchCitas').value.toLowerCase();
+            const rows = document.querySelectorAll('#citasTable tr');
+            
+            rows.forEach(row => {
+                if (row.cells.length > 1 && 
+                    row.cells[0].textContent !== 'Cargando citas...' && 
+                    row.cells[0].textContent !== 'No hay citas registradas' &&
+                    !row.cells[0].textContent.includes('Error')) {
+                    
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                }
+            });
+        }
+
+        function searchGlobal() {
+            alert('Búsqueda global en desarrollo');
         }
 
         // ==============================================

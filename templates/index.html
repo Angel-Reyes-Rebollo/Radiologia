@@ -1163,7 +1163,162 @@
             font-size: 12px;
         }
         
-        /* Responsive */
+        /* Estilos para filtros */
+        .filters-container {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #e1e5ee;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filters-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #1a2980;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .filters-header i {
+            font-size: 24px;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a5568;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .filter-input {
+            padding: 10px 15px;
+            border: 1px solid #e1e5ee;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: #1a2980;
+            box-shadow: 0 0 0 3px rgba(26, 41, 128, 0.1);
+        }
+        
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #e1e5ee;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .btn-filter {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-filter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.3);
+        }
+        
+        .btn-clear-filter {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-clear-filter:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .active-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px 0;
+        }
+        
+        .filter-tag {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1a2980;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #1a2980;
+        }
+        
+        .filter-tag i {
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .filter-tag i:hover {
+            color: #dc3545;
+        }
+        
+        .date-range-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .date-range-group input {
+            flex: 1;
+        }
+        
         @media (max-width: 1200px) {
             .stats-container {
                 grid-template-columns: repeat(2, 1fr);
@@ -1217,6 +1372,14 @@
             .drd-header {
                 margin: -25px -25px 25px -25px;
                 padding: 20px 25px;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-actions {
+                justify-content: center;
             }
         }
     </style>
@@ -1324,6 +1487,7 @@
     let currentDoctorId = null;
     let currentSection = 'dashboard';
     let currentUsername = null;
+    let allCitas = []; // Para almacenar todas las citas y poder filtrarlas
 
     // Cargar datos al iniciar
     document.addEventListener('DOMContentLoaded', function() {
@@ -2596,10 +2760,22 @@
     }
 
     // ==============================================
-    // CONTENIDO CITAS/ESTUDIOS
+    // CONTENIDO CITAS/ESTUDIOS CON FILTROS
     // ==============================================
     
     function loadCitasContent(container) {
+        // Obtener fecha actual y fecha de hace 7 días para el filtro por defecto
+        const hoy = new Date();
+        const hace7Dias = new Date();
+        hace7Dias.setDate(hoy.getDate() - 7);
+        
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+        
         container.innerHTML = `
             <div class="content-header">
                 <h1>Citas y Estudios</h1>
@@ -2614,6 +2790,74 @@
                 </button>
             </div>
             
+            <!-- SECCIÓN DE FILTROS -->
+            <div class="filters-container">
+                <div class="filters-header">
+                    <i class="fas fa-filter"></i>
+                    <span>Filtrar Citas y Estudios</span>
+                </div>
+                
+                <div class="filters-grid">
+                    <!-- Filtro por período rápido -->
+                    <div class="filter-group">
+                        <label><i class="fas fa-clock"></i> Período</label>
+                        <select class="filter-select" id="filterPeriodo">
+                            <option value="7dias" selected>Últimos 7 días</option>
+                            <option value="15dias">Últimos 15 días</option>
+                            <option value="30dias">Últimos 30 días</option>
+                            <option value="rango">Rango personalizado</option>
+                            <option value="todo">Todos</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro por rango de fechas (inicialmente oculto) -->
+                    <div class="filter-group" id="rangoFechasGroup" style="display: none;">
+                        <label><i class="fas fa-calendar"></i> Rango de fechas</label>
+                        <div class="date-range-group">
+                            <input type="date" class="filter-input" id="fechaInicio" value="${formatDate(hace7Dias)}" style="flex: 1;">
+                            <span>a</span>
+                            <input type="date" class="filter-input" id="fechaFin" value="${formatDate(hoy)}" style="flex: 1;">
+                        </div>
+                    </div>
+                    
+                    <!-- Filtro por estado -->
+                    <div class="filter-group">
+                        <label><i class="fas fa-check-circle"></i> Estado</label>
+                        <select class="filter-select" id="filterEstado">
+                            <option value="todos">Todos</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="completado">Completado</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Filtro por paciente -->
+                    <div class="filter-group">
+                        <label><i class="fas fa-user"></i> Paciente</label>
+                        <input type="text" class="filter-input" id="filterPaciente" placeholder="Nombre del paciente...">
+                    </div>
+                    
+                    <!-- Filtro por folio -->
+                    <div class="filter-group">
+                        <label><i class="fas fa-hashtag"></i> Folio</label>
+                        <input type="text" class="filter-input" id="filterFolio" placeholder="Número de folio...">
+                    </div>
+                </div>
+                
+                <div class="filter-actions">
+                    <button class="btn-filter" id="btnAplicarFiltros">
+                        <i class="fas fa-search"></i> Aplicar Filtros
+                    </button>
+                    <button class="btn-clear-filter" id="btnLimpiarFiltros">
+                        <i class="fas fa-eraser"></i> Limpiar Filtros
+                    </button>
+                </div>
+                
+                <!-- Tags de filtros activos -->
+                <div class="active-filters" id="activeFilters">
+                    <!-- Se llenará dinámicamente -->
+                </div>
+            </div>
+            
             <div class="section">
                 <h2 class="section-title">Lista de Citas Generadas</h2>
                 <div id="citasTableContainer">
@@ -2626,6 +2870,20 @@
             </div>
         `;
         
+        // Configurar eventos de filtros
+        document.getElementById('filterPeriodo').addEventListener('change', function() {
+            const rangoGroup = document.getElementById('rangoFechasGroup');
+            if (this.value === 'rango') {
+                rangoGroup.style.display = 'block';
+            } else {
+                rangoGroup.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('btnAplicarFiltros').addEventListener('click', aplicarFiltros);
+        document.getElementById('btnLimpiarFiltros').addEventListener('click', limpiarFiltros);
+        
+        // Cargar citas
         loadCitas();
     }
 
@@ -2679,7 +2937,10 @@
             }
             
             console.log(`✅ Se encontraron ${citas.length} citas`);
-            displayCitasTable(citas);
+            allCitas = citas; // Guardar todas las citas para filtrar
+            
+            // Aplicar filtro por defecto (últimos 7 días)
+            aplicarFiltros();
             
         } catch (error) {
             console.error('❌ Error cargando citas:', error);
@@ -2687,10 +2948,229 @@
         }
     }
 
+    // ==============================================
+    // FUNCIÓN PARA APLICAR FILTROS
+    // ==============================================
+    
+    function aplicarFiltros() {
+        if (!allCitas || allCitas.length === 0) {
+            displayCitasTable([]);
+            return;
+        }
+        
+        // Obtener valores de filtros
+        const periodo = document.getElementById('filterPeriodo').value;
+        const estado = document.getElementById('filterEstado').value;
+        const pacienteFilter = document.getElementById('filterPaciente').value.toLowerCase().trim();
+        const folioFilter = document.getElementById('filterFolio').value.toLowerCase().trim();
+        
+        let fechaInicio = null;
+        let fechaFin = null;
+        
+        // Determinar rango de fechas según el período seleccionado
+        const hoy = new Date();
+        hoy.setHours(23, 59, 59, 999); // Fin del día
+        
+        if (periodo === '7dias') {
+            fechaFin = hoy;
+            fechaInicio = new Date();
+            fechaInicio.setDate(hoy.getDate() - 7);
+            fechaInicio.setHours(0, 0, 0, 0);
+        } else if (periodo === '15dias') {
+            fechaFin = hoy;
+            fechaInicio = new Date();
+            fechaInicio.setDate(hoy.getDate() - 15);
+            fechaInicio.setHours(0, 0, 0, 0);
+        } else if (periodo === '30dias') {
+            fechaFin = hoy;
+            fechaInicio = new Date();
+            fechaInicio.setDate(hoy.getDate() - 30);
+            fechaInicio.setHours(0, 0, 0, 0);
+        } else if (periodo === 'rango') {
+            const fechaInicioStr = document.getElementById('fechaInicio').value;
+            const fechaFinStr = document.getElementById('fechaFin').value;
+            
+            if (fechaInicioStr && fechaFinStr) {
+                fechaInicio = new Date(fechaInicioStr + 'T00:00:00');
+                fechaFin = new Date(fechaFinStr + 'T23:59:59');
+            }
+        }
+        
+        // Aplicar filtros
+        const citasFiltradas = allCitas.filter(cita => {
+            let cumpleFiltro = true;
+            
+            // Filtro por fecha
+            if (fechaInicio && fechaFin) {
+                let fechaCita = null;
+                
+                // Intentar obtener fecha_cita (fecha programada) o fecha (fecha de registro)
+                if (cita.fecha_cita) {
+                    fechaCita = new Date(cita.fecha_cita + 'T12:00:00');
+                } else if (cita.fecha) {
+                    // Si la fecha viene en formato dd/mm/yyyy
+                    const partes = cita.fecha.split('/');
+                    if (partes.length === 3) {
+                        fechaCita = new Date(partes[2], partes[1] - 1, partes[0]);
+                    }
+                }
+                
+                if (fechaCita && !isNaN(fechaCita)) {
+                    cumpleFiltro = cumpleFiltro && (fechaCita >= fechaInicio && fechaCita <= fechaFin);
+                }
+            }
+            
+            // Filtro por estado
+            if (estado !== 'todos') {
+                if (estado === 'pendiente') {
+                    cumpleFiltro = cumpleFiltro && !cita.tiene_resultado;
+                } else if (estado === 'completado') {
+                    cumpleFiltro = cumpleFiltro && cita.tiene_resultado;
+                }
+            }
+            
+            // Filtro por paciente
+            if (pacienteFilter && cita.paciente) {
+                cumpleFiltro = cumpleFiltro && cita.paciente.toLowerCase().includes(pacienteFilter);
+            }
+            
+            // Filtro por folio
+            if (folioFilter && cita.numero_folio) {
+                cumpleFiltro = cumpleFiltro && cita.numero_folio.toLowerCase().includes(folioFilter);
+            }
+            
+            return cumpleFiltro;
+        });
+        
+        // Actualizar tags de filtros activos
+        actualizarTagsActivos();
+        
+        // Mostrar resultados
+        console.log(`📊 Mostrando ${citasFiltradas.length} citas después de filtrar`);
+        displayCitasTable(citasFiltradas);
+    }
+
+    // ==============================================
+    // FUNCIÓN PARA LIMPIAR FILTROS
+    // ==============================================
+    
+    function limpiarFiltros() {
+        // Restablecer valores por defecto
+        document.getElementById('filterPeriodo').value = '7dias';
+        document.getElementById('rangoFechasGroup').style.display = 'none';
+        document.getElementById('filterEstado').value = 'todos';
+        document.getElementById('filterPaciente').value = '';
+        document.getElementById('filterFolio').value = '';
+        
+        // Actualizar fechas de rango a últimos 7 días
+        const hoy = new Date();
+        const hace7Dias = new Date();
+        hace7Dias.setDate(hoy.getDate() - 7);
+        
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+        
+        document.getElementById('fechaInicio').value = formatDate(hace7Dias);
+        document.getElementById('fechaFin').value = formatDate(hoy);
+        
+        // Limpiar tags
+        document.getElementById('activeFilters').innerHTML = '';
+        
+        // Aplicar filtros limpios
+        aplicarFiltros();
+    }
+
+    // ==============================================
+    // FUNCIÓN PARA ACTUALIZAR TAGS DE FILTROS ACTIVOS
+    // ==============================================
+    
+    function actualizarTagsActivos() {
+        const activeFiltersDiv = document.getElementById('activeFilters');
+        const periodo = document.getElementById('filterPeriodo').value;
+        const estado = document.getElementById('filterEstado').value;
+        const paciente = document.getElementById('filterPaciente').value.trim();
+        const folio = document.getElementById('filterFolio').value.trim();
+        
+        let tagsHTML = '';
+        
+        // Tag de período
+        if (periodo === '7dias') {
+            tagsHTML += `<span class="filter-tag"><i class="fas fa-clock"></i> Últimos 7 días <i class="fas fa-times" onclick="eliminarTag('periodo')"></i></span>`;
+        } else if (periodo === '15dias') {
+            tagsHTML += `<span class="filter-tag"><i class="fas fa-clock"></i> Últimos 15 días <i class="fas fa-times" onclick="eliminarTag('periodo')"></i></span>`;
+        } else if (periodo === '30dias') {
+            tagsHTML += `<span class="filter-tag"><i class="fas fa-clock"></i> Últimos 30 días <i class="fas fa-times" onclick="eliminarTag('periodo')"></i></span>`;
+        } else if (periodo === 'rango') {
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            if (fechaInicio && fechaFin) {
+                const fechaInicioFormateada = new Date(fechaInicio + 'T00:00:00').toLocaleDateString('es-MX');
+                const fechaFinFormateada = new Date(fechaFin + 'T00:00:00').toLocaleDateString('es-MX');
+                tagsHTML += `<span class="filter-tag"><i class="fas fa-calendar"></i> ${fechaInicioFormateada} - ${fechaFinFormateada} <i class="fas fa-times" onclick="eliminarTag('rango')"></i></span>`;
+            }
+        }
+        
+        // Tag de estado
+        if (estado !== 'todos') {
+            const estadoTexto = estado === 'pendiente' ? 'Pendiente' : 'Completado';
+            tagsHTML += `<span class="filter-tag"><i class="fas fa-check-circle"></i> ${estadoTexto} <i class="fas fa-times" onclick="eliminarTag('estado')"></i></span>`;
+        }
+        
+        // Tag de paciente
+        if (paciente) {
+            tagsHTML += `<span class="filter-tag"><i class="fas fa-user"></i> ${paciente} <i class="fas fa-times" onclick="eliminarTag('paciente')"></i></span>`;
+        }
+        
+        // Tag de folio
+        if (folio) {
+            tagsHTML += `<span class="filter-tag"><i class="fas fa-hashtag"></i> ${folio} <i class="fas fa-times" onclick="eliminarTag('folio')"></i></span>`;
+        }
+        
+        activeFiltersDiv.innerHTML = tagsHTML;
+    }
+
+    // ==============================================
+    // FUNCIÓN PARA ELIMINAR TAG ESPECÍFICO
+    // ==============================================
+    
+    function eliminarTag(tipo) {
+        if (tipo === 'periodo') {
+            document.getElementById('filterPeriodo').value = 'todo';
+        } else if (tipo === 'rango') {
+            document.getElementById('filterPeriodo').value = 'todo';
+            document.getElementById('rangoFechasGroup').style.display = 'none';
+        } else if (tipo === 'estado') {
+            document.getElementById('filterEstado').value = 'todos';
+        } else if (tipo === 'paciente') {
+            document.getElementById('filterPaciente').value = '';
+        } else if (tipo === 'folio') {
+            document.getElementById('filterFolio').value = '';
+        }
+        
+        aplicarFiltros();
+    }
+
     function displayCitasTable(citas) {
         const container = document.getElementById('citasTableContainer');
         
         if (!container) return;
+        
+        if (!citas || citas.length === 0) {
+            container.innerHTML = `
+                <div class="table-empty-message">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No se encontraron citas con los filtros seleccionados</p>
+                    <button onclick="limpiarFiltros()" class="btn-generate-report" style="margin-top: 15px;">
+                        <i class="fas fa-eraser"></i> Limpiar Filtros
+                    </button>
+                </div>
+            `;
+            return;
+        }
         
         console.log('📊 Mostrando citas en tabla:', citas);
         
@@ -3324,6 +3804,9 @@
     window.loadResultados = loadResultados;
     window.loadHistorial = loadHistorial;
     window.cerrarModal = cerrarModal;
+    window.aplicarFiltros = aplicarFiltros;
+    window.limpiarFiltros = limpiarFiltros;
+    window.eliminarTag = eliminarTag;
 </script>
 </body>
 </html>
