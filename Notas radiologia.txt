@@ -27,12 +27,14 @@ Pestaña doctor
     ****Crear un apartado de receta virtual y estar verificando con la pagina****
     ****En lugar de agendar cita ese botón debe de funcionar como vinculo de formulario virtual para no quitarlo****
     ****Pulir el apartado de resultados para descargar los archivos del doctor****
-    +++++Crear apartado para resultados.+++++( este ya no lo hice porque se repetiria )
+    ****Crear apartado para resultados**** 
     ****Crear y Darle funcionalidad correcta a los filtros en el apartado de citas de la pantalla del doctor****
     ****Crear y Darle funcionalidad correcta a los filtros en el apartado de resultados de la pantalla del doctor****
     ****Agregarle y conectar la Receta V**** 
     ****Pulir el apartado de configuración para la pantalla del doctor****
     ****el doctor puede generar su historial de estudios que ha hecho con 4digital****
+    Terminar el apartado de los reportes del doctor. El como los genera.
+    Agregar pantalla de promociones en la pantalla de doctores
 
 
 
@@ -41,7 +43,7 @@ Pestaña doctor
 BASE DE DATOS
     ****En la BD crear el apartado para los resultados, donde únicamente irán los resultados, el numero de folio que se genera del paciente y el año de nacimiento del paciente. "por definir"****
     ****En la BD borrar citas, pacientes, modificar los estudios disponibles,**** 
-    En las citas, dar el costo total en el ultimo campo.
+    ****En las citas, dar el costo total en el ultimo campo.****
 
 
 
@@ -77,6 +79,17 @@ Puse filtros de busqueda en el doctor
 Puse bien la receta virtual 
 
 Ya mañana te enseño padre santo
+
+NOTAS DE LA LLAMADA 18 DE FEBRERO
+
+Agregar depuración de tiempo de inactividad a los doctores
+****Se trabaja de 9 a 6 entre semana****
+****de 9 a 2 los sábados.****
+Para el sistema de puntos, cada 100 pesos es un punto.
+****Actualizar el formulario solo con el Word.****
+Imagen de los cráneos.
+
+
 
 
 CARGA

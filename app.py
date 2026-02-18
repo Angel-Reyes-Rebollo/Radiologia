@@ -1,4 +1,4 @@
-# app.py - VERSIÓN COMPLETA CON AGENDAMIENTO DE CITAS, DESCARGA DE PDF Y SELECCIÓN DE DOCTOR PARA ADMIN
+# app.py - VERSIÓN COMPLETA CORREGIDA - CON CAMPO total_estudio
 import base64
 import io
 import json
@@ -9,13 +9,14 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
 import mysql.connector
+from mysql.connector import Error
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import landscape, letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
-from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
-                                TableStyle)
+from reportlab.platypus import (PageBreak, Paragraph, SimpleDocTemplate,
+                                Spacer, Table, TableStyle)
 
 
 class CustomHandler(SimpleHTTPRequestHandler):
@@ -249,7 +250,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
     # ==============================================
     
     def handle_get_resultados(self, doctor_id):
-        """Obtener todos los resultados de un doctor específico"""
+        """Obtener todos los resultados de un doctor específico - EXCLUYE BLOBS"""
         try:
             print(f"[API] Obteniendo resultados para doctor_id: {doctor_id}")
             
@@ -270,7 +271,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps([]).encode())
                 return
             
-            # Obtener resultados de este doctor
+            # Obtener resultados de este doctor - NO seleccionar el BLOB resultado
             cursor.execute("""
                 SELECT 
                     id_cita,
@@ -279,7 +280,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     resultado_nombre,
                     resultado_tamano,
                     DATE_FORMAT(resultado_fecha_carga, '%d/%m/%Y %H:%i') as fecha_carga,
-                    resultado IS NOT NULL as tiene_resultado
+                    CASE WHEN resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado
                 FROM citas 
                 WHERE doctor_id = %s AND resultado IS NOT NULL
                 ORDER BY resultado_fecha_carga DESC
@@ -398,13 +399,13 @@ class CustomHandler(SimpleHTTPRequestHandler):
     # ==============================================
     
     def generate_pdf_cita(self, data):
-        """Generar PDF para la cita/receta"""
+        """Generar PDF para la cita/receta - Página 1: Datos básicos, Página 2: Estudios y firma"""
         buffer = io.BytesIO()
         
         # Configurar documento
-        doc = SimpleDocTemplate(buffer, pagesize=landscape(letter),
+        doc = SimpleDocTemplate(buffer, pagesize=letter,
                                rightMargin=72, leftMargin=72,
-                               topMargin=72, bottomMargin=18)
+                               topMargin=72, bottomMargin=72)
         
         styles = getSampleStyleSheet()
         
@@ -412,16 +413,16 @@ class CustomHandler(SimpleHTTPRequestHandler):
         styles.add(ParagraphStyle(
             name='CustomTitle',
             parent=styles['Heading1'],
-            fontSize=24,
+            fontSize=20,
             textColor=colors.HexColor('#1a2980'),
             alignment=TA_CENTER,
-            spaceAfter=30
+            spaceAfter=20
         ))
         
         styles.add(ParagraphStyle(
             name='CustomHeading2',
             parent=styles['Heading2'],
-            fontSize=16,
+            fontSize=14,
             textColor=colors.HexColor('#26d0ce'),
             alignment=TA_LEFT,
             spaceAfter=12
@@ -435,6 +436,14 @@ class CustomHandler(SimpleHTTPRequestHandler):
         ))
         
         styles.add(ParagraphStyle(
+            name='CustomBold',
+            parent=styles['Normal'],
+            fontSize=11,
+            fontName='Helvetica-Bold',
+            spaceAfter=6
+        ))
+        
+        styles.add(ParagraphStyle(
             name='CustomRight',
             parent=styles['Normal'],
             fontSize=10,
@@ -442,13 +451,25 @@ class CustomHandler(SimpleHTTPRequestHandler):
             textColor=colors.grey
         ))
         
+        styles.add(ParagraphStyle(
+            name='CustomCenter',
+            parent=styles['Normal'],
+            fontSize=10,
+            alignment=TA_CENTER,
+            textColor=colors.grey
+        ))
+        
         # Contenido del PDF
         story = []
         
+        # ==============================================
+        # PÁGINA 1: DATOS BÁSICOS
+        # ==============================================
+        
         # Título
         story.append(Paragraph("Radiología Médica Avanzada", styles['CustomTitle']))
-        story.append(Paragraph("Formulario de Prescripción / Receta Virtual", styles['CustomRight']))
-        story.append(Spacer(1, 20))
+        story.append(Paragraph("Formulario de Prescripción / Receta Virtual", styles['CustomCenter']))
+        story.append(Spacer(1, 30))
         
         # Folio y fecha de registro
         folio_data = [
@@ -461,13 +482,15 @@ class CustomHandler(SimpleHTTPRequestHandler):
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
             ('ALIGN', (0,0), (-1,-1), 'LEFT'),
             ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
-            ('FONTSIZE', (0,0), (-1,-1), 11),
+            ('FONTSIZE', (0,0), (-1,-1), 10),
             ('BOTTOMPADDING', (0,0), (-1,-1), 12),
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f8f9fa')),
+            ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#e1e5ee')),
         ]))
         story.append(folio_table)
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 25))
         
-        # Datos de la cita
+        # DATOS DE LA CITA
         story.append(Paragraph("DATOS DE LA CITA", styles['CustomHeading2']))
         
         cita_data = [
@@ -481,23 +504,16 @@ class CustomHandler(SimpleHTTPRequestHandler):
             ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
             ('FONTSIZE', (0,0), (-1,-1), 11),
             ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f0f7ff')),
         ]))
         story.append(cita_table)
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 25))
         
-        # Datos del paciente
+        # DATOS DEL PACIENTE
         story.append(Paragraph("DATOS DEL PACIENTE", styles['CustomHeading2']))
         
-        # Extraer fecha de nacimiento de las observaciones si existe
-        fecha_nacimiento = "No especificada"
-        if data.get('observaciones'):
-            match = re.search(r'Fecha de nacimiento: (.+?)(?:\n|$)', data['observaciones'])
-            if match:
-                fecha_nacimiento = match.group(1)
-        
         paciente_data = [
-            [Paragraph(f"<b>Nombre:</b> {data['paciente']}", styles['CustomNormal'])],
-            [Paragraph(f"<b>Fecha de Nacimiento:</b> {fecha_nacimiento}", styles['CustomNormal'])]
+            [Paragraph(f"<b>Nombre:</b> {data['paciente']}", styles['CustomNormal'])]
         ]
         paciente_table = Table(paciente_data, colWidths=[doc.width])
         paciente_table.setStyle(TableStyle([
@@ -506,11 +522,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
             ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
             ('FONTSIZE', (0,0), (-1,-1), 11),
             ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f0f7ff')),
         ]))
         story.append(paciente_table)
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 25))
         
-        # Datos del médico
+        # DATOS DEL MÉDICO
         story.append(Paragraph("DATOS DEL MÉDICO", styles['CustomHeading2']))
         
         # Obtener datos del doctor
@@ -521,10 +538,19 @@ class CustomHandler(SimpleHTTPRequestHandler):
         cursor.close()
         db.close()
         
+        # Si no se encuentra el doctor (caso administrador), usar datos del admin
+        if not doctor and data['doctor_id'] == 'ADMIN':
+            doctor = {
+                'nombre': 'Administrador',
+                'especialidad': 'Administración',
+                'telefono_consultorio': 'N/A',
+                'email': 'admin@radiologia.com'
+            }
+        
         medico_data = [
-            [Paragraph(f"<b>Dr(a).</b> {doctor['nombre'] if doctor else 'No especificado'}", styles['CustomNormal'])],
-            [Paragraph(f"<b>Especialidad:</b> {doctor['especialidad'] if doctor else 'No especificada'}", styles['CustomNormal'])],
-            [Paragraph(f"<b>Teléfono:</b> {doctor['telefono_consultorio'] if doctor else 'No especificado'}", styles['CustomNormal'])]
+            [Paragraph(f"<b>Dr(a).</b> {doctor['nombre'] if doctor else 'Administrador'}", styles['CustomNormal'])],
+            [Paragraph(f"<b>Especialidad:</b> {doctor['especialidad'] if doctor else 'Administración'}", styles['CustomNormal'])],
+            [Paragraph(f"<b>Teléfono:</b> {doctor['telefono_consultorio'] if doctor else 'N/A'}", styles['CustomNormal'])]
         ]
         medico_table = Table(medico_data, colWidths=[doc.width])
         medico_table.setStyle(TableStyle([
@@ -533,8 +559,23 @@ class CustomHandler(SimpleHTTPRequestHandler):
             ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
             ('FONTSIZE', (0,0), (-1,-1), 11),
             ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f0f7ff')),
         ]))
         story.append(medico_table)
+        
+        # Salto de página
+        story.append(PageBreak())
+        
+        # ==============================================
+        # PÁGINA 2: ESTUDIOS Y FIRMA
+        # ==============================================
+        
+        story.append(Paragraph("Radiología Médica Avanzada", styles['CustomTitle']))
+        story.append(Paragraph("Detalle de Estudios Solicitados", styles['CustomCenter']))
+        story.append(Spacer(1, 20))
+        
+        # Información del folio en la segunda página
+        story.append(Paragraph(f"<b>Folio:</b> {data['numero_folio']} | <b>Paciente:</b> {data['paciente']}", styles['CustomCenter']))
         story.append(Spacer(1, 20))
         
         # Estudios solicitados
@@ -542,6 +583,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
         
         # Crear tabla de estudios
         estudios = data.get('estudios', [])
+        total = data.get('total', 0)
+        
         if estudios:
             estudio_data = [['Estudio', 'Precio']]
             for estudio in estudios:
@@ -563,52 +606,51 @@ class CustomHandler(SimpleHTTPRequestHandler):
             story.append(Spacer(1, 15))
             
             # Total
-            total = 0
-            for estudio in estudios:
-                try:
-                    precio_str = estudio['precio'].replace('$', '').replace(',', '')
-                    total += float(precio_str)
-                except:
-                    pass
-            
-            story.append(Paragraph(f"<b>TOTAL:</b> ${total:,.2f}", ParagraphStyle(
+            story.append(Paragraph(f"<b>TOTAL ESTUDIOS:</b> ${total:,.2f}", ParagraphStyle(
                 'Total',
                 parent=styles['Heading3'],
-                fontSize=14,
+                fontSize=16,
                 textColor=colors.HexColor('#1a2980'),
                 alignment=TA_RIGHT,
-                spaceBefore=10
+                spaceBefore=10,
+                spaceAfter=20
             )))
         else:
             story.append(Paragraph("No se especificaron estudios", styles['CustomNormal']))
+            story.append(Spacer(1, 30))
         
-        story.append(Spacer(1, 30))
-        
-        # Observaciones
+        # Observaciones (si las hay)
         if data.get('observaciones'):
             observaciones_limpio = re.sub(r'Fecha de nacimiento: .+?\n?', '', data['observaciones']).strip()
             if observaciones_limpio:
-                story.append(Paragraph("OBSERVACIONES ADICIONALES", styles['CustomHeading2']))
+                story.append(Paragraph("OBSERVACIONES", styles['CustomHeading2']))
                 story.append(Paragraph(observaciones_limpio, styles['CustomNormal']))
-                story.append(Spacer(1, 20))
+                story.append(Spacer(1, 30))
         
-        # Firmas
+        # Firma del doctor
+        story.append(Spacer(1, 40))
+        story.append(Paragraph("FIRMA DEL MÉDICO", styles['CustomHeading2']))
+        
         signature_data = [
-            [Paragraph("____________________________", styles['CustomNormal']),
-             Paragraph("____________________________", styles['CustomNormal'])],
-            [Paragraph("Dr(a). " + (doctor['nombre'] if doctor else ''), styles['CustomNormal']),
-             Paragraph("Paciente: " + data['paciente'], styles['CustomNormal'])]
+            [Paragraph("____________________________", styles['CustomCenter']),
+             Paragraph("____________________________", styles['CustomCenter'])],
+            [Paragraph("Firma del Dr(a). " + (doctor['nombre'] if doctor else 'Administrador'), styles['CustomCenter']),
+             Paragraph("Nombre y Fecha", styles['CustomCenter'])]
         ]
         signature_table = Table(signature_data, colWidths=[doc.width/2.0]*2)
         signature_table.setStyle(TableStyle([
-            ('ALIGN', (0,0), (0,-1), 'LEFT'),
-            ('ALIGN', (1,0), (1,-1), 'RIGHT'),
-            ('VALIGN', (0,0), (-1,-1), 'BOTTOM'),
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
             ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
             ('FONTSIZE', (0,0), (-1,-1), 11),
             ('TOPPADDING', (0,1), (-1,1), 5),
         ]))
         story.append(signature_table)
+        
+        # Información de la recepcionista
+        story.append(Spacer(1, 30))
+        story.append(Paragraph(f"<i>Receta generada por: {data.get('recepcionista', 'Sistema')} el {data['fecha_registro']} a las {data['hora_registro']}</i>", 
+                              ParagraphStyle('Footer', parent=styles['Normal'], fontSize=9, textColor=colors.grey, alignment=TA_CENTER)))
         
         # Construir PDF
         doc.build(story)
@@ -618,11 +660,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
         return pdf
     
     # ==============================================
-    # FUNCIÓN PARA GENERAR CITA (RECETA VIRTUAL)
+    # FUNCIÓN PARA GENERAR CITA (RECETA VIRTUAL) - CORREGIDA CON total_estudio
     # ==============================================
 
     def handle_generate_cita(self):
-        """Generar una nueva cita desde receta virtual"""
+        """Generar una nueva cita desde receta virtual - CORREGIDA con total_estudio"""
         try:
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
@@ -635,6 +677,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             observaciones = data.get('observaciones', '')
             fecha_cita = data.get('fecha_cita')
             hora_cita = data.get('hora_cita')
+            total_estudio = float(data.get('total_estudio', 0))
             
             if not paciente or not doctor_id:
                 raise ValueError("Faltan datos requeridos: paciente o doctor_id")
@@ -645,12 +688,15 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            # Verificar que el doctor existe
-            cursor.execute("SELECT Diddoctor FROM doctores WHERE Diddoctor = %s", (doctor_id,))
-            doctor = cursor.fetchone()
-            
-            if not doctor:
-                raise ValueError(f"El doctor con ID {doctor_id} no existe en la base de datos")
+            # Verificar que el doctor existe (excepto ADMIN)
+            doctor_nombre = "Administrador"
+            if doctor_id != 'ADMIN':
+                cursor.execute("SELECT Diddoctor, nombre FROM doctores WHERE Diddoctor = %s", (doctor_id,))
+                doctor = cursor.fetchone()
+                
+                if not doctor:
+                    raise ValueError(f"El doctor con ID {doctor_id} no existe en la base de datos")
+                doctor_nombre = doctor['nombre']
             
             # Generar número de folio único
             cursor.execute("SELECT COUNT(*) as total FROM citas")
@@ -675,21 +721,24 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'hora_cita': hora_cita_formateada,
                 'paciente': paciente,
                 'doctor_id': doctor_id,
+                'doctor_nombre': doctor_nombre,
                 'estudios': estudios,
-                'observaciones': observaciones
+                'observaciones': observaciones,
+                'total': total_estudio,
+                'recepcionista': 'Administrador' if doctor_id == 'ADMIN' else 'Sistema'
             }
             
             pdf_content = self.generate_pdf_cita(pdf_data)
             pdf_size = len(pdf_content)
             
-            # Insertar en base de datos
+            # Insertar en base de datos - Incluye todos los campos incluyendo total_estudio
             cursor.execute("""
                 INSERT INTO citas (
                     numero_folio, paciente, doctor_id, fecha, hora, 
-                    fecha_cita, hora_cita,
+                    fecha_cita, hora_cita, total_estudio,
                     documento_nombre, documento_pdf, documento_tamano, documento_tipo
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
                 numero_folio,
                 paciente,
@@ -698,6 +747,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 hora_registro,
                 fecha_cita,
                 hora_cita,
+                total_estudio,
                 f"{paciente}_{numero_folio}.pdf".replace(' ', '_'),
                 pdf_content,
                 pdf_size,
@@ -705,7 +755,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             ))
             
             db.commit()
-            print(f"[CITA] Cita generada exitosamente - Folio: {numero_folio}, Doctor: {doctor_id}")
+            print(f"[CITA] Cita generada exitosamente - Folio: {numero_folio}, Doctor: {doctor_id}, Total: ${total_estudio}")
             
             # Obtener el ID de la cita insertada
             cursor.execute("SELECT LAST_INSERT_ID() as id")
@@ -756,7 +806,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.execute("SELECT Diddoctor FROM doctores WHERE Diddoctor = %s", (doctor_id,))
             doctor = cursor.fetchone()
             
-            if not doctor:
+            if not doctor and doctor_id != 'ADMIN':
                 print(f"[API] Doctor no encontrado: {doctor_id}")
                 cursor.close()
                 db.close()
@@ -766,19 +816,19 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps([]).encode())
                 return
             
-            # Obtener citas SOLO de este doctor específico
+            # Incluir todos los campos necesarios
             cursor.execute("""
                 SELECT 
                     id_cita,
                     numero_folio,
                     paciente,
-                    DATE_FORMAT(fecha, '%d/%m/%Y') as fecha,
-                    DATE_FORMAT(hora, '%H:%i') as hora,
+                    DATE_FORMAT(fecha, '%d/%m/%Y') as fecha_registro,
+                    TIME_FORMAT(hora, '%H:%i') as hora_registro,
                     DATE_FORMAT(fecha_cita, '%Y-%m-%d') as fecha_cita,
                     TIME_FORMAT(hora_cita, '%H:%i') as hora_cita,
-                    documento_nombre,
-                    documento_tamano,
-                    resultado IS NOT NULL as tiene_resultado,
+                    CAST(total_estudio AS DECIMAL(10,2)) as total_estudio,
+                    CASE WHEN documento_pdf IS NOT NULL THEN 1 ELSE 0 END as tiene_pdf,
+                    CASE WHEN resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado,
                     DATE_FORMAT(resultado_fecha_carga, '%d/%m/%Y %H:%i') as resultado_fecha_carga
                 FROM citas 
                 WHERE doctor_id = %s
@@ -787,6 +837,13 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
             citas = cursor.fetchall()
             print(f"[API] Se encontraron {len(citas)} citas para el doctor {doctor_id}")
+            
+            # Asegurar que total_estudio sea un número
+            for cita in citas:
+                if cita['total_estudio'] is None:
+                    cita['total_estudio'] = 0.00
+                else:
+                    cita['total_estudio'] = float(cita['total_estudio'])
             
             cursor.close()
             db.close()
@@ -801,8 +858,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
+            self.wfile.write(json.dumps({'error': str(e), 'citas': []}).encode())
+
     # ==============================================
     # FUNCIÓN PARA OBTENER TODAS LAS CITAS (ADMIN)
     # ==============================================
@@ -820,23 +877,30 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     c.id_cita,
                     c.numero_folio,
                     c.paciente,
-                    d.nombre as doctor_nombre,
-                    d.Diddoctor as doctor_id,
+                    COALESCE(d.nombre, 'Administrador') as doctor_nombre,
+                    c.doctor_id,
                     DATE_FORMAT(c.fecha, '%d/%m/%Y') as fecha,
-                    DATE_FORMAT(c.hora, '%H:%i') as hora,
-                    DATE_FORMAT(c.fecha_cita, '%Y-%m-%d') as fecha_cita,
+                    TIME_FORMAT(c.hora, '%H:%i') as hora,
+                    DATE_FORMAT(c.fecha_cita, '%d/%m/%Y') as fecha_cita,
                     TIME_FORMAT(c.hora_cita, '%H:%i') as hora_cita,
+                    CAST(c.total_estudio AS DECIMAL(10,2)) as total_estudio,
                     c.documento_nombre,
-                    c.documento_pdf IS NOT NULL as tiene_pdf,
-                    c.resultado IS NOT NULL as tiene_resultado
+                    CASE WHEN c.documento_pdf IS NOT NULL THEN 1 ELSE 0 END as tiene_pdf,
+                    CASE WHEN c.resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado
                 FROM citas c
                 LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
                 ORDER BY c.fecha_cita DESC, c.hora_cita DESC
-                LIMIT 50
             """)
             
             citas = cursor.fetchall()
             print(f"[API] Se encontraron {len(citas)} citas totales")
+            
+            # Convertir total_estudio a float
+            for cita in citas:
+                if cita['total_estudio'] is None:
+                    cita['total_estudio'] = 0.00
+                else:
+                    cita['total_estudio'] = float(cita['total_estudio'])
             
             cursor.close()
             db.close()
@@ -852,7 +916,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
+
     # ==============================================
     # FUNCIONES PARA ADMIN
     # ==============================================
@@ -919,11 +983,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
             # Obtener las últimas citas como actividad
             cursor.execute("""
                 SELECT 
-                    CONCAT('Dr. ', d.nombre) as usuario_id,
-                    'doctor' as tipo_usuario,
+                    COALESCE(CONCAT('Dr. ', d.nombre), 'Administrador') as usuario_id,
+                    CASE WHEN d.nombre IS NOT NULL THEN 'doctor' ELSE 'admin' END as tipo_usuario,
                     'Nueva cita' as accion,
                     DATE_FORMAT(c.fecha, '%Y-%m-%d %H:%i') as fecha,
-                    CONCAT('Paciente: ', c.paciente, ' - Folio: ', c.numero_folio) as detalles
+                    CONCAT('Paciente: ', c.paciente, ' - Folio: ', c.numero_folio, ' - Total: $', FORMAT(c.total_estudio, 2)) as detalles
                 FROM citas c
                 LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
                 WHERE c.id_cita IS NOT NULL
@@ -947,7 +1011,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
             # Si no hay actividades, mostrar mensaje
             if len(actividades) == 0:
-                # Intentar obtener solo doctores
                 cursor.execute("""
                     SELECT 
                         CONCAT('Dr. ', nombre) as usuario_id,
@@ -962,7 +1025,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 """)
                 actividades = cursor.fetchall()
             
-            # Si todavía no hay actividades, crear una por defecto
             if len(actividades) == 0:
                 actividades = [{
                     'usuario_id': 'Sistema',
@@ -982,7 +1044,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
         except Exception as e:
             print(f"Error en actividad: {str(e)}")
-            # En caso de error, devolver actividad por defecto
             actividades = [{
                 'usuario_id': 'Sistema',
                 'tipo_usuario': 'admin',
@@ -1121,7 +1182,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({'error': str(e)}).encode())
     
     def handle_get_doctores(self):
-        """Obtener lista completa de doctores"""
+        """Obtener lista completa de doctores (incluyendo ADMIN)"""
         try:
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
@@ -1145,7 +1206,25 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
             doctores = cursor.fetchall()
             
-            # Agregar conteo de citas para cada doctor
+            # Agregar doctor ADMIN virtual
+            doctores_admin = [{
+                'id': 'ADMIN',
+                'nombre': 'Administrador',
+                'usuario': 'admin',
+                'contrasena': '',
+                'especialidad': 'Administración',
+                'email': 'admin@radiologia.com',
+                'telefono': 'N/A',
+                'telefono_consultorio': 'N/A',
+                'direccion_consultorio': 'N/A',
+                'fecha_registro': datetime.now().strftime('%Y-%m-%d'),
+                'activo': True,
+                'total_citas': 0,
+                'pacientes': 0,
+                'estudios_pendientes': 0
+            }]
+            
+            # Agregar conteo de citas para cada doctor real
             for doctor in doctores:
                 cursor.execute("""
                     SELECT COUNT(*) as total_citas
@@ -1173,13 +1252,16 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 
                 doctor['activo'] = bool(doctor['activo'])
             
+            # Combinar listas
+            doctores_combinados = doctores_admin + doctores
+            
             cursor.close()
             db.close()
             
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps(doctores).encode())
+            self.wfile.write(json.dumps(doctores_combinados).encode())
             
         except Exception as e:
             print(f"Error obteniendo doctores: {str(e)}")
@@ -1325,16 +1407,16 @@ class CustomHandler(SimpleHTTPRequestHandler):
     
     def handle_login(self):
         """Manejar el inicio de sesión"""
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        data = parse_qs(post_data.decode())
-        
-        username = data.get('username', [''])[0]
-        password = data.get('password', [''])[0]
-        
-        print(f"[LOGIN] Intento de login: usuario={username}")
-        
         try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = parse_qs(post_data.decode())
+            
+            username = data.get('username', [''])[0]
+            password = data.get('password', [''])[0]
+            
+            print(f"[LOGIN] Intento de login: usuario={username}")
+            
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
@@ -1411,11 +1493,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
     
     def handle_registro(self):
         """Manejar el registro de nuevos doctores"""
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        data = parse_qs(post_data.decode())
-        
         try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = parse_qs(post_data.decode())
+            
             nombre_completo = data.get('nombre', [''])[0] + " " + data.get('apellidos', [''])[0]
             usuario = data.get('usuario', [''])[0]
             contrasena = data.get('contrasena', [''])[0]
@@ -1653,7 +1735,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
 PORT = 8000
 
 print("=" * 60)
-print("🚀 SERVIDOR RADIOLOGÍA MÉDICA - VERSIÓN COMPLETA CON SELECCIÓN DE DOCTOR EN ADMIN")
+print("🚀 SERVIDOR RADIOLOGÍA MÉDICA - VERSIÓN COMPLETA")
 print("=" * 60)
 print(f"📊 Accede a: http://localhost:{PORT}")
 print("\n👥 Usuarios de prueba:")
@@ -1661,11 +1743,8 @@ print("   • Doctor:    dr.rodriguez / doctor123")
 print("   • Admin:     admin / admin123")
 print("\n📝 Registro disponible en: /registro")
 print("👑 Panel de administración: /admin")
-print("📄 Receta Virtual mejorada en Admin:")
-print("   • Agendamiento de citas (días hábiles, horario 8:00-20:00)")
-print("   • Selector de doctores con búsqueda")
-print("   • Visualización del doctor seleccionado")
-print("✅ NUEVA FUNCIONALIDAD: El admin puede asignar el doctor")
+print("✅ CORRECCIÓN: Campo total_estudio incluido en todas las consultas")
+print("✅ CORRECCIÓN: Doctor ADMIN virtual agregado")
 print("=" * 60)
 
 if not os.path.exists('templates'):
