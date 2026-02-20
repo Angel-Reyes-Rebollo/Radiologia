@@ -89,6 +89,8 @@ Agregar depuración de tiempo de inactividad a los doctores
 
 SOLO FALTA
     Sistema de puntos. Para el sistema de puntos, cada 100 pesos es un punto.
+    Boton para cancelar citas.
+    Arreglar el filtro de periodo en el doctores.
     Imagen de los cráneos en los formularios.
     Carga de documentos para resultados, el unico que carga documentos es el admin.
     La agenda del admin.
