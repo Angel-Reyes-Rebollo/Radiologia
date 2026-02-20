@@ -99,6 +99,8 @@ SOLO FALTA
     Agregar pantalla de promociones en la pantalla de doctores
     QR del whats en el login
     Cambiar los logos y colores.
+    Crear una bienvenida
+    Promociones
 
 
 
