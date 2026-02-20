@@ -34,7 +34,6 @@ Pestaña doctor
     ****Pulir el apartado de configuración para la pantalla del doctor****
     ****el doctor puede generar su historial de estudios que ha hecho con 4digital****
     Terminar el apartado de los reportes del doctor. El como los genera.
-    Agregar pantalla de promociones en la pantalla de doctores
 
 
 
@@ -85,9 +84,20 @@ NOTAS DE LA LLAMADA 18 DE FEBRERO
 Agregar depuración de tiempo de inactividad a los doctores
 ****Se trabaja de 9 a 6 entre semana****
 ****de 9 a 2 los sábados.****
-Para el sistema de puntos, cada 100 pesos es un punto.
 ****Actualizar el formulario solo con el Word.****
-Imagen de los cráneos.
+
+
+SOLO FALTA
+    Sistema de puntos. Para el sistema de puntos, cada 100 pesos es un punto.
+    Imagen de los cráneos en los formularios.
+    Carga de documentos para resultados, el unico que carga documentos es el admin.
+    La agenda del admin.
+    Que el doctor pueda genear un pdf con su historial y mandarlo al admin.
+    Que el admin pueda ver los reportes de los doctores.
+    Agregar pantalla de promociones en la pantalla de doctores
+    QR del whats en el login
+    Cambiar los logos y colores.
+
 
 
 

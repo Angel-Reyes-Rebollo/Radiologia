@@ -6,7 +6,6 @@
     <title>Panel de Administración - Radiología Médica</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* (Los estilos se mantienen igual que en mi respuesta anterior) */
         * {
             margin: 0;
             padding: 0;
@@ -20,7 +19,6 @@
             min-height: 100vh;
         }
         
-        /* Header del admin */
         .admin-header {
             background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
             color: white;
@@ -106,7 +104,6 @@
             transform: translateY(-2px);
         }
         
-        /* Contenedor principal */
         .admin-container {
             display: flex;
             max-width: 1400px;
@@ -115,7 +112,6 @@
             gap: 20px;
         }
         
-        /* Sidebar */
         .admin-sidebar {
             width: 250px;
             background: white;
@@ -171,7 +167,6 @@
             text-align: center;
         }
         
-        /* Botón para crear nuevo doctor */
         .create-doctor-btn {
             background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
             color: white;
@@ -200,7 +195,6 @@
             font-size: 16px;
         }
 
-        /* Botón de Receta Virtual */
         .receta-virtual-btn {
             background: linear-gradient(135deg, #26d0ce 0%, #1a2980 100%);
             color: white;
@@ -229,7 +223,6 @@
             font-size: 16px;
         }
         
-        /* Contenido principal */
         .admin-content {
             flex: 1;
             background: white;
@@ -297,7 +290,6 @@
             transform: translateY(-2px);
         }
         
-        /* Filtros */
         .filters {
             display: flex;
             gap: 10px;
@@ -327,7 +319,6 @@
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
         }
         
-        /* Estadísticas */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -365,7 +356,6 @@
             margin-bottom: 8px;
         }
         
-        /* Tablas */
         .table-container {
             width: 100%;
             overflow-x: auto;
@@ -376,7 +366,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            min-width: 1000px;
+            min-width: 1100px;
         }
         
         .data-table th {
@@ -419,7 +409,6 @@
             color: #721c24;
         }
         
-        /* Botones de acción */
         .action-buttons {
             display: flex;
             gap: 4px;
@@ -459,12 +448,16 @@
             color: #2e7d32;
         }
         
+        .btn-cargar {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+        
         .btn-action:hover {
             transform: translateY(-1px);
             opacity: 0.9;
         }
         
-        /* Modales */
         .modal {
             display: none;
             position: fixed;
@@ -611,7 +604,6 @@
             box-shadow: 0 4px 12px rgba(26, 41, 128, 0.2);
         }
         
-        /* Info labels para detalles */
         .info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -634,7 +626,6 @@
             word-break: break-word;
         }
         
-        /* Footer */
         .admin-footer {
             text-align: center;
             padding: 15px;
@@ -644,59 +635,6 @@
             margin-top: 30px;
         }
         
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .admin-container {
-                flex-direction: column;
-            }
-            
-            .admin-sidebar {
-                width: 100%;
-                position: static;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .admin-header {
-                padding: 12px 20px;
-            }
-            
-            .admin-brand h1 {
-                font-size: 18px;
-            }
-            
-            .content-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-            
-            .search-box {
-                width: 100%;
-            }
-            
-            .search-box input {
-                width: 100%;
-            }
-            
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Dirección truncada */
         .direccion-truncada {
             max-width: 150px;
             white-space: nowrap;
@@ -716,7 +654,6 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
-        /* Sin resultados */
         .no-data {
             text-align: center;
             padding: 40px;
@@ -724,7 +661,6 @@
             font-style: italic;
         }
 
-        /* ========== ESTILOS DE RECETA VIRTUAL (IGUAL AL INDEX.HTML) ========== */
         .form-drd {
             background: white;
             border-radius: 20px;
@@ -816,66 +752,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .form-group {
-            flex: 1;
-            min-width: 180px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e1e5ee;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: all 0.3s;
-            background: white;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #1a2980;
-            box-shadow: 0 0 0 3px rgba(26,41,128,0.1);
-        }
-
-        .form-control:disabled {
-            background: #f5f5f5;
-            cursor: not-allowed;
-        }
-
-        .form-divider {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 40px 0 25px;
-            color: #1a2980;
-            font-weight: 700;
-            font-size: 22px;
-        }
-
-        .divider-line {
-            flex: 1;
-            height: 3px;
-            background: linear-gradient(90deg, #1a2980, #26d0ce, transparent);
-            border-radius: 3px;
         }
 
         .studies-section {
@@ -1059,10 +935,50 @@
             transition: all 0.3s;
             box-shadow: 0 10px 25px rgba(26,41,128,0.2);
         }
-
+        
         .btn-completar:hover {
             transform: translateY(-4px);
             box-shadow: 0 15px 35px rgba(26,41,128,0.3);
+        }
+        
+        .btn-actualizar {
+            background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(245, 124, 0, 0.2);
+        }
+        
+        .btn-actualizar:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(245, 124, 0, 0.3);
+        }
+        
+        .btn-cancelar-edicion {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e1e5ee;
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-cancelar-edicion:hover {
+            background: #e9ecef;
         }
 
         .receta-header-info {
@@ -1087,7 +1003,6 @@
             color: #666;
         }
         
-        /* Estilos para el select de doctores */
         .doctor-select-btn {
             background: #1a2980;
             color: white;
@@ -1155,7 +1070,6 @@
             margin-left: 8px;
         }
 
-        /* Estilos para mensajes */
         .message {
             display: none;
             padding: 15px 20px;
@@ -1177,6 +1091,13 @@
             border: 1px solid #f5c6cb;
             display: block;
         }
+        
+        .message.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            display: block;
+        }
 
         .spinner {
             border: 3px solid #f3f3f3;
@@ -1192,10 +1113,92 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .puntos-highlight {
+            font-weight: 600;
+            color: #1a2980;
+            background: #e8f5e9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .editing-badge {
+            background: #f57c00;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 15px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        @media (max-width: 1200px) {
+            .admin-container {
+                flex-direction: column;
+            }
+            
+            .admin-sidebar {
+                width: 100%;
+                position: static;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .admin-header {
+                padding: 12px 20px;
+            }
+            
+            .admin-brand h1 {
+                font-size: 18px;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="admin-header">
         <div class="admin-header-content">
             <div class="admin-brand">
@@ -1220,9 +1223,7 @@
         </div>
     </header>
 
-    <!-- Contenedor principal -->
     <div class="admin-container">
-        <!-- Sidebar -->
         <aside class="admin-sidebar">
             <nav class="admin-nav">
                 <div class="nav-title">Navegación</div>
@@ -1249,16 +1250,13 @@
                 Crear Nuevo Doctor
             </button>
             
-            <!-- Botón de Receta Virtual -->
             <button class="receta-virtual-btn" onclick="showRecetaVirtual()">
                 <i class="fas fa-prescription-bottle-alt"></i>
                 Receta Virtual
             </button>
         </aside>
 
-        <!-- Contenido principal -->
         <main class="admin-content">
-            <!-- Dashboard -->
             <div id="dashboard-section" class="content-section">
                 <div class="content-header">
                     <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
@@ -1276,8 +1274,8 @@
                         <div class="value" id="totalDoctoresDashboard">0</div>
                     </div>
                     <div class="stat-card">
-                        <h4><i class="fas fa-file-medical-alt"></i> Citas Completadas</h4>
-                        <div class="value" id="estudiosCompletados">0</div>
+                        <h4><i class="fas fa-star"></i> Total Puntos</h4>
+                        <div class="value" id="totalPuntosDashboard">0</div>
                     </div>
                     <div class="stat-card">
                         <h4><i class="fas fa-user-clock"></i> Nuevos Doctores (7d)</h4>
@@ -1315,7 +1313,6 @@
                 </div>
             </div>
 
-            <!-- Gestión de Doctores -->
             <div id="doctores-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-user-md"></i> Gestión de Doctores</h2>
@@ -1346,6 +1343,7 @@
                                 <th>Tel. Cons.</th>
                                 <th>Dirección</th>
                                 <th>Fecha Reg.</th>
+                                <th>Puntos</th>
                                 <th>Citas</th>
                                 <th>Pacientes</th>
                                 <th>Estado</th>
@@ -1354,7 +1352,7 @@
                         </thead>
                         <tbody id="doctoresTable">
                             <tr>
-                                <td colspan="13" style="text-align: center; padding: 30px;">
+                                <td colspan="14" style="text-align: center; padding: 30px;">
                                     <i class="fas fa-spinner fa-spin"></i> Cargando doctores...
                                 </td>
                             </tr>
@@ -1363,7 +1361,6 @@
                 </div>
             </div>
 
-            <!-- Gestión de Citas -->
             <div id="citas-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-calendar-check"></i> Gestión de Citas</h2>
@@ -1382,8 +1379,8 @@
                                 <th>Folio</th>
                                 <th>Paciente</th>
                                 <th>Doctor</th>
-                                <th>Fecha</th>
-                                <th>Hora</th>
+                                <th>Fecha Cita</th>
+                                <th>Hora Cita</th>
                                 <th>Total</th>
                                 <th>PDF</th>
                                 <th>Acciones</th>
@@ -1400,7 +1397,6 @@
                 </div>
             </div>
 
-            <!-- Reportes -->
             <div id="reportes-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-chart-bar"></i> Reportes</h2>
@@ -1412,7 +1408,6 @@
                 </div>
             </div>
 
-            <!-- RECETA VIRTUAL - VERSIÓN UNIFICADA CON INDEX.HTML -->
             <div id="receta-virtual-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h1>Receta Virtual / Formulario de Prescripción</h1>
@@ -1425,15 +1420,19 @@
                 
                 <div class="receta-header-info">
                     <div class="folio-info" id="folioPreview">
-                        <i class="fas fa-qrcode"></i> Folio: Por generar...
+                        <i class="fas fa-qrcode"></i> <span id="folioDisplay">Nueva receta</span>
+                        <span id="editingBadge" class="editing-badge" style="display: none;">
+                            <i class="fas fa-edit"></i> Editando
+                        </span>
                     </div>
                     <div class="date-info" id="currentDateTime">
                         <i class="fas fa-calendar"></i> <span id="fechaActual"></span> | <i class="fas fa-clock"></i> <span id="horaActual"></span>
                     </div>
                 </div>
                 
+                <input type="hidden" id="citaEditandoId" value="">
+                
                 <div class="form-drd">
-                    <!-- HEADER -->
                     <div class="drd-header">
                         <div class="title-section">
                             <i class="fas fa-cube"></i>
@@ -1449,7 +1448,6 @@
                         </div>
                     </div>
 
-                    <!-- SECCIÓN PACIENTE -->
                     <div class="info-card">
                         <div class="info-header">
                             <i class="fas fa-user-injured"></i>
@@ -1478,7 +1476,6 @@
                             </div>
                         </div>
                         
-                        <!-- SECCIÓN: AGENDAR CITA -->
                         <div class="info-header" style="margin-top: 20px;">
                             <i class="fas fa-calendar-alt"></i>
                             <span>AGENDAR CITA</span>
@@ -1499,7 +1496,6 @@
                             </div>
                         </div>
                         
-                        <!-- SELECCIÓN DE DOCTOR (DIFERENCIA CON INDEX) -->
                         <div class="info-header" style="margin-top: 20px;">
                             <i class="fas fa-user-md"></i>
                             <span>SELECCIONAR DOCTOR</span>
@@ -1525,14 +1521,12 @@
                         </div>
                     </div>
 
-                    <!-- ========== ESTUDIOS ORTODÓNTICOS ========= -->
                     <div class="form-divider">
                         <i class="fas fa-teeth" style="font-size: 28px;"></i>
                         <span>ESTUDIOS ORTODÓNTICOS</span>
                         <div class="divider-line"></div>
                     </div>
 
-                    <!-- ESTUDIO ORTODÓNTICO CONVENCIONAL -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-clipboard-list"></i>
@@ -1546,14 +1540,12 @@
                         </div>
                     </div>
 
-                    <!-- ========== RADIOGRAFÍAS 2D ========= -->
                     <div class="form-divider">
                         <i class="fas fa-x-ray" style="font-size: 28px;"></i>
                         <span>RADIOGRAFÍAS 2D</span>
                         <div class="divider-line"></div>
                     </div>
 
-                    <!-- RADIOGRAFÍAS 2D -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-x-ray"></i>
@@ -1615,14 +1607,12 @@
                         </div>
                     </div>
 
-                    <!-- ========== FOTOGRAFÍAS ========= -->
                     <div class="form-divider">
                         <i class="fas fa-camera" style="font-size: 28px;"></i>
                         <span>FOTOGRAFÍAS</span>
                         <div class="divider-line"></div>
                     </div>
 
-                    <!-- FOTOGRAFÍAS -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-camera"></i>
@@ -1650,14 +1640,12 @@
                         </div>
                     </div>
 
-                    <!-- ========== MODELOS DE ESTUDIO ========= -->
                     <div class="form-divider">
                         <i class="fas fa-tooth" style="font-size: 28px;"></i>
                         <span>MODELOS DE ESTUDIO</span>
                         <div class="divider-line"></div>
                     </div>
 
-                    <!-- MODELOS DE ESTUDIO -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-tooth"></i>
@@ -1671,14 +1659,12 @@
                         </div>
                     </div>
 
-                    <!-- ========== TOMOGRAFÍA 3D ========= -->
                     <div class="form-divider">
                         <i class="fas fa-cube" style="font-size: 28px;"></i>
                         <span>TOMOGRAFÍA 3D</span>
                         <div class="divider-line"></div>
                     </div>
 
-                    <!-- TOMOGRAFÍA 3D -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-cube"></i>
@@ -1712,7 +1698,6 @@
                         </div>
                     </div>
 
-                    <!-- OBSERVACIONES ADICIONALES -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-notes-medical"></i>
@@ -1725,18 +1710,24 @@
                         </div>
                     </div>
 
-                    <!-- TOTAL Y BOTÓN COMPLETAR -->
                     <div class="total-container">
                         <div class="total-box">
                             <span class="total-label"><i class="fas fa-calculator" style="color: #26d0ce;"></i> TOTAL ESTUDIOS:</span>
                             <span class="total-amount" id="totalAmount">$0.00</span>
                         </div>
-                        <button class="btn-completar" id="btnCompletarReceta">
-                            <i class="fas fa-check-circle"></i> COMPLETAR Y GENERAR CITA
-                        </button>
+                        <div class="button-group" id="recetaButtons">
+                            <button class="btn-completar" id="btnCompletarReceta" onclick="generarCitaAdmin()">
+                                <i class="fas fa-check-circle"></i> COMPLETAR Y GENERAR CITA
+                            </button>
+                            <button class="btn-actualizar" id="btnActualizarReceta" style="display: none;" onclick="actualizarCitaAdmin()">
+                                <i class="fas fa-sync-alt"></i> ACTUALIZAR CITA
+                            </button>
+                            <button class="btn-cancelar-edicion" id="btnCancelarEdicion" style="display: none;" onclick="cancelarEdicionReceta()">
+                                <i class="fas fa-times"></i> CANCELAR EDICIÓN
+                            </button>
+                        </div>
                     </div>
                     
-                    <!-- FOOTER DEL FORMULARIO -->
                     <div style="text-align: right; margin-top: 15px; color: #718096; font-size: 13px;">
                         <i class="fas fa-file-signature"></i> Radiología Médica Avanzada · Precios con IVA incluido
                     </div>
@@ -1745,13 +1736,11 @@
         </main>
     </div>
 
-    <!-- Footer -->
     <footer class="admin-footer">
         <p>Sistema de Radiología Médica - Panel de Administración</p>
         <p>Última actualización: <span id="lastUpdate">Cargando...</span></p>
     </footer>
 
-    <!-- Modales -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1810,9 +1799,15 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
+                            <label>Puntos</label>
+                            <input type="number" id="editPuntos" class="form-control" min="0" value="0">
+                        </div>
+                        <div class="form-group">
                             <label>Nueva Contraseña</label>
                             <input type="password" id="editPassword" class="form-control" placeholder="Dejar vacío para no cambiar">
                         </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <label>Estado</label>
                             <select id="editEstado" class="form-control">
@@ -1919,7 +1914,6 @@
         </div>
     </div>
 
-    <!-- MODAL: Selector de Doctores (con ADMIN incluido) -->
     <div id="doctorSelectorModal" class="modal">
         <div class="modal-content doctor-list-modal">
             <div class="modal-header">
@@ -1945,7 +1939,6 @@
     </div>
 
     <script>
-        // Variables globales
         let currentUserToDelete = null;
         let currentUserToDeleteType = null;
         let currentUserToEdit = null;
@@ -1958,8 +1951,8 @@
             id: 'ADMIN',
             nombre: 'Administrador'
         };
+        let citaEditando = null;
 
-        // Cargar datos al iniciar
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Admin panel cargado');
             loadAdminStats();
@@ -1967,7 +1960,6 @@
             loadDoctores();
             loadAllCitas();
             
-            // Cargar información del admin desde localStorage
             const adminName = localStorage.getItem('adminName') || 'Administrador Principal';
             const adminEmail = localStorage.getItem('adminEmail') || 'admin@radiologia.com';
             document.getElementById('adminName').textContent = adminName;
@@ -1978,15 +1970,10 @@
             setInterval(updateLastUpdate, 60000);
             setInterval(loadActivityLog, 60000);
 
-            // Inicializar fecha y hora actual
             actualizarFechaHora();
             setInterval(actualizarFechaHora, 1000);
         });
 
-        // ==============================================
-        // FUNCIONES DE FECHA Y HORA
-        // ==============================================
-        
         function actualizarFechaHora() {
             const ahora = new Date();
             const fechaFormateada = ahora.toLocaleDateString('es-MX');
@@ -1999,27 +1986,20 @@
             if (horaSpan) horaSpan.textContent = horaFormateada;
         }
 
-        // ==============================================
-        // FUNCIONES DE NAVEGACIÓN
-        // ==============================================
-        
         function showSection(sectionId, event) {
             if (event) {
                 event.preventDefault();
             }
             
-            // Ocultar todas las secciones
             document.querySelectorAll('.content-section').forEach(section => {
                 section.style.display = 'none';
             });
             
-            // Mostrar la sección seleccionada
             const sectionElement = document.getElementById(sectionId + '-section');
             if (sectionElement) {
                 sectionElement.style.display = 'block';
             }
             
-            // Actualizar clase active en navegación
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
@@ -2030,7 +2010,6 @@
             
             currentSection = sectionId;
             
-            // Cargar datos según la sección
             if (sectionId === 'doctores') {
                 loadDoctores();
             } else if (sectionId === 'citas') {
@@ -2038,27 +2017,22 @@
             }
         }
 
-        // Función para mostrar la sección de Receta Virtual
         function showRecetaVirtual() {
             console.log('Mostrando receta virtual');
             
-            // Ocultar todas las secciones
             document.querySelectorAll('.content-section').forEach(section => {
                 section.style.display = 'none';
             });
             
-            // Mostrar la sección de receta virtual
             const recetaSection = document.getElementById('receta-virtual-section');
             if (recetaSection) {
                 recetaSection.style.display = 'block';
-                
-                // Inicializar formulario de receta virtual
                 initRecetaVirtualForm();
+                cancelarEdicionReceta(); // Asegurar que no esté en modo edición
             } else {
                 console.error('No se encontró la sección de receta virtual');
             }
             
-            // Actualizar clase active en navegación
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
@@ -2066,14 +2040,9 @@
             currentSection = 'receta-virtual';
         }
 
-        // ==============================================
-        // FUNCIONES DEL SELECTOR DE DOCTORES (CON ADMIN)
-        // ==============================================
-        
         async function abrirSelectorDoctores() {
             console.log('Abriendo selector de doctores');
             
-            // Cargar doctores si no están cargados
             if (doctoresList.length === 0) {
                 await cargarDoctoresParaSelector();
             } else {
@@ -2131,11 +2100,12 @@
                 const activo = doctor.activo ? '' : ' (Inactivo)';
                 const esAdmin = doctor.id === 'ADMIN';
                 const adminBadge = esAdmin ? '<span class="admin-badge">ADMIN</span>' : '';
+                const puntos = doctor.puntos !== undefined ? ` - Puntos: ${doctor.puntos}` : '';
                 
                 html += `
                     <div class="doctor-item" onclick="seleccionarDoctorTemp('${doctor.id}', '${doctor.nombre.replace(/'/g, "\\'")}')">
                         <span class="doctor-id">${doctor.id}</span>
-                        <span>${doctor.nombre}${activo} - ${doctor.especialidad || 'Sin especialidad'} ${adminBadge}</span>
+                        <span>${doctor.nombre}${activo} - ${doctor.especialidad || 'Sin especialidad'}${puntos} ${adminBadge}</span>
                     </div>
                 `;
             });
@@ -2155,12 +2125,10 @@
         }
 
         function seleccionarDoctorTemp(doctorId, doctorNombre) {
-            // Remover clase selected de todos
             document.querySelectorAll('#doctoresList .doctor-item').forEach(item => {
                 item.classList.remove('selected');
             });
             
-            // Agregar clase selected al seleccionado
             const items = document.querySelectorAll('#doctoresList .doctor-item');
             for (let item of items) {
                 if (item.textContent.includes(doctorId)) {
@@ -2178,7 +2146,6 @@
                 return;
             }
             
-            // Actualizar campos
             document.getElementById('doctorSeleccionadoDisplay').value = doctorSeleccionadoTemp.nombre;
             document.getElementById('doctorSeleccionadoId').value = doctorSeleccionadoTemp.id;
             
@@ -2191,10 +2158,6 @@
             doctorSeleccionadoTemp = null;
         }
 
-        // ==============================================
-        // FUNCIONES DE ESTADÍSTICAS
-        // ==============================================
-        
         async function loadAdminStats() {
             try {
                 console.log('Cargando estadísticas...');
@@ -2208,23 +2171,19 @@
                 console.log('Estadísticas recibidas:', data);
                 
                 document.getElementById('totalDoctoresDashboard').textContent = data.totalDoctores || '0';
-                document.getElementById('estudiosCompletados').textContent = data.estudiosCompletados || '0';
+                document.getElementById('totalPuntosDashboard').textContent = data.totalPuntos || '0';
                 document.getElementById('nuevosDoctores').textContent = data.nuevosDoctores || '0';
                 document.getElementById('totalCitas').textContent = data.totalCitas || '0';
                 
             } catch (error) {
                 console.error('Error cargando estadísticas:', error);
                 document.getElementById('totalDoctoresDashboard').textContent = '0';
-                document.getElementById('estudiosCompletados').textContent = '0';
+                document.getElementById('totalPuntosDashboard').textContent = '0';
                 document.getElementById('nuevosDoctores').textContent = '0';
                 document.getElementById('totalCitas').textContent = '0';
             }
         }
 
-        // ==============================================
-        // FUNCIONES DE ACTIVIDAD
-        // ==============================================
-        
         async function loadActivityLog() {
             try {
                 console.log('Cargando actividad...');
@@ -2273,10 +2232,6 @@
             }
         }
 
-        // ==============================================
-        // FUNCIONES DE DOCTORES
-        // ==============================================
-        
         async function loadDoctores() {
             try {
                 console.log('Cargando doctores...');
@@ -2294,7 +2249,7 @@
                 const table = document.getElementById('doctoresTable');
                 
                 if (!doctores || doctores.length === 0) {
-                    table.innerHTML = `<tr><td colspan="13" class="no-data">No hay doctores registrados</td></tr>`;
+                    table.innerHTML = `<tr><td colspan="14" class="no-data">No hay doctores registrados</td></tr>`;
                     return;
                 }
                 
@@ -2303,13 +2258,11 @@
                 doctores.forEach(doctor => {
                     const row = document.createElement('tr');
                     
-                    // Truncar dirección si es muy larga
                     let direccion = doctor.direccion_consultorio || 'No especificada';
                     if (direccion.length > 30) {
                         direccion = `<span class="direccion-truncada" title="${direccion}">${direccion.substring(0, 30)}...</span>`;
                     }
                     
-                    // Formatear fecha
                     let fechaReg = doctor.fecha_registro || 'N/A';
                     if (fechaReg !== 'N/A' && fechaReg.includes('-')) {
                         const partes = fechaReg.split('-');
@@ -2320,6 +2273,7 @@
                     
                     const esAdmin = doctor.id === 'ADMIN';
                     const adminBadge = esAdmin ? '<span class="admin-badge">ADMIN</span>' : '';
+                    const puntos = doctor.puntos !== undefined ? doctor.puntos : 0;
                     
                     row.innerHTML = `
                         <td><strong>${doctor.id || 'N/A'}</strong> ${adminBadge}</td>
@@ -2331,6 +2285,7 @@
                         <td>${doctor.telefono_consultorio || '-'}</td>
                         <td>${direccion}</td>
                         <td>${fechaReg}</td>
+                        <td class="puntos-highlight">${puntos}</td>
                         <td>${doctor.total_citas || '0'}</td>
                         <td>${doctor.pacientes || '0'}</td>
                         <td><span class="status-badge ${doctor.activo ? 'status-active' : 'status-inactive'}">${doctor.activo ? 'Activo' : 'Inactivo'}</span></td>
@@ -2356,14 +2311,14 @@
             } catch (error) {
                 console.error('Error cargando doctores:', error);
                 const table = document.getElementById('doctoresTable');
-                table.innerHTML = `<tr><td colspan="13" style="text-align: center; padding: 30px; color: #dc3545;">
+                table.innerHTML = `<tr><td colspan="14" style="text-align: center; padding: 30px; color: #dc3545;">
                     <i class="fas fa-exclamation-triangle"></i> Error al cargar doctores: ${error.message}
                 </td></tr>`;
             }
         }
 
         // ==============================================
-        // FUNCIONES DE CITAS
+        // FUNCIÓN MODIFICADA: loadAllCitas - Cambia el botón de editar
         // ==============================================
         
         async function loadAllCitas() {
@@ -2390,25 +2345,19 @@
                 citas.forEach(cita => {
                     const row = document.createElement('tr');
                     
-                    // Formatear fecha
-                    let fechaDisplay = cita.fecha || 'N/A';
-                    let horaDisplay = cita.hora || 'N/A';
-                    
-                    // Formatear nombre del doctor
+                    let fechaDisplay = cita.fecha_cita || cita.fecha || 'N/A';
+                    let horaDisplay = cita.hora_cita || cita.hora || 'N/A';
                     let doctorNombre = cita.doctor_nombre || 'Administrador';
                     
-                    // Formatear total
                     const totalFormateado = cita.total_estudio ? 
                         `$${parseFloat(cita.total_estudio).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}` : 
                         '$0.00';
                     
-                    // Verificar si tiene PDF
                     const tienePDF = cita.tiene_pdf === 1 || cita.tiene_pdf === true;
                     const pdfIcon = tienePDF ? 
                         '<i class="fas fa-file-pdf" style="color: #d32f2f;"></i> Sí' : 
                         '<i class="fas fa-file-pdf" style="color: #999;"></i> No';
                     
-                    // ID de cita para acciones
                     const citaId = cita.id_cita;
                     const folio = cita.numero_folio || `FOL-${citaId}`;
                     const paciente = cita.paciente || 'N/A';
@@ -2429,6 +2378,9 @@
                                 <button class="btn-action btn-view" onclick="verDetallesCita('${citaId}', '${folio}', '${paciente.replace(/'/g, "\\'")}', '${doctorNombre.replace(/'/g, "\\'")}', '${fechaDisplay}', '${horaDisplay}', '${totalFormateado}')" title="Ver detalles">
                                     <i class="fas fa-eye"></i>
                                 </button>
+                                <button class="btn-action btn-edit" onclick="mostrarOpcionesEdicion('${citaId}')" title="Editar">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
                             </div>
                         </td>
                     `;
@@ -2447,26 +2399,316 @@
             }
         }
 
-        // Función para descargar PDF de una cita
+        // ==============================================
+        // NUEVA FUNCIÓN: mostrarOpcionesEdicion
+        // ==============================================
+        
+        function mostrarOpcionesEdicion(citaId) {
+            console.log('Mostrando opciones de edición para cita:', citaId);
+            
+            // Crear modal de opciones si no existe
+            let opcionesModal = document.getElementById('opcionesEdicionModal');
+            if (!opcionesModal) {
+                opcionesModal = document.createElement('div');
+                opcionesModal.id = 'opcionesEdicionModal';
+                opcionesModal.className = 'modal';
+                opcionesModal.innerHTML = `
+                    <div class="modal-content" style="max-width: 500px;">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);">
+                            <h3><i class="fas fa-edit"></i> Opciones de Edición</h3>
+                            <button class="close-modal" onclick="closeModal('opcionesEdicionModal')">&times;</button>
+                        </div>
+                        <div class="modal-body" style="padding: 30px;">
+                            <p style="margin-bottom: 20px; text-align: center;">¿Qué deseas editar de esta cita?</p>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <button class="btn-save" id="opcionFechaHora" style="padding: 15px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                    <i class="fas fa-calendar-alt"></i> Solo Fecha y Hora
+                                </button>
+                                <button class="btn-save" id="opcionFormularioCompleto" style="padding: 15px; font-size: 16px; background: linear-gradient(135deg, #26d0ce 0%, #1a2980 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                    <i class="fas fa-file-alt"></i> Formulario Completo
+                                </button>
+                            </div>
+                            
+                            <p style="margin-top: 20px; font-size: 12px; color: #666; text-align: center;">
+                                <i class="fas fa-info-circle"></i> La opción "Solo Fecha y Hora" permite modificar rápidamente el horario de la cita sin cambiar los estudios.
+                            </p>
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn-cancel" onclick="closeModal('opcionesEdicionModal')">Cancelar</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(opcionesModal);
+                
+                // Agregar event listeners
+                document.getElementById('opcionFechaHora').addEventListener('click', function() {
+                    closeModal('opcionesEdicionModal');
+                    mostrarModalEditarFechaHora(citaId);
+                });
+                
+                document.getElementById('opcionFormularioCompleto').addEventListener('click', function() {
+                    closeModal('opcionesEdicionModal');
+                    cargarCitaParaEdicion(citaId);
+                });
+            } else {
+                // Actualizar event listeners
+                const oldFechaHora = document.getElementById('opcionFechaHora');
+                const oldFormulario = document.getElementById('opcionFormularioCompleto');
+                
+                const newFechaHora = oldFechaHora.cloneNode(true);
+                const newFormulario = oldFormulario.cloneNode(true);
+                
+                oldFechaHora.parentNode.replaceChild(newFechaHora, oldFechaHora);
+                oldFormulario.parentNode.replaceChild(newFormulario, oldFormulario);
+                
+                newFechaHora.addEventListener('click', function() {
+                    closeModal('opcionesEdicionModal');
+                    mostrarModalEditarFechaHora(citaId);
+                });
+                
+                newFormulario.addEventListener('click', function() {
+                    closeModal('opcionesEdicionModal');
+                    cargarCitaParaEdicion(citaId);
+                });
+            }
+            
+            opcionesModal.classList.add('active');
+        }
+
+        // ==============================================
+        // NUEVA FUNCIÓN: mostrarModalEditarFechaHora
+        // ==============================================
+        
+        function mostrarModalEditarFechaHora(citaId) {
+            console.log('Mostrando modal editar fecha/hora para cita:', citaId);
+            
+            // Obtener datos de la cita
+            fetch(`/api/cita/${citaId}`)
+                .then(response => response.json())
+                .then(cita => {
+                    // Crear modal de edición rápida
+                    let modal = document.getElementById('editarFechaHoraModal');
+                    if (!modal) {
+                        modal = document.createElement('div');
+                        modal.id = 'editarFechaHoraModal';
+                        modal.className = 'modal';
+                        modal.innerHTML = `
+                            <div class="modal-content" style="max-width: 500px;">
+                                <div class="modal-header" style="background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);">
+                                    <h3><i class="fas fa-calendar-alt"></i> Editar Fecha y Hora de Cita</h3>
+                                    <button class="close-modal" onclick="closeModal('editarFechaHoraModal')">&times;</button>
+                                </div>
+                                <div class="modal-body" style="padding: 25px;">
+                                    <div id="editFechaHoraMessage" class="message" style="display: none;"></div>
+                                    
+                                    <div class="info-card" style="background: #f0f7ff; padding: 15px; margin-bottom: 20px;">
+                                        <p><strong>Paciente:</strong> <span id="editPacienteNombre"></span></p>
+                                        <p><strong>Folio:</strong> <span id="editFolioNumero"></span></p>
+                                        <p><strong>Doctor:</strong> <span id="editDoctorNombre"></span></p>
+                                    </div>
+                                    
+                                    <input type="hidden" id="editCitaId" value="">
+                                    
+                                    <div class="form-group">
+                                        <label>Nueva Fecha de la Cita *</label>
+                                        <input type="date" class="form-control" id="editFechaCita" required>
+                                        <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                                            <i class="fas fa-info-circle"></i> Lunes a Viernes 9:00 AM - 6:00 PM | Sábados 9:00 AM - 2:00 PM
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>Nueva Hora de la Cita *</label>
+                                        <select class="form-control" id="editHoraCita" required>
+                                            <option value="">Seleccione una hora</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-actions">
+                                    <button class="btn-cancel" onclick="closeModal('editarFechaHoraModal')">Cancelar</button>
+                                    <button class="btn-save" id="btnGuardarFechaHora" style="background: #f57c00;">Guardar Cambios</button>
+                                </div>
+                            </div>
+                        `;
+                        document.body.appendChild(modal);
+                    }
+                    
+                    // Llenar datos
+                    document.getElementById('editPacienteNombre').textContent = cita.paciente || 'N/A';
+                    document.getElementById('editFolioNumero').textContent = cita.numero_folio || 'N/A';
+                    document.getElementById('editDoctorNombre').textContent = cita.doctor_nombre || 'N/A';
+                    document.getElementById('editCitaId').value = citaId;
+                    
+                    if (cita.fecha_cita) {
+                        document.getElementById('editFechaCita').value = cita.fecha_cita;
+                    }
+                    
+                    // Configurar calendario
+                    const fechaInput = document.getElementById('editFechaCita');
+                    const hoy = new Date();
+                    const tresMesesDespues = new Date();
+                    tresMesesDespues.setMonth(tresMesesDespues.getMonth() + 3);
+                    
+                    fechaInput.min = hoy.toISOString().split('T')[0];
+                    fechaInput.max = tresMesesDespues.toISOString().split('T')[0];
+                    
+                    fechaInput.addEventListener('change', function(e) {
+                        const fecha = new Date(e.target.value + 'T12:00:00');
+                        generarHorasDisponiblesModal(fecha, cita.hora_cita);
+                    });
+                    
+                    // Generar horas iniciales si hay fecha
+                    if (cita.fecha_cita) {
+                        const fecha = new Date(cita.fecha_cita + 'T12:00:00');
+                        generarHorasDisponiblesModal(fecha, cita.hora_cita);
+                    }
+                    
+                    // Actualizar botón guardar
+                    const btnGuardar = document.getElementById('btnGuardarFechaHora');
+                    const newBtn = btnGuardar.cloneNode(true);
+                    btnGuardar.parentNode.replaceChild(newBtn, btnGuardar);
+                    newBtn.addEventListener('click', function() {
+                        guardarEdicionFechaHora(citaId);
+                    });
+                    
+                    modal.classList.add('active');
+                })
+                .catch(error => {
+                    console.error('Error cargando cita:', error);
+                    alert('Error al cargar los datos de la cita');
+                });
+        }
+
+        // ==============================================
+        // NUEVA FUNCIÓN: generarHorasDisponiblesModal
+        // ==============================================
+        
+        function generarHorasDisponiblesModal(fecha, horaSeleccionada) {
+            const horaSelect = document.getElementById('editHoraCita');
+            if (!horaSelect) return;
+            
+            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+            
+            if (isNaN(fecha.getTime())) return;
+            
+            const diaSemana = fecha.getDay();
+            let horaInicio, horaFin;
+            
+            if (diaSemana === 0) {
+                alert('Los domingos no hay atención. Seleccione otro día.');
+                return;
+            } else if (diaSemana === 6) {
+                horaInicio = 9;
+                horaFin = 14;
+            } else {
+                horaInicio = 9;
+                horaFin = 18;
+            }
+            
+            for (let hora = horaInicio; hora <= horaFin; hora++) {
+                for (let minuto = 0; minuto < 60; minuto += 30) {
+                    if (diaSemana === 6 && hora === 14 && minuto > 0) continue;
+                    if (diaSemana !== 6 && hora === 18 && minuto > 0) continue;
+                    
+                    const horaFormateada = String(hora).padStart(2, '0');
+                    const minutoFormateado = String(minuto).padStart(2, '0');
+                    const horaValue = `${horaFormateada}:${minutoFormateado}`;
+                    
+                    const hora12 = hora > 12 ? hora - 12 : hora;
+                    const ampm = hora >= 12 ? 'PM' : 'AM';
+                    const horaDisplay = `${hora12}:${minutoFormateado} ${ampm}`;
+                    
+                    const option = document.createElement('option');
+                    option.value = horaValue;
+                    option.textContent = horaDisplay;
+                    
+                    if (horaValue === horaSeleccionada) {
+                        option.selected = true;
+                    }
+                    
+                    horaSelect.appendChild(option);
+                }
+            }
+        }
+
+        // ==============================================
+        // NUEVA FUNCIÓN: guardarEdicionFechaHora
+        // ==============================================
+        
+        async function guardarEdicionFechaHora(citaId) {
+            const messageEl = document.getElementById('editFechaHoraMessage');
+            const fechaCita = document.getElementById('editFechaCita').value;
+            const horaCita = document.getElementById('editHoraCita').value;
+            
+            if (!fechaCita) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione la fecha';
+                messageEl.style.display = 'block';
+                return;
+            }
+            
+            if (!horaCita) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione la hora';
+                messageEl.style.display = 'block';
+                return;
+            }
+            
+            try {
+                messageEl.className = 'message';
+                messageEl.innerHTML = '<div class="spinner"></div> Actualizando fecha y hora...';
+                messageEl.style.display = 'block';
+                
+                const response = await fetch('/api/update-cita-fecha-hora', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cita_id: citaId,
+                        fecha_cita: fechaCita,
+                        hora_cita: horaCita
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result);
+                
+                if (result.success) {
+                    messageEl.className = 'message success';
+                    messageEl.innerHTML = '<i class="fas fa-check-circle"></i> Fecha y hora actualizadas exitosamente';
+                    
+                    setTimeout(() => {
+                        closeModal('editarFechaHoraModal');
+                        loadAllCitas(); // Recargar lista de citas
+                    }, 1500);
+                } else {
+                    messageEl.className = 'message error';
+                    messageEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message || 'Error al actualizar'}`;
+                }
+            } catch (error) {
+                console.error('Error actualizando fecha/hora:', error);
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error de conexión con el servidor';
+            }
+        }
+
         async function descargarPDFCita(citaId) {
             try {
                 console.log(`Descargando PDF para cita ID: ${citaId}`);
-                
-                // Crear un enlace para descargar el PDF
                 const link = document.createElement('a');
                 link.href = `/api/descargar-pdf/${citaId}`;
                 link.download = '';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
             } catch (error) {
                 console.error('Error descargando PDF:', error);
                 alert('Error al descargar el PDF. Es posible que la cita no tenga un archivo asociado.');
             }
         }
 
-        // Función para ver detalles de una cita
         function verDetallesCita(citaId, folio, paciente, doctor, fecha, hora, total) {
             currentCitaIdForModal = citaId;
             
@@ -2486,10 +2728,10 @@
                         <div class="info-value">${doctor || 'N/A'}</div>
                     </div>
                     <div>
-                        <div class="info-label">Fecha:</div>
+                        <div class="info-label">Fecha de Cita:</div>
                         <div class="info-value">${fecha || 'N/A'}</div>
                         
-                        <div class="info-label">Hora:</div>
+                        <div class="info-label">Hora de Cita:</div>
                         <div class="info-value">${hora || 'N/A'}</div>
                         
                         <div class="info-label">Total:</div>
@@ -2503,7 +2745,6 @@
             
             document.getElementById('citaDetailContent').innerHTML = content;
             
-            // Configurar el botón de descarga en el modal
             const downloadBtn = document.getElementById('downloadPdfBtn');
             if (downloadBtn) {
                 downloadBtn.onclick = function() {
@@ -2514,38 +2755,270 @@
             document.getElementById('citaDetailModal').classList.add('active');
         }
 
-        // Función para descargar PDF desde el modal
         function downloadPdfFromModal() {
             if (currentCitaIdForModal) {
                 descargarPDFCita(currentCitaIdForModal);
             }
         }
 
-        // ==============================================
-        // FUNCIONES DE RECETA VIRTUAL (IGUAL AL INDEX)
-        // ==============================================
-        
+        // FUNCIÓN PARA CARGAR CITA EN MODO EDICIÓN (FORMULARIO COMPLETO)
+        async function cargarCitaParaEdicion(citaId) {
+            try {
+                console.log(`Cargando cita ID: ${citaId} para edición`);
+                
+                // Mostrar mensaje de carga
+                const messageEl = document.getElementById('recetaMessage');
+                messageEl.className = 'message warning';
+                messageEl.innerHTML = '<div class="spinner"></div> Cargando datos de la cita...';
+                
+                // Cambiar a la sección de receta virtual
+                showRecetaVirtual();
+                
+                // Obtener datos de la cita
+                const response = await fetch(`/api/cita/${citaId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Error al cargar los datos de la cita');
+                }
+                
+                const cita = await response.json();
+                console.log('Datos de cita cargados:', cita);
+                
+                // Guardar ID de cita en edición
+                citaEditando = cita;
+                document.getElementById('citaEditandoId').value = cita.id_cita;
+                
+                // Rellenar formulario
+                document.getElementById('pacienteNombre').value = cita.paciente || '';
+                document.getElementById('fechaCita').value = cita.fecha_cita || '';
+                document.getElementById('horaCita').value = cita.hora_cita || '';
+                
+                // Mostrar doctor seleccionado
+                if (cita.doctor_id && cita.doctor_nombre) {
+                    document.getElementById('doctorSeleccionadoDisplay').value = cita.doctor_nombre;
+                    document.getElementById('doctorSeleccionadoId').value = cita.doctor_id;
+                    document.getElementById('selectedDoctorNombre').textContent = cita.doctor_nombre;
+                    document.getElementById('selectedDoctorId').textContent = cita.doctor_id;
+                    document.getElementById('selectedDoctorInfo').style.display = 'flex';
+                }
+                
+                // Actualizar folio display
+                document.getElementById('folioDisplay').textContent = cita.numero_folio || 'Editando cita';
+                
+                // Mostrar badge de edición
+                document.getElementById('editingBadge').style.display = 'inline-flex';
+                
+                // Cambiar botones
+                document.getElementById('btnCompletarReceta').style.display = 'none';
+                document.getElementById('btnActualizarReceta').style.display = 'block';
+                document.getElementById('btnCancelarEdicion').style.display = 'block';
+                
+                // Generar horas disponibles para la fecha seleccionada
+                if (cita.fecha_cita) {
+                    const fecha = new Date(cita.fecha_cita + 'T12:00:00');
+                    generarHorasDisponibles(fecha);
+                }
+                
+                // Intentar seleccionar estudios basados en observaciones (simplificado)
+                // En un sistema real, los estudios deberían estar en una tabla separada
+                const estudiosExistentes = document.querySelectorAll('.study-checkbox');
+                estudiosExistentes.forEach(cb => cb.checked = false);
+                
+                // Aquí podrías implementar lógica para detectar estudios en las observaciones
+                // Por ahora, calculamos total basado en el total_estudio
+                const totalEstudio = parseFloat(cita.total_estudio) || 0;
+                
+                // Actualizar total mostrado
+                document.getElementById('totalAmount').innerHTML = `$${totalEstudio.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+                
+                // Ocultar mensaje de carga
+                messageEl.className = 'message';
+                messageEl.innerHTML = '';
+                
+            } catch (error) {
+                console.error('Error cargando cita:', error);
+                const messageEl = document.getElementById('recetaMessage');
+                messageEl.className = 'message error';
+                messageEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> Error al cargar la cita: ${error.message}`;
+            }
+        }
+
+        // FUNCIÓN PARA ACTUALIZAR CITA (FORMULARIO COMPLETO)
+        async function actualizarCitaAdmin() {
+            const messageEl = document.getElementById('recetaMessage');
+            const citaId = document.getElementById('citaEditandoId').value;
+            const paciente = document.getElementById('pacienteNombre').value.trim();
+            const fechaCita = document.getElementById('fechaCita').value;
+            const horaCita = document.getElementById('horaCita').value;
+            const doctorId = document.getElementById('doctorSeleccionadoId').value;
+            
+            if (!citaId) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> No hay una cita seleccionada para editar';
+                return;
+            }
+            
+            if (!paciente) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor ingrese el nombre del paciente';
+                document.getElementById('pacienteNombre').focus();
+                return;
+            }
+            
+            if (!fechaCita) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione la fecha de la cita';
+                document.getElementById('fechaCita').focus();
+                return;
+            }
+            
+            if (!horaCita) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione la hora de la cita';
+                document.getElementById('horaCita').focus();
+                return;
+            }
+            
+            if (!doctorId) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione un doctor';
+                abrirSelectorDoctores();
+                return;
+            }
+            
+            console.log('📝 Actualizando cita:', citaId);
+            
+            // Recolectar estudios seleccionados (para observaciones)
+            const estudiosSeleccionados = [];
+            const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox:checked');
+            
+            checkboxes.forEach(cb => {
+                if (cb.dataset.name && cb.dataset.price) {
+                    estudiosSeleccionados.push(`${cb.dataset.name} - $${parseFloat(cb.dataset.price).toFixed(2)}`);
+                }
+            });
+            
+            const observaciones = [];
+            
+            if (estudiosSeleccionados.length > 0) {
+                observaciones.push('ESTUDIOS SELECCIONADOS:');
+                estudiosSeleccionados.forEach(estudio => observaciones.push(`- ${estudio}`));
+            }
+            
+            const formatoFotografia = document.getElementById('formatoFotografia')?.value;
+            if (formatoFotografia) observaciones.push(`Formato de fotografías: ${formatoFotografia}`);
+            
+            const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value;
+            if (observacionesAdicionales) observaciones.push(observacionesAdicionales);
+            
+            const fechaNacimiento = document.getElementById('pacienteFN').value;
+            if (fechaNacimiento) {
+                const fechaNacimientoFormateada = new Date(fechaNacimiento).toLocaleDateString('es-MX');
+                observaciones.push(`Fecha de nacimiento: ${fechaNacimientoFormateada}`);
+            }
+            
+            const totalEstudio = calcularTotalReceta();
+            
+            try {
+                messageEl.className = 'message';
+                messageEl.innerHTML = '<div class="spinner"></div> Actualizando cita...';
+                
+                const response = await fetch('/api/update-cita', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cita_id: citaId,
+                        paciente: paciente,
+                        doctor_id: doctorId,
+                        fecha_cita: fechaCita,
+                        hora_cita: horaCita,
+                        total_estudio: totalEstudio,
+                        observaciones: observaciones.join('\n')
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('📡 Respuesta del servidor:', result);
+                
+                if (result.success) {
+                    messageEl.className = 'message success';
+                    
+                    const fechaCitaFormateada = new Date(fechaCita).toLocaleDateString('es-MX');
+                    const [hora, minuto] = horaCita.split(':');
+                    const hora12 = parseInt(hora) > 12 ? parseInt(hora) - 12 : parseInt(hora);
+                    const ampm = parseInt(hora) >= 12 ? 'PM' : 'AM';
+                    const horaDisplay = `${hora12}:${minuto} ${ampm}`;
+                    
+                    const doctorNombre = document.getElementById('doctorSeleccionadoDisplay').value;
+                    
+                    messageEl.innerHTML = `
+                        <i class="fas fa-check-circle"></i> 
+                        Cita actualizada exitosamente<br>
+                        <strong>Paciente:</strong> ${paciente}<br>
+                        <strong>Doctor:</strong> ${doctorNombre}<br>
+                        <strong>Fecha de cita:</strong> ${fechaCitaFormateada}<br>
+                        <strong>Hora de cita:</strong> ${horaDisplay}<br>
+                        <strong>Total estudios:</strong> $${totalEstudio.toFixed(2)}
+                    `;
+                    
+                    // Salir del modo edición
+                    cancelarEdicionReceta();
+                    
+                    // Recargar lista de citas
+                    loadAllCitas();
+                    
+                    setTimeout(() => {
+                        showSection('citas', null);
+                    }, 2000);
+                } else {
+                    messageEl.className = 'message error';
+                    messageEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message || 'Error al actualizar la cita'}`;
+                }
+            } catch (error) {
+                console.error('❌ Error actualizando cita:', error);
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error de conexión con el servidor';
+            }
+        }
+
+        // FUNCIÓN PARA CANCELAR EDICIÓN
+        function cancelarEdicionReceta() {
+            // Limpiar ID de edición
+            document.getElementById('citaEditandoId').value = '';
+            citaEditando = null;
+            
+            // Limpiar formulario
+            limpiarFormularioReceta();
+            
+            // Restaurar folio display
+            document.getElementById('folioDisplay').textContent = 'Nueva receta';
+            
+            // Ocultar badge de edición
+            document.getElementById('editingBadge').style.display = 'none';
+            
+            // Restaurar botones
+            document.getElementById('btnCompletarReceta').style.display = 'block';
+            document.getElementById('btnActualizarReceta').style.display = 'none';
+            document.getElementById('btnCancelarEdicion').style.display = 'none';
+            
+            // Limpiar mensajes
+            const messageEl = document.getElementById('recetaMessage');
+            messageEl.className = 'message';
+            messageEl.innerHTML = '';
+        }
+
         function initRecetaVirtualForm() {
             console.log('Inicializando receta virtual form');
-            
-            // Inicializar calendario de citas
             initCalendarioCitas();
             
-            // Configurar checkboxes para cálculo de total
             const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox');
             checkboxes.forEach(cb => {
                 cb.removeEventListener('change', calcularTotalReceta);
                 cb.addEventListener('change', calcularTotalReceta);
             });
             
-            // Configurar botón de completar
-            const btnCompletar = document.getElementById('btnCompletarReceta');
-            if (btnCompletar) {
-                btnCompletar.removeEventListener('click', generarCitaAdmin);
-                btnCompletar.addEventListener('click', generarCitaAdmin);
-            }
-            
-            // Calcular total inicial
             calcularTotalReceta();
         }
 
@@ -2555,12 +3028,10 @@
             
             if (!fechaInput || !horaSelect) return;
             
-            // Configurar fecha mínima (hoy) y máxima (3 meses después)
             const hoy = new Date();
             const tresMesesDespues = new Date();
             tresMesesDespues.setMonth(tresMesesDespues.getMonth() + 3);
             
-            // Formatear fechas para input date (YYYY-MM-DD)
             const formatDate = (date) => {
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -2571,7 +3042,6 @@
             fechaInput.min = formatDate(hoy);
             fechaInput.max = formatDate(tresMesesDespues);
             
-            // Deshabilitar fines de semana
             fechaInput.removeEventListener('input', handleFechaChange);
             fechaInput.addEventListener('input', handleFechaChange);
         }
@@ -2587,7 +3057,6 @@
             
             const diaSemana = fecha.getDay();
             
-            // Verificar si es domingo
             if (diaSemana === 0) {
                 alert('Los domingos no hay atención. Seleccione un día de lunes a sábado.');
                 fechaInput.value = '';
@@ -2598,58 +3067,48 @@
                 return;
             }
             
-            // Generar horas disponibles si la fecha es válida
             generarHorasDisponibles(fecha);
         }
 
         function generarHorasDisponibles(fecha) {
-        const horaSelect = document.getElementById('horaCita');
-        if (!horaSelect) return;
-        
-        // Limpiar opciones actuales
-        horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
-        
-        const diaSemana = fecha.getDay(); // 0 = Domingo, 6 = Sábado
-        
-        // Determinar horario según el día de la semana
-        let horaInicio, horaFin;
-        
-        if (diaSemana === 6) { // Sábado
-            horaInicio = 9;  // 9:00 AM
-            horaFin = 14;    // 2:00 PM
-            console.log('📅 Sábado - Horario: 9:00 AM a 2:00 PM');
-        } else { // Lunes a Viernes
-            horaInicio = 9;  // 9:00 AM
-            horaFin = 18;    // 6:00 PM
-            console.log('📅 Entre semana - Horario: 9:00 AM a 6:00 PM');
-        }
-        
-        // Generar horas cada 30 minutos
-        for (let hora = horaInicio; hora <= horaFin; hora++) {
-            for (let minuto = 0; minuto < 60; minuto += 30) {
-                // Para sábados: no generar después de las 2:00 PM
-                if (diaSemana === 6 && hora === 14 && minuto > 0) continue;
-                
-                // Para entre semana: no generar después de las 6:00 PM
-                if (diaSemana !== 6 && hora === 18 && minuto > 0) continue;
-                
-                const horaFormateada = String(hora).padStart(2, '0');
-                const minutoFormateado = String(minuto).padStart(2, '0');
-                const horaValue = `${horaFormateada}:${minutoFormateado}`;
-                
-                const hora12 = hora > 12 ? hora - 12 : hora;
-                const ampm = hora >= 12 ? 'PM' : 'AM';
-                const horaDisplay = `${hora12}:${minutoFormateado} ${ampm}`;
-                
-                const option = document.createElement('option');
-                option.value = horaValue;
-                option.textContent = horaDisplay;
-                horaSelect.appendChild(option);
+            const horaSelect = document.getElementById('horaCita');
+            if (!horaSelect) return;
+            
+            horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+            
+            const diaSemana = fecha.getDay();
+            let horaInicio, horaFin;
+            
+            if (diaSemana === 6) {
+                horaInicio = 9;
+                horaFin = 14;
+            } else {
+                horaInicio = 9;
+                horaFin = 18;
             }
+            
+            for (let hora = horaInicio; hora <= horaFin; hora++) {
+                for (let minuto = 0; minuto < 60; minuto += 30) {
+                    if (diaSemana === 6 && hora === 14 && minuto > 0) continue;
+                    if (diaSemana !== 6 && hora === 18 && minuto > 0) continue;
+                    
+                    const horaFormateada = String(hora).padStart(2, '0');
+                    const minutoFormateado = String(minuto).padStart(2, '0');
+                    const horaValue = `${horaFormateada}:${minutoFormateado}`;
+                    
+                    const hora12 = hora > 12 ? hora - 12 : hora;
+                    const ampm = hora >= 12 ? 'PM' : 'AM';
+                    const horaDisplay = `${hora12}:${minutoFormateado} ${ampm}`;
+                    
+                    const option = document.createElement('option');
+                    option.value = horaValue;
+                    option.textContent = horaDisplay;
+                    horaSelect.appendChild(option);
+                }
+            }
+            
+            horaSelect.disabled = false;
         }
-        
-        horaSelect.disabled = false;
-    }
 
         function calcularTotalReceta() {
             const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox:checked');
@@ -2672,6 +3131,15 @@
         }
 
         async function generarCitaAdmin() {
+            // Verificar si estamos en modo edición
+            if (document.getElementById('citaEditandoId').value) {
+                if (confirm('Ya hay una cita en edición. ¿Desea cancelar la edición y crear una nueva?')) {
+                    cancelarEdicionReceta();
+                } else {
+                    return;
+                }
+            }
+            
             const messageEl = document.getElementById('recetaMessage');
             const paciente = document.getElementById('pacienteNombre').value.trim();
             const fechaCita = document.getElementById('fechaCita').value;
@@ -2679,7 +3147,6 @@
             const fechaNacimiento = document.getElementById('pacienteFN').value;
             const doctorId = document.getElementById('doctorSeleccionadoId').value;
             
-            // Validaciones
             if (!paciente) {
                 messageEl.className = 'message error';
                 messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor ingrese el nombre del paciente';
@@ -2710,7 +3177,6 @@
             
             console.log('📝 Generando cita para doctor:', doctorId);
             
-            // Recopilar estudios seleccionados
             const estudios = [];
             const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox:checked');
             
@@ -2726,7 +3192,6 @@
                 }
             });
             
-            // Recopilar observaciones
             const observaciones = [];
             
             const formatoFotografia = document.getElementById('formatoFotografia')?.value;
@@ -2792,7 +3257,6 @@
                         downloadPDF(result.pdf_base64, `Receta_${result.numero_folio}_${paciente.replace(/\s+/g, '_')}.pdf`);
                     }
                     
-                    // Limpiar formulario
                     limpiarFormularioReceta();
                     
                     setTimeout(() => {
@@ -2838,7 +3302,6 @@
                 }
             });
             
-            // Limpiar selección de doctor
             document.getElementById('doctorSeleccionadoDisplay').value = '';
             document.getElementById('doctorSeleccionadoId').value = '';
             document.getElementById('selectedDoctorInfo').style.display = 'none';
@@ -2855,10 +3318,6 @@
             document.body.removeChild(link);
         }
 
-        // ==============================================
-        // FUNCIONES DE DETALLES Y EDICIÓN
-        // ==============================================
-        
         async function viewUserDetails(userId) {
             try {
                 console.log('Viendo detalles del doctor:', userId);
@@ -2897,6 +3356,9 @@
                             
                             <div class="info-label">Dirección:</div>
                             <div class="info-value">${user.direccion_consultorio || 'N/A'}</div>
+                            
+                            <div class="info-label">Puntos:</div>
+                            <div class="info-value puntos-highlight" style="background: #e8f5e9; text-align: center;">${user.puntos || '0'}</div>
                             
                             <div class="info-label">Fecha Registro:</div>
                             <div class="info-value">${user.fecha_registro || 'N/A'}</div>
@@ -2941,6 +3403,7 @@
                 document.getElementById('editTelefono').value = user.telefono || '';
                 document.getElementById('editTelefonoConsultorio').value = user.telefono_consultorio || '';
                 document.getElementById('editDireccionConsultorio').value = user.direccion_consultorio || '';
+                document.getElementById('editPuntos').value = user.puntos || 0;
                 document.getElementById('editEstado').value = user.activo ? 'active' : 'inactive';
                 document.getElementById('editUserId').value = userId;
                 document.getElementById('editUserType').value = 'doctor';
@@ -2975,6 +3438,7 @@
                 telefono: document.getElementById('editTelefono').value,
                 telefono_consultorio: document.getElementById('editTelefonoConsultorio').value,
                 direccion_consultorio: document.getElementById('editDireccionConsultorio').value,
+                puntos: parseInt(document.getElementById('editPuntos').value) || 0,
                 estado: document.getElementById('editEstado').value
             };
             
@@ -3009,10 +3473,6 @@
             }
         }
 
-        // ==============================================
-        // FUNCIONES DE CREACIÓN
-        // ==============================================
-        
         function showCreateDoctorModal() {
             document.getElementById('createDoctorForm').reset();
             document.getElementById('createDoctorModal').classList.add('active');
@@ -3061,10 +3521,6 @@
             }
         }
 
-        // ==============================================
-        // FUNCIONES DE ELIMINACIÓN
-        // ==============================================
-        
         function confirmDeleteUser(userId, userType, userName) {
             currentUserToDelete = userId;
             currentUserToDeleteType = userType;
@@ -3104,10 +3560,6 @@
             }
         }
 
-        // ==============================================
-        // FUNCIONES DE FILTROS Y BÚSQUEDA
-        // ==============================================
-        
         function filterDoctores(filter, event) {
             if (event) {
                 event.preventDefault();
@@ -3124,7 +3576,7 @@
                     row.cells[0].textContent !== 'No hay doctores registrados' &&
                     !row.cells[0].textContent.includes('Error')) {
                     
-                    const estadoCelda = row.cells[11];
+                    const estadoCelda = row.cells[12];
                     if (estadoCelda) {
                         const estado = estadoCelda.textContent;
                         if (filter === 'all') {
@@ -3175,10 +3627,6 @@
             alert('Búsqueda global en desarrollo');
         }
 
-        // ==============================================
-        // FUNCIONES DE UTILIDADES
-        // ==============================================
-        
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
             if (modalId === 'deleteModal') {
@@ -3248,6 +3696,13 @@
         window.descargarPDFCita = descargarPDFCita;
         window.verDetallesCita = verDetallesCita;
         window.downloadPdfFromModal = downloadPdfFromModal;
+        window.mostrarOpcionesEdicion = mostrarOpcionesEdicion;
+        window.mostrarModalEditarFechaHora = mostrarModalEditarFechaHora;
+        window.guardarEdicionFechaHora = guardarEdicionFechaHora;
+        window.cargarCitaParaEdicion = cargarCitaParaEdicion;
+        window.actualizarCitaAdmin = actualizarCitaAdmin;
+        window.cancelarEdicionReceta = cancelarEdicionReceta;
+        window.generarCitaAdmin = generarCitaAdmin;
         window.closeModal = closeModal;
         window.logout = logout;
     </script>

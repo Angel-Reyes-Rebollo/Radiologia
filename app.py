@@ -1,10 +1,11 @@
-# app.py - VERSIÓN COMPLETA CORREGIDA - CON CAMPO total_estudio
+# app.py - VERSIÓN COMPLETA CORREGIDA - CON SERIALIZACIÓN JSON ADECUADA
 import base64
 import io
 import json
 import os
 import re
-from datetime import datetime
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
@@ -17,6 +18,22 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import (PageBreak, Paragraph, SimpleDocTemplate,
                                 Spacer, Table, TableStyle)
+
+
+class CustomJSONEncoder(json.JSONEncoder):
+    """Encoder JSON personalizado para manejar tipos especiales"""
+    def default(self, obj):
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        elif isinstance(obj, time):
+            return obj.strftime('%H:%M:%S')
+        elif isinstance(obj, timedelta):
+            return str(obj)
+        elif isinstance(obj, Decimal):
+            return float(obj)
+        elif isinstance(obj, bytes):
+            return base64.b64encode(obj).decode('utf-8')
+        return super().default(obj)
 
 
 class CustomHandler(SimpleHTTPRequestHandler):
@@ -97,6 +114,13 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.handle_get_all_citas()
                 return
                 
+            # RUTA PARA OBTENER DETALLES DE UNA CITA ESPECÍFICA
+            if self.path.startswith('/api/cita/'):
+                cita_id = self.path.split('/')[-1]
+                print(f"[API] Solicitando detalles de cita ID: {cita_id}")
+                self.handle_get_cita_details(cita_id)
+                return
+                
             # RUTA PARA DESCARGAR PDF DE CITA
             if self.path.startswith('/api/descargar-pdf/'):
                 cita_id = self.path.split('/')[-1]
@@ -113,7 +137,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
         except Exception as e:
             print(f"Error en GET {self.path}: {str(e)}")
-            self.send_error(404)
+            self.send_error(500, f"Error interno: {str(e)}")
     
     def do_POST(self):
         """Manejar login, registro y cambio de contraseña"""
@@ -135,8 +159,261 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.handle_generate_cita()
         elif self.path == '/api/upload-resultado':
             self.handle_upload_resultado()
+        elif self.path == '/api/update-cita':
+            self.handle_update_cita()
+        elif self.path == '/api/update-cita-fecha-hora':
+            self.handle_update_cita_fecha_hora()
         else:
             self.send_error(404)
+    
+    def send_json_response(self, data, status=200):
+        """Enviar respuesta JSON con encoder personalizado"""
+        self.send_response(status)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(data, cls=CustomJSONEncoder).encode())
+    
+    # ==============================================
+    # NUEVA FUNCIÓN: ACTUALIZAR SOLO FECHA Y HORA DE LA CITA
+    # ==============================================
+    
+    def handle_update_cita_fecha_hora(self):
+        """Actualizar solo la fecha y hora de una cita existente"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+            
+            # Validar datos requeridos
+            cita_id = data.get('cita_id')
+            fecha_cita = data.get('fecha_cita')
+            hora_cita = data.get('hora_cita')
+            
+            if not cita_id or not fecha_cita or not hora_cita:
+                raise ValueError("Faltan datos requeridos para actualizar la cita")
+            
+            db = self.connect_db()
+            cursor = db.cursor()
+            
+            cursor.execute("""
+                UPDATE citas 
+                SET fecha_cita = %s,
+                    hora_cita = %s
+                WHERE id_cita = %s
+            """, (
+                fecha_cita,
+                hora_cita,
+                cita_id
+            ))
+            
+            db.commit()
+            print(f"[CITA] Fecha/hora de cita ID {cita_id} actualizada exitosamente")
+            
+            cursor.close()
+            db.close()
+            
+            response = {
+                'success': True,
+                'message': 'Fecha y hora de la cita actualizadas exitosamente',
+                'cita_id': cita_id
+            }
+            
+            self.send_json_response(response, 200)
+            
+        except Exception as e:
+            print(f"Error actualizando fecha/hora de cita: {str(e)}")
+            response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
+            self.send_json_response(response, 500)
+    
+    # ==============================================
+    # FUNCIÓN PARA OBTENER DETALLES DE UNA CITA ESPECÍFICA
+    # ==============================================
+    
+    def handle_get_cita_details(self, cita_id):
+        """Obtener todos los detalles de una cita específica para edición"""
+        try:
+            print(f"[API] Obteniendo detalles de cita ID: {cita_id}")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            # Verificar que la cita existe
+            cursor.execute("SELECT id_cita FROM citas WHERE id_cita = %s", (cita_id,))
+            if not cursor.fetchone():
+                cursor.close()
+                db.close()
+                self.send_json_response({'error': 'Cita no encontrada'}, 404)
+                return
+            
+            # Verificar si existe la columna observaciones
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'observaciones'")
+            tiene_observaciones = cursor.fetchone() is not None
+            
+            if tiene_observaciones:
+                cursor.execute("""
+                    SELECT 
+                        c.id_cita,
+                        c.numero_folio,
+                        c.paciente,
+                        c.doctor_id,
+                        COALESCE(d.nombre, 'Administrador') as doctor_nombre,
+                        DATE_FORMAT(c.fecha_cita, '%Y-%m-%d') as fecha_cita,
+                        c.hora_cita,
+                        CAST(c.total_estudio AS DECIMAL(10,2)) as total_estudio,
+                        c.observaciones,
+                        c.documento_pdf,
+                        c.documento_nombre,
+                        c.fecha,
+                        c.hora
+                    FROM citas c
+                    LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
+                    WHERE c.id_cita = %s
+                """, (cita_id,))
+            else:
+                cursor.execute("""
+                    SELECT 
+                        c.id_cita,
+                        c.numero_folio,
+                        c.paciente,
+                        c.doctor_id,
+                        COALESCE(d.nombre, 'Administrador') as doctor_nombre,
+                        DATE_FORMAT(c.fecha_cita, '%Y-%m-%d') as fecha_cita,
+                        c.hora_cita,
+                        CAST(c.total_estudio AS DECIMAL(10,2)) as total_estudio,
+                        '' as observaciones,
+                        c.documento_pdf,
+                        c.documento_nombre,
+                        c.fecha,
+                        c.hora
+                    FROM citas c
+                    LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
+                    WHERE c.id_cita = %s
+                """, (cita_id,))
+            
+            cita = cursor.fetchone()
+            
+            if not cita:
+                cursor.close()
+                db.close()
+                self.send_json_response({'error': 'Cita no encontrada'}, 404)
+                return
+            
+            # Convertir campos especiales a formatos serializables
+            if 'documento_pdf' in cita and cita['documento_pdf']:
+                # No enviar el PDF completo en la respuesta JSON para evitar problemas de tamaño
+                del cita['documento_pdf']
+            
+            # Asegurar que total_estudio sea float
+            if cita.get('total_estudio'):
+                cita['total_estudio'] = float(cita['total_estudio'])
+            
+            # Extraer posibles estudios de las observaciones
+            estudios_detectados = []
+            if cita.get('observaciones'):
+                lineas = cita['observaciones'].split('\n')
+                for linea in lineas:
+                    if any(palabra in linea.lower() for palabra in ['ortopantomografía', 'lateral', 'tomografía', 'fotografías', 'modelo', 'estudio', 'radiografía', 'atm', 'senos', 'periapical', 'oclusal']):
+                        estudios_detectados.append(linea)
+            
+            cita['estudios_detectados'] = estudios_detectados
+            
+            cursor.close()
+            db.close()
+            
+            self.send_json_response(cita, 200)
+            
+        except mysql.connector.Error as e:
+            print(f"Error MySQL obteniendo detalles de cita: {str(e)}")
+            self.send_json_response({'error': f'Error de base de datos: {str(e)}'}, 500)
+        except Exception as e:
+            print(f"Error general obteniendo detalles de cita: {str(e)}")
+            self.send_json_response({'error': str(e)}, 500)
+    
+    # ==============================================
+    # FUNCIÓN PARA ACTUALIZAR UNA CITA EXISTENTE (COMPLETA)
+    # ==============================================
+    
+    def handle_update_cita(self):
+        """Actualizar una cita existente (formulario completo)"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+            
+            # Validar datos requeridos
+            cita_id = data.get('cita_id')
+            paciente = data.get('paciente')
+            doctor_id = data.get('doctor_id')
+            fecha_cita = data.get('fecha_cita')
+            hora_cita = data.get('hora_cita')
+            total_estudio = float(data.get('total_estudio', 0))
+            observaciones = data.get('observaciones', '')
+            
+            if not cita_id or not paciente or not doctor_id or not fecha_cita or not hora_cita:
+                raise ValueError("Faltan datos requeridos para actualizar la cita")
+            
+            db = self.connect_db()
+            cursor = db.cursor()
+            
+            # Verificar si existe la columna observaciones
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'observaciones'")
+            tiene_observaciones = cursor.fetchone() is not None
+            
+            if tiene_observaciones:
+                cursor.execute("""
+                    UPDATE citas 
+                    SET paciente = %s,
+                        doctor_id = %s,
+                        fecha_cita = %s,
+                        hora_cita = %s,
+                        total_estudio = %s,
+                        observaciones = %s
+                    WHERE id_cita = %s
+                """, (
+                    paciente,
+                    doctor_id,
+                    fecha_cita,
+                    hora_cita,
+                    total_estudio,
+                    observaciones,
+                    cita_id
+                ))
+            else:
+                cursor.execute("""
+                    UPDATE citas 
+                    SET paciente = %s,
+                        doctor_id = %s,
+                        fecha_cita = %s,
+                        hora_cita = %s,
+                        total_estudio = %s
+                    WHERE id_cita = %s
+                """, (
+                    paciente,
+                    doctor_id,
+                    fecha_cita,
+                    hora_cita,
+                    total_estudio,
+                    cita_id
+                ))
+            
+            db.commit()
+            print(f"[CITA] Cita ID {cita_id} actualizada exitosamente")
+            
+            cursor.close()
+            db.close()
+            
+            response = {
+                'success': True,
+                'message': 'Cita actualizada exitosamente',
+                'cita_id': cita_id
+            }
+            
+            self.send_json_response(response, 200)
+            
+        except Exception as e:
+            print(f"Error actualizando cita: {str(e)}")
+            response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
+            self.send_json_response(response, 500)
     
     # ==============================================
     # FUNCIÓN PARA SUBIR RESULTADO
@@ -175,26 +452,30 @@ class CustomHandler(SimpleHTTPRequestHandler):
             """, (resultado_pdf, resultado_nombre, resultado_tipo, resultado_tamano, cita_id))
             
             db.commit()
+            
+            # Actualizar puntos del doctor (10 puntos por resultado subido)
+            cursor.execute("""
+                UPDATE doctores d
+                JOIN citas c ON d.Diddoctor = c.doctor_id
+                SET d.puntos = d.puntos + 10
+                WHERE c.id_cita = %s
+            """, (cita_id,))
+            
+            db.commit()
             cursor.close()
             db.close()
             
             response = {
                 'success': True,
-                'message': 'Resultado subido exitosamente'
+                'message': 'Resultado subido exitosamente. Se han añadido 10 puntos al doctor.'
             }
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 200)
             
         except Exception as e:
             print(f"Error subiendo resultado: {str(e)}")
             response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 500)
     
     # ==============================================
     # FUNCIÓN PARA DESCARGAR RESULTADO
@@ -265,10 +546,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 print(f"[API] Doctor no encontrado: {doctor_id}")
                 cursor.close()
                 db.close()
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps([]).encode())
+                self.send_json_response([], 200)
                 return
             
             # Obtener resultados de este doctor - NO seleccionar el BLOB resultado
@@ -292,17 +570,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.close()
             db.close()
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(resultados).encode())
+            self.send_json_response(resultados, 200)
             
         except Exception as e:
             print(f"Error obteniendo resultados: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
+            self.send_json_response({'error': str(e)}, 500)
     
     # ==============================================
     # FUNCIÓN PARA DESCARGAR PDF DE CITA
@@ -365,7 +637,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor = db.cursor(dictionary=True)
             
             cursor.execute("""
-                SELECT Diddoctor as id, nombre, usuario
+                SELECT Diddoctor as id, nombre, usuario, puntos
                 FROM doctores 
                 WHERE usuario = %s AND activo = 1
             """, (username,))
@@ -376,23 +648,14 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
             if doctor:
                 print(f"[API] Doctor encontrado: {doctor}")
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(doctor).encode())
+                self.send_json_response(doctor, 200)
             else:
                 print(f"[API] No se encontró doctor con usuario: '{username}'")
-                self.send_response(404)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'error': 'Doctor no encontrado'}).encode())
+                self.send_json_response({'error': 'Doctor no encontrado'}, 404)
                 
         except Exception as e:
             print(f"Error obteniendo doctor por usuario: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
+            self.send_json_response({'error': str(e)}, 500)
     
     # ==============================================
     # FUNCIÓN PARA GENERAR PDF DE RECETA
@@ -533,7 +796,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
         # Obtener datos del doctor
         db = self.connect_db()
         cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT nombre, especialidad, telefono_consultorio, email FROM doctores WHERE Diddoctor = %s", (data['doctor_id'],))
+        cursor.execute("SELECT nombre, especialidad, telefono_consultorio, email, puntos FROM doctores WHERE Diddoctor = %s", (data['doctor_id'],))
         doctor = cursor.fetchone()
         cursor.close()
         db.close()
@@ -544,7 +807,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'nombre': 'Administrador',
                 'especialidad': 'Administración',
                 'telefono_consultorio': 'N/A',
-                'email': 'admin@radiologia.com'
+                'email': 'admin@radiologia.com',
+                'puntos': 0
             }
         
         medico_data = [
@@ -660,11 +924,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
         return pdf
     
     # ==============================================
-    # FUNCIÓN PARA GENERAR CITA (RECETA VIRTUAL) - CORREGIDA CON total_estudio
+    # FUNCIÓN PARA GENERAR CITA (RECETA VIRTUAL)
     # ==============================================
 
     def handle_generate_cita(self):
-        """Generar una nueva cita desde receta virtual - CORREGIDA con total_estudio"""
+        """Generar una nueva cita desde receta virtual"""
         try:
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
@@ -731,28 +995,55 @@ class CustomHandler(SimpleHTTPRequestHandler):
             pdf_content = self.generate_pdf_cita(pdf_data)
             pdf_size = len(pdf_content)
             
-            # Insertar en base de datos - Incluye todos los campos incluyendo total_estudio
-            cursor.execute("""
-                INSERT INTO citas (
-                    numero_folio, paciente, doctor_id, fecha, hora, 
-                    fecha_cita, hora_cita, total_estudio,
-                    documento_nombre, documento_pdf, documento_tamano, documento_tipo
-                )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                numero_folio,
-                paciente,
-                doctor_id,
-                fecha_registro,
-                hora_registro,
-                fecha_cita,
-                hora_cita,
-                total_estudio,
-                f"{paciente}_{numero_folio}.pdf".replace(' ', '_'),
-                pdf_content,
-                pdf_size,
-                'application/pdf'
-            ))
+            # Verificar si existe la columna observaciones
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'observaciones'")
+            tiene_observaciones = cursor.fetchone() is not None
+            
+            if tiene_observaciones:
+                cursor.execute("""
+                    INSERT INTO citas (
+                        numero_folio, paciente, doctor_id, fecha, hora, 
+                        fecha_cita, hora_cita, total_estudio, observaciones,
+                        documento_nombre, documento_pdf, documento_tamano, documento_tipo
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    numero_folio,
+                    paciente,
+                    doctor_id,
+                    fecha_registro,
+                    hora_registro,
+                    fecha_cita,
+                    hora_cita,
+                    total_estudio,
+                    observaciones,
+                    f"{paciente}_{numero_folio}.pdf".replace(' ', '_'),
+                    pdf_content,
+                    pdf_size,
+                    'application/pdf'
+                ))
+            else:
+                cursor.execute("""
+                    INSERT INTO citas (
+                        numero_folio, paciente, doctor_id, fecha, hora, 
+                        fecha_cita, hora_cita, total_estudio,
+                        documento_nombre, documento_pdf, documento_tamano, documento_tipo
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    numero_folio,
+                    paciente,
+                    doctor_id,
+                    fecha_registro,
+                    hora_registro,
+                    fecha_cita,
+                    hora_cita,
+                    total_estudio,
+                    f"{paciente}_{numero_folio}.pdf".replace(' ', '_'),
+                    pdf_content,
+                    pdf_size,
+                    'application/pdf'
+                ))
             
             db.commit()
             print(f"[CITA] Cita generada exitosamente - Folio: {numero_folio}, Doctor: {doctor_id}, Total: ${total_estudio}")
@@ -777,18 +1068,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'pdf_base64': pdf_base64
             }
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 200)
             
         except Exception as e:
             print(f"Error generando cita: {str(e)}")
             response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 500)
     
     # ==============================================
     # FUNCIÓN PARA OBTENER CITAS DEL DOCTOR
@@ -810,10 +1095,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 print(f"[API] Doctor no encontrado: {doctor_id}")
                 cursor.close()
                 db.close()
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps([]).encode())
+                self.send_json_response([], 200)
                 return
             
             # Incluir todos los campos necesarios
@@ -848,17 +1130,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.close()
             db.close()
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(citas).encode())
+            self.send_json_response(citas, 200)
             
         except Exception as e:
             print(f"Error obteniendo citas: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e), 'citas': []}).encode())
+            self.send_json_response({'error': str(e), 'citas': []}, 500)
 
     # ==============================================
     # FUNCIÓN PARA OBTENER TODAS LAS CITAS (ADMIN)
@@ -905,17 +1181,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.close()
             db.close()
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(citas).encode())
+            self.send_json_response(citas, 200)
             
         except Exception as e:
             print(f"Error obteniendo todas las citas: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
+            self.send_json_response({'error': str(e)}, 500)
 
     # ==============================================
     # FUNCIONES PARA ADMIN
@@ -951,6 +1221,10 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.execute("SELECT COUNT(*) as total FROM citas WHERE resultado IS NULL")
             estudios_pendientes = cursor.fetchone()['total']
             
+            # Total de puntos acumulados por todos los doctores
+            cursor.execute("SELECT SUM(puntos) as total_puntos FROM doctores")
+            total_puntos = cursor.fetchone()['total_puntos'] or 0
+            
             cursor.close()
             db.close()
             
@@ -959,20 +1233,15 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'estudiosPendientes': estudios_pendientes,
                 'nuevosDoctores': nuevos_doctores,
                 'estudiosCompletados': citas_completadas,
-                'totalCitas': total_citas
+                'totalCitas': total_citas,
+                'totalPuntos': total_puntos
             }
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(stats).encode())
+            self.send_json_response(stats, 200)
             
         except Exception as e:
             print(f"Error en stats: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
+            self.send_json_response({'error': str(e)}, 500)
     
     def handle_admin_activity(self):
         """Obtener actividad reciente de la base de datos"""
@@ -980,7 +1249,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            # Obtener las últimas citas como actividad
             cursor.execute("""
                 SELECT 
                     COALESCE(CONCAT('Dr. ', d.nombre), 'Administrador') as usuario_id,
@@ -999,7 +1267,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     'doctor' as tipo_usuario,
                     'Registro' as accion,
                     DATE_FORMAT(d.fecha_registro, '%Y-%m-%d %H:%i') as fecha,
-                    CONCAT('ID: ', d.Diddoctor, ' - ', COALESCE(d.especialidad, 'Sin especialidad')) as detalles
+                    CONCAT('ID: ', d.Diddoctor, ' - ', COALESCE(d.especialidad, 'Sin especialidad'), ' - Puntos: ', d.puntos) as detalles
                 FROM doctores d
                 WHERE d.fecha_registro IS NOT NULL
                 
@@ -1009,7 +1277,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
             actividades = cursor.fetchall()
             
-            # Si no hay actividades, mostrar mensaje
             if len(actividades) == 0:
                 cursor.execute("""
                     SELECT 
@@ -1017,7 +1284,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                         'doctor' as tipo_usuario,
                         'Registro' as accion,
                         DATE_FORMAT(fecha_registro, '%Y-%m-%d %H:%i') as fecha,
-                        CONCAT('ID: ', Diddoctor, ' - ', COALESCE(especialidad, 'Sin especialidad')) as detalles
+                        CONCAT('ID: ', Diddoctor, ' - ', COALESCE(especialidad, 'Sin especialidad'), ' - Puntos: ', puntos) as detalles
                     FROM doctores
                     WHERE fecha_registro IS NOT NULL
                     ORDER BY fecha_registro DESC
@@ -1037,10 +1304,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.close()
             db.close()
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(actividades).encode())
+            self.send_json_response(actividades, 200)
             
         except Exception as e:
             print(f"Error en actividad: {str(e)}")
@@ -1051,10 +1315,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'fecha': datetime.now().strftime('%Y-%m-%d %H:%M'),
                 'detalles': f'Sistema funcionando correctamente'
             }]
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(actividades).encode())
+            self.send_json_response(actividades, 200)
     
     # ==============================================
     # FUNCIONES PARA DOCTORES
@@ -1071,7 +1332,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 SELECT Diddoctor as id, nombre, especialidad, email, telefono, usuario,
                        direccion_consultorio, telefono_consultorio, 
                        DATE_FORMAT(fecha_registro, '%Y-%m-%d') as fecha_registro,
-                       activo
+                       activo, puntos
                 FROM doctores 
                 WHERE Diddoctor = %s
             """, (doctor_id,))
@@ -1081,26 +1342,17 @@ class CustomHandler(SimpleHTTPRequestHandler):
             if not doctor:
                 cursor.close()
                 db.close()
-                self.send_response(404)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'error': 'Doctor no encontrado'}).encode())
+                self.send_json_response({'error': 'Doctor no encontrado'}, 404)
                 return
             
             cursor.close()
             db.close()
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(doctor).encode())
+            self.send_json_response(doctor, 200)
             
         except Exception as e:
             print(f"Error obteniendo información del doctor: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
+            self.send_json_response({'error': str(e)}, 500)
     
     def handle_get_doctor_details(self, doctor_id):
         """Obtener detalles completos de un doctor específico"""
@@ -1121,7 +1373,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     direccion_consultorio,
                     telefono_consultorio,
                     DATE_FORMAT(fecha_registro, '%Y-%m-%d') as fecha_registro,
-                    activo
+                    activo,
+                    puntos
                 FROM doctores 
                 WHERE Diddoctor = %s
             """, (doctor_id,))
@@ -1131,10 +1384,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             if not doctor:
                 cursor.close()
                 db.close()
-                self.send_response(404)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'error': 'Doctor no encontrado'}).encode())
+                self.send_json_response({'error': 'Doctor no encontrado'}, 404)
                 return
             
             # Total de citas del doctor
@@ -1169,17 +1419,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.close()
             db.close()
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(doctor).encode())
+            self.send_json_response(doctor, 200)
             
         except Exception as e:
             print(f"Error obteniendo detalles del doctor: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
+            self.send_json_response({'error': str(e)}, 500)
     
     def handle_get_doctores(self):
         """Obtener lista completa de doctores (incluyendo ADMIN)"""
@@ -1199,7 +1443,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     direccion_consultorio,
                     telefono_consultorio,
                     DATE_FORMAT(fecha_registro, '%Y-%m-%d') as fecha_registro,
-                    activo
+                    activo,
+                    puntos
                 FROM doctores
                 ORDER BY Diddoctor ASC
             """)
@@ -1219,6 +1464,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'direccion_consultorio': 'N/A',
                 'fecha_registro': datetime.now().strftime('%Y-%m-%d'),
                 'activo': True,
+                'puntos': 0,
                 'total_citas': 0,
                 'pacientes': 0,
                 'estudios_pendientes': 0
@@ -1258,17 +1504,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.close()
             db.close()
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(doctores_combinados).encode())
+            self.send_json_response(doctores_combinados, 200)
             
         except Exception as e:
             print(f"Error obteniendo doctores: {str(e)}")
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': str(e)}).encode())
+            self.send_json_response({'error': str(e)}, 500)
     
     # ==============================================
     # FUNCIÓN PARA CAMBIO DE CONTRASEÑA
@@ -1309,18 +1549,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'message': 'Contraseña actualizada correctamente'
             }
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 200)
             
         except Exception as e:
             print(f"Error cambiando contraseña: {str(e)}")
             response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 500)
     
     # ==============================================
     # FUNCIÓN PARA CREAR DOCTOR
@@ -1371,9 +1605,9 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 INSERT INTO doctores (
                     Diddoctor, nombre, usuario, contrasena, especialidad, 
                     email, telefono, direccion_consultorio, telefono_consultorio,
-                    fecha_registro, activo
+                    fecha_registro, activo, puntos
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), 1)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), 1, 0)
             """, (
                 nuevo_id, nombre, usuario, password, especialidad, 
                 email, telefono, direccion_consultorio, telefono_consultorio
@@ -1388,18 +1622,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'message': f'Doctor registrado exitosamente. Su ID es: {nuevo_id}'
             }
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 200)
             
         except Exception as e:
             print(f"Error creando doctor: {str(e)}")
             response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 500)
     
     # ==============================================
     # FUNCIONES DE LOGIN Y REGISTRO
@@ -1442,11 +1670,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     if doctor['activo'] == 0:
                         cursor.close()
                         db.close()
-                        response = {'success': False, 'message': 'Su cuenta está desactivada. Contacte al administrador.'}
-                        self.send_response(401)
-                        self.send_header('Content-type', 'application/json')
-                        self.end_headers()
-                        self.wfile.write(json.dumps(response).encode())
+                        self.send_json_response({'success': False, 'message': 'Su cuenta está desactivada. Contacte al administrador.'}, 401)
                         return
                     
                     usuario_encontrado = True
@@ -1472,24 +1696,13 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     'redirect': redirect_url
                 }
                 
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(response).encode())
+                self.send_json_response(response, 200)
             else:
-                response = {'success': False, 'message': 'Credenciales incorrectas'}
-                self.send_response(401)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(response).encode())
+                self.send_json_response({'success': False, 'message': 'Credenciales incorrectas'}, 401)
                 
         except Exception as e:
             print(f"Error en login: {str(e)}")
-            response = {'success': False, 'message': 'Error del servidor'}
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response({'success': False, 'message': 'Error del servidor'}, 500)
     
     def handle_registro(self):
         """Manejar el registro de nuevos doctores"""
@@ -1532,9 +1745,9 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 INSERT INTO doctores (
                     Diddoctor, nombre, usuario, contrasena, especialidad, 
                     email, telefono, direccion_consultorio, telefono_consultorio,
-                    fecha_registro, activo
+                    fecha_registro, activo, puntos
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), 1)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), 1, 0)
             """, (
                 nuevo_id, nombre_completo, usuario, contrasena, especialidad, 
                 email, telefono, direccion_consultorio, telefono_consultorio
@@ -1550,18 +1763,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'redirect': '/'
             }
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 200)
             
         except Exception as e:
             print(f"Error en registro: {str(e)}")
-            response = {'success': False, 'message': f'Error: {str(e)}'}
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response({'success': False, 'message': f'Error: {str(e)}'}, 500)
     
     # ==============================================
     # FUNCIONES DE ADMINISTRACIÓN DE USUARIOS
@@ -1585,6 +1791,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             password = data.get('password')
             especialidad = data.get('especialidad')
             usuario = data.get('usuario')
+            puntos = data.get('puntos')
             
             if not user_id or not user_type:
                 raise ValueError("Faltan datos requeridos")
@@ -1646,6 +1853,10 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     update_fields.append("activo = %s")
                     params.append(activo)
                 
+                if puntos is not None:
+                    update_fields.append("puntos = %s")
+                    params.append(int(puntos))
+                
                 if password and password.strip():
                     update_fields.append("contrasena = %s")
                     params.append(password)
@@ -1661,18 +1872,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db.close()
             
             response = {'success': True, 'message': 'Doctor actualizado correctamente'}
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 200)
             
         except Exception as e:
             print(f"Error actualizando usuario: {str(e)}")
             response = {'success': False, 'message': str(e)}
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 500)
     
     def handle_delete_user(self):
         """Eliminar doctor"""
@@ -1700,18 +1905,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db.close()
             
             response = {'success': True, 'message': 'Doctor eliminado correctamente'}
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 200)
             
         except Exception as e:
             print(f"Error eliminando doctor: {str(e)}")
             response = {'success': False, 'message': str(e)}
-            self.send_response(500)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps(response).encode())
+            self.send_json_response(response, 500)
     
     # ==============================================
     # CONEXIÓN A BASE DE DATOS
@@ -1743,8 +1942,8 @@ print("   • Doctor:    dr.rodriguez / doctor123")
 print("   • Admin:     admin / admin123")
 print("\n📝 Registro disponible en: /registro")
 print("👑 Panel de administración: /admin")
-print("✅ CORRECCIÓN: Campo total_estudio incluido en todas las consultas")
-print("✅ CORRECCIÓN: Doctor ADMIN virtual agregado")
+print("✅ CORRECCIÓN: Serialización JSON mejorada")
+print("✅ NUEVA FUNCIÓN: Edición rápida de fecha/hora")
 print("=" * 60)
 
 if not os.path.exists('templates'):

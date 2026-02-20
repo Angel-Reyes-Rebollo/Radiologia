@@ -1352,19 +1352,6 @@
             <!-- El contenido se cargará dinámicamente según la sección seleccionada -->
         </div>
         
-        <!-- Modal para subir resultado -->
-        <div id="uploadModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2><i class="fas fa-upload"></i> Subir Resultado</h2>
-                    <button class="modal-close" onclick="cerrarUploadModal()">&times;</button>
-                </div>
-                <div id="uploadModalBody">
-                    <!-- Contenido dinámico del modal -->
-                </div>
-            </div>
-        </div>
-        
         <!-- Modal para ver detalles del estudio -->
         <div id="detalleModal" class="modal">
             <div class="modal-content">
@@ -1414,6 +1401,7 @@
     let currentSection = 'dashboard';
     let currentUsername = null;
     let allCitas = []; // Para almacenar todas las citas y poder filtrarlas
+    let doctorPuntos = 0; // Para almacenar los puntos del doctor
 
     // Cargar datos al iniciar
     document.addEventListener('DOMContentLoaded', function() {
@@ -1475,8 +1463,10 @@
             if (doctor && doctor.id) {
                 currentDoctorId = doctor.id;
                 currentDoctor = doctor;
+                doctorPuntos = doctor.puntos || 0;
                 
                 console.log('✅ Doctor ID asignado correctamente:', currentDoctorId);
+                console.log('✅ Puntos del doctor:', doctorPuntos);
                 
                 // Guardar en localStorage para referencia
                 localStorage.setItem('current_doctor_id', currentDoctorId);
@@ -2169,7 +2159,7 @@
     }
 
     // ==============================================
-    // FUNCIÓN PARA DESCARGAR RESULTADO
+    // FUNCIÓN PARA DESCARGAR RESULTADO (SOLO VISUALIZACIÓN)
     // ==============================================
     
     async function descargarResultado(citaId, folio, paciente) {
@@ -2220,168 +2210,11 @@
         }
     }
 
-    // ==============================================
-    // FUNCIÓN PARA ABRIR MODAL DE SUBIDA DE RESULTADO
-    // ==============================================
-    
-    function abrirUploadModal(citaId, folio, paciente) {
-        const modal = document.getElementById('uploadModal');
-        const modalBody = document.getElementById('uploadModalBody');
-        
-        modalBody.innerHTML = `
-            <div class="detalle-item">
-                <span class="detalle-label">Folio:</span>
-                <span class="detalle-value">${folio}</span>
-            </div>
-            <div class="detalle-item">
-                <span class="detalle-label">Paciente:</span>
-                <span class="detalle-value">${paciente}</span>
-            </div>
-            
-            <div class="upload-container" id="uploadArea">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <p>Haga clic o arrastre un archivo PDF aquí</p>
-                <p style="font-size: 12px; color: #999;">Máximo 10 MB</p>
-                <input type="file" id="fileInput" accept=".pdf" style="display: none;">
-            </div>
-            
-            <div id="fileInfo" style="display: none;" class="file-info">
-                <span id="fileName"></span>
-                <span id="fileSize"></span>
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px;">
-                <button class="btn-upload" id="btnSubirResultado" data-cita-id="${citaId}" disabled>
-                    <i class="fas fa-upload"></i> Subir Resultado
-                </button>
-            </div>
-        `;
-        
-        modal.classList.add('active');
-        
-        // Configurar eventos de subida
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const fileInfo = document.getElementById('fileInfo');
-        const fileName = document.getElementById('fileName');
-        const fileSize = document.getElementById('fileSize');
-        const btnSubir = document.getElementById('btnSubirResultado');
-        
-        uploadArea.addEventListener('click', () => fileInput.click());
-        
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#1a2980';
-            uploadArea.style.background = '#f8f9fa';
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = '#e1e5ee';
-            uploadArea.style.background = 'transparent';
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#e1e5ee';
-            uploadArea.style.background = 'transparent';
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                handleFileSelect(files[0]);
-            }
-        });
-        
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                handleFileSelect(e.target.files[0]);
-            }
-        });
-        
-        function handleFileSelect(file) {
-            if (file.type !== 'application/pdf') {
-                alert('Solo se permiten archivos PDF');
-                return;
-            }
-            
-            if (file.size > 10 * 1024 * 1024) {
-                alert('El archivo no debe exceder los 10 MB');
-                return;
-            }
-            
-            fileInfo.style.display = 'flex';
-            fileName.textContent = file.name;
-            fileSize.textContent = `${(file.size / 1024).toFixed(2)} KB`;
-            btnSubir.disabled = false;
-            
-            // Guardar archivo en dataset del botón
-            btnSubir.dataset.file = JSON.stringify({
-                name: file.name,
-                type: file.type,
-                size: file.size
-            });
-            
-            // Leer archivo como base64
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                btnSubir.dataset.fileBase64 = e.target.result.split(',')[1];
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        btnSubir.addEventListener('click', async function() {
-            if (!this.dataset.fileBase64) {
-                alert('Error al leer el archivo');
-                return;
-            }
-            
-            const fileData = JSON.parse(this.dataset.file);
-            
-            btnSubir.disabled = true;
-            btnSubir.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
-            
-            try {
-                const response = await fetch('/api/upload-resultado', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        cita_id: this.dataset.citaId,
-                        resultado_base64: this.dataset.fileBase64,
-                        resultado_nombre: fileData.name,
-                        resultado_tipo: fileData.type
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('✅ Resultado subido exitosamente');
-                    cerrarUploadModal();
-                    
-                    // Recargar la sección actual si es resultados o citas
-                    if (currentSection === 'resultados') {
-                        loadSection('resultados');
-                    } else if (currentSection === 'citas') {
-                        loadSection('citas');
-                    }
-                } else {
-                    alert('❌ Error: ' + result.message);
-                    btnSubir.disabled = false;
-                    btnSubir.innerHTML = '<i class="fas fa-upload"></i> Subir Resultado';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error de conexión con el servidor');
-                btnSubir.disabled = false;
-                btnSubir.innerHTML = '<i class="fas fa-upload"></i> Subir Resultado';
-            }
-        });
-    }
+    // NOTA: La función abrirUploadModal ha sido eliminada - solo el administrador puede subir resultados
 
-    function cerrarUploadModal() {
-        document.getElementById('uploadModal').classList.remove('active');
-    }
+    // ==============================================
+    // FUNCIÓN PARA GENERAR CITA
+    // ==============================================
 
     async function generarCita() {
         const messageEl = document.getElementById('recetaMessage');
@@ -2664,7 +2497,7 @@
     }
 
     // ==============================================
-    // FUNCIÓN PARA CARGAR CITAS (CORREGIDA - Manejo de errores mejorado)
+    // FUNCIÓN PARA CARGAR CITAS
     // ==============================================
     
     async function loadCitas() {
@@ -2936,153 +2769,148 @@
     }
 
     function displayCitasTable(citas) {
-    const container = document.getElementById('citasTableContainer');
-    
-    if (!container) return;
-    
-    if (!citas || citas.length === 0) {
-        container.innerHTML = `
-            <div class="table-empty-message">
-                <i class="fas fa-calendar-times"></i>
-                <p>No se encontraron citas con los filtros seleccionados</p>
-                <button onclick="limpiarFiltros()" class="btn-generate-report" style="margin-top: 15px;">
-                    <i class="fas fa-eraser"></i> Limpiar Filtros
-                </button>
-            </div>
-        `;
-        return;
-    }
-    
-    console.log('📊 Mostrando citas en tabla:', citas);
-    
-    let html = `
-        <div class="citas-table-container">
-            <table class="citas-table">
-                <thead>
-                    <tr>
-                        <th>Número de Folio</th>
-                        <th>Paciente</th>
-                        <th>Fecha de Cita</th>
-                        <th>Hora de Cita</th>
-                        <th>Total</th>
-                        <th>Receta PDF</th>
-                        <th>Resultado</th>
-                    </tr>
-                </thead>
-                <tbody>
-    `;
-    
-    citas.forEach((cita, index) => {
-        console.log(`Procesando cita ${index + 1}:`, cita);
+        const container = document.getElementById('citasTableContainer');
         
-        // CORREGIDO: Formatear fecha de cita de manera más robusta
-        let fechaCitaDisplay = 'No agendada';
-        if (cita.fecha_cita) {
-            try {
-                // Si viene en formato YYYY-MM-DD
-                if (cita.fecha_cita.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                    const partes = cita.fecha_cita.split('-');
-                    const año = parseInt(partes[0]);
-                    const mes = parseInt(partes[1]) - 1;
-                    const dia = parseInt(partes[2]);
-                    
-                    const fechaObj = new Date(año, mes, dia);
-                    if (!isNaN(fechaObj)) {
-                        fechaCitaDisplay = fechaObj.toLocaleDateString('es-MX', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        });
+        if (!container) return;
+        
+        if (!citas || citas.length === 0) {
+            container.innerHTML = `
+                <div class="table-empty-message">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No se encontraron citas con los filtros seleccionados</p>
+                    <button onclick="limpiarFiltros()" class="btn-generate-report" style="margin-top: 15px;">
+                        <i class="fas fa-eraser"></i> Limpiar Filtros
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        console.log('📊 Mostrando citas en tabla:', citas);
+        
+        let html = `
+            <div class="citas-table-container">
+                <table class="citas-table">
+                    <thead>
+                        <tr>
+                            <th>Número de Folio</th>
+                            <th>Paciente</th>
+                            <th>Fecha de Cita</th>
+                            <th>Hora de Cita</th>
+                            <th>Total</th>
+                            <th>Receta PDF</th>
+                            <th>Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        citas.forEach((cita, index) => {
+            console.log(`Procesando cita ${index + 1}:`, cita);
+            
+            // Formatear fecha de cita
+            let fechaCitaDisplay = 'No agendada';
+            if (cita.fecha_cita) {
+                try {
+                    if (cita.fecha_cita.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                        const partes = cita.fecha_cita.split('-');
+                        const año = parseInt(partes[0]);
+                        const mes = parseInt(partes[1]) - 1;
+                        const dia = parseInt(partes[2]);
+                        
+                        const fechaObj = new Date(año, mes, dia);
+                        if (!isNaN(fechaObj)) {
+                            fechaCitaDisplay = fechaObj.toLocaleDateString('es-MX', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            });
+                        } else {
+                            fechaCitaDisplay = cita.fecha_cita;
+                        }
                     } else {
                         fechaCitaDisplay = cita.fecha_cita;
                     }
-                } else {
+                } catch (e) {
+                    console.error('Error formateando fecha:', e, cita.fecha_cita);
                     fechaCitaDisplay = cita.fecha_cita;
                 }
-            } catch (e) {
-                console.error('Error formateando fecha:', e, cita.fecha_cita);
-                fechaCitaDisplay = cita.fecha_cita;
             }
-        }
-        
-        // CORREGIDO: Formatear hora de cita de manera más robusta
-        let horaCitaDisplay = 'No asignada';
-        if (cita.hora_cita) {
-            try {
-                // Si viene en formato HH:MM
-                if (cita.hora_cita.match(/^\d{2}:\d{2}$/)) {
-                    const partes = cita.hora_cita.split(':');
-                    const hora = parseInt(partes[0]);
-                    const minutos = partes[1];
-                    const hora12 = hora > 12 ? hora - 12 : hora;
-                    const ampm = hora >= 12 ? 'PM' : 'AM';
-                    horaCitaDisplay = `${hora12}:${minutos} ${ampm}`;
-                } else {
+            
+            // Formatear hora de cita
+            let horaCitaDisplay = 'No asignada';
+            if (cita.hora_cita) {
+                try {
+                    if (cita.hora_cita.match(/^\d{2}:\d{2}$/)) {
+                        const partes = cita.hora_cita.split(':');
+                        const hora = parseInt(partes[0]);
+                        const minutos = partes[1];
+                        const hora12 = hora > 12 ? hora - 12 : hora;
+                        const ampm = hora >= 12 ? 'PM' : 'AM';
+                        horaCitaDisplay = `${hora12}:${minutos} ${ampm}`;
+                    } else {
+                        horaCitaDisplay = cita.hora_cita;
+                    }
+                } catch (e) {
+                    console.error('Error formateando hora:', e, cita.hora_cita);
                     horaCitaDisplay = cita.hora_cita;
                 }
-            } catch (e) {
-                console.error('Error formateando hora:', e, cita.hora_cita);
-                horaCitaDisplay = cita.hora_cita;
             }
-        }
-        
-        // CORREGIDO: Asegurar que total_estudio sea un número
-        const totalEstudio = parseFloat(cita.total_estudio) || 0;
-        const totalFormateado = totalEstudio.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        
-        const tieneResultado = cita.tiene_resultado === 1 || cita.tiene_resultado === true;
-        const resultadoBadge = tieneResultado ? 
-            '<span class="badge-success">Completado</span>' : 
-            '<span class="badge-warning">Pendiente</span>';
-        
-        // CORREGIDO: Usar cita.id_cita en lugar de cita.id
-        const citaId = cita.id_cita;
-        const folio = cita.numero_folio || 'N/A';
-        const paciente = (cita.paciente || 'Paciente').replace(/'/g, "\\'");
-        
-        const resultadoButton = tieneResultado ?
-            `<button onclick="descargarResultado('${citaId}', '${folio}', '${paciente}')" 
-                class="btn-generate-report" style="padding: 4px 8px; font-size: 12px;">
-                <i class="fas fa-download"></i> Descargar
-            </button>` :
-            `<button onclick="abrirUploadModal('${citaId}', '${folio}', '${paciente}')" 
-                class="btn-generate-report" style="padding: 4px 8px; font-size: 12px; background: #f39c12;">
-                <i class="fas fa-upload"></i> Subir
-            </button>`;
+            
+            // Asegurar que total_estudio sea un número
+            const totalEstudio = parseFloat(cita.total_estudio) || 0;
+            const totalFormateado = totalEstudio.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            const tieneResultado = cita.tiene_resultado === 1 || cita.tiene_resultado === true;
+            const resultadoBadge = tieneResultado ? 
+                '<span class="badge-success">Completado</span>' : 
+                '<span class="badge-warning">Pendiente</span>';
+            
+            const citaId = cita.id_cita;
+            const folio = cita.numero_folio || 'N/A';
+            const paciente = (cita.paciente || 'Paciente').replace(/'/g, "\\'");
+            
+            // SOLO DESCARGAR - SIN OPCIÓN DE SUBIR (ELIMINADO)
+            const resultadoButton = tieneResultado ?
+                `<button onclick="descargarResultado('${citaId}', '${folio}', '${paciente}')" 
+                    class="btn-generate-report" style="padding: 4px 8px; font-size: 12px;">
+                    <i class="fas fa-download"></i> Descargar
+                </button>` :
+                `<span style="color: #666; font-size: 12px; font-style: italic;">Solo admin puede subir</span>`;
+            
+            html += `
+                <tr>
+                    <td><strong>${folio}</strong></td>
+                    <td>${cita.paciente || 'Sin nombre'}</td>
+                    <td>${fechaCitaDisplay}</td>
+                    <td>${horaCitaDisplay}</td>
+                    <td>$${totalFormateado}</td>
+                    <td>
+                        <button onclick="descargarPDF('${citaId}', '${folio}', '${paciente}')" 
+                                class="btn-generate-report" 
+                                style="padding: 6px 12px; font-size: 13px;">
+                            <i class="fas fa-download"></i> Receta
+                        </button>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            ${resultadoBadge}
+                            ${resultadoButton}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
         
         html += `
-            <tr>
-                <td><strong>${folio}</strong></td>
-                <td>${cita.paciente || 'Sin nombre'}</td>
-                <td>${fechaCitaDisplay}</td>
-                <td>${horaCitaDisplay}</td>
-                <td>$${totalFormateado}</td>
-                <td>
-                    <button onclick="descargarPDF('${citaId}', '${folio}', '${paciente}')" 
-                            class="btn-generate-report" 
-                            style="padding: 6px 12px; font-size: 13px;">
-                        <i class="fas fa-download"></i> Receta
-                    </button>
-                </td>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        ${resultadoBadge}
-                        ${resultadoButton}
-                    </div>
-                </td>
-            </tr>
+                    </tbody>
+                </table>
+            </div>
         `;
-    });
-    
-    html += `
-                </tbody>
-            </table>
-        </div>
-    `;
-    
-    container.innerHTML = html;
-    console.log('✅ Tabla de citas renderizada');
-}
+        
+        container.innerHTML = html;
+        console.log('✅ Tabla de citas renderizada');
+    }
 
     function displayEmptyCitasTable() {
         const container = document.getElementById('citasTableContainer');
@@ -3121,7 +2949,7 @@
     }
 
     // ==============================================
-    // CONTENIDO RESULTADOS
+    // CONTENIDO RESULTADOS (SOLO VISUALIZACIÓN)
     // ==============================================
     
     function loadResultadosContent(container) {
@@ -3248,8 +3076,11 @@
             <div class="table-empty-message">
                 <i class="fas fa-file-medical"></i>
                 <p>No hay resultados disponibles</p>
+                <p style="font-size: 13px; color: #999; margin-top: 10px;">
+                    <i class="fas fa-info-circle"></i> Los resultados son cargados por el administrador
+                </p>
                 <button onclick="loadSection('citas')" class="btn-generate-report" style="margin-top: 15px;">
-                    <i class="fas fa-upload"></i> Subir resultados desde Citas
+                    <i class="fas fa-calendar-check"></i> Ver citas pendientes
                 </button>
             </div>
         `;
@@ -3490,16 +3321,17 @@
     }
 
     function debugDoctorInfo() {
-    console.log('🔍 Información de depuración:');
-    console.log('currentDoctorId:', currentDoctorId);
-    console.log('currentUsername:', currentUsername);
-    console.log('currentDoctor:', currentDoctor);
-    console.log('localStorage:');
-    console.log('- user_type:', localStorage.getItem('current_user_type'));
-    console.log('- user_id:', localStorage.getItem('current_user_id'));
-    console.log('- user_name:', localStorage.getItem('current_user_name'));
-    console.log('- doctor_id:', localStorage.getItem('current_doctor_id'));
-}
+        console.log('🔍 Información de depuración:');
+        console.log('currentDoctorId:', currentDoctorId);
+        console.log('currentUsername:', currentUsername);
+        console.log('currentDoctor:', currentDoctor);
+        console.log('doctorPuntos:', doctorPuntos);
+        console.log('localStorage:');
+        console.log('- user_type:', localStorage.getItem('current_user_type'));
+        console.log('- user_id:', localStorage.getItem('current_user_id'));
+        console.log('- user_name:', localStorage.getItem('current_user_name'));
+        console.log('- doctor_id:', localStorage.getItem('current_doctor_id'));
+    }
 
     // ==============================================
     // FUNCIONES DE CARGA DE DATOS
@@ -3521,15 +3353,27 @@
                 document.getElementById('estudiosPendientes').textContent = pendientes;
                 document.getElementById('estudiosCompletados').textContent = completados;
                 
-                // Puntos (puedes ajustar la lógica según necesites)
-                document.getElementById('totalPuntos').textContent = completados * 10;
+                // Mostrar puntos desde la variable global
+                document.getElementById('totalPuntos').textContent = doctorPuntos;
+                
+                // Obtener puntos actualizados del servidor
+                try {
+                    const infoResponse = await fetch(`/api/doctor-info/${currentDoctorId}`);
+                    if (infoResponse.ok) {
+                        const doctorInfo = await infoResponse.json();
+                        doctorPuntos = doctorInfo.puntos || 0;
+                        document.getElementById('totalPuntos').textContent = doctorPuntos;
+                    }
+                } catch (e) {
+                    console.error('Error obteniendo puntos actualizados:', e);
+                }
             }
         } catch (error) {
             console.error('Error cargando estadísticas:', error);
             document.getElementById('totalCitas').textContent = '0';
             document.getElementById('estudiosPendientes').textContent = '0';
             document.getElementById('estudiosCompletados').textContent = '0';
-            document.getElementById('totalPuntos').textContent = '0';
+            document.getElementById('totalPuntos').textContent = doctorPuntos || '0';
         }
     }
 
@@ -3601,10 +3445,6 @@
         }
     }
 
-    function cerrarUploadModal() {
-        document.getElementById('uploadModal').classList.remove('active');
-    }
-
     // Exponer funciones globalmente
     window.loadSection = loadSection;
     window.calcularTotalReceta = calcularTotalReceta;
@@ -3612,8 +3452,6 @@
     window.downloadPDF = downloadPDF;
     window.descargarPDF = descargarPDF;
     window.descargarResultado = descargarResultado;
-    window.abrirUploadModal = abrirUploadModal;
-    window.cerrarUploadModal = cerrarUploadModal;
     window.loadCitas = loadCitas;
     window.loadResultados = loadResultados;
     window.loadHistorial = loadHistorial;
@@ -3621,6 +3459,7 @@
     window.aplicarFiltros = aplicarFiltros;
     window.limpiarFiltros = limpiarFiltros;
     window.eliminarTag = eliminarTag;
+    window.debugDoctorInfo = debugDoctorInfo;
 </script>
 </body>
 </html>
