@@ -1244,6 +1244,184 @@
         .date-range-group input {
             flex: 1;
         }
+
+        /* ============================================== */
+        /* MODAL DE BIENVENIDA - NUEVO */
+        /* ============================================== */
+        .welcome-modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 2000; /* Por encima de todo */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px); /* Efecto de desenfoque */
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .welcome-modal.show {
+            display: flex; /* Se muestra como flexbox */
+        }
+
+        .welcome-modal-content {
+            background: linear-gradient(145deg, #ffffff, #f8faff);
+            padding: 40px 50px;
+            border-radius: 30px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(38, 208, 206, 0.1);
+            border: 1px solid rgba(255,255,255,0.5);
+            transform: scale(0.9);
+            animation: popIn 0.5s cubic-bezier(0.26, 1.5, 0.48, 1) forwards;
+        }
+
+        .welcome-icon {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            box-shadow: 0 10px 20px rgba(26, 41, 128, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .welcome-icon i {
+            font-size: 45px;
+            color: white;
+        }
+
+        .welcome-modal h2 {
+            color: #1a2980;
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .welcome-subtext {
+            color: #4a5568;
+            font-size: 16px;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+
+        /* Loader / Barra de progreso */
+        .welcome-loader {
+            width: 200px;
+            height: 6px;
+            background: #e1e5ee;
+            border-radius: 10px;
+            margin: 20px auto 0;
+            overflow: hidden;
+        }
+
+        .loader-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #1a2980, #26d0ce);
+            border-radius: 10px;
+            animation: loadProgress 2.5s linear forwards;
+        }
+
+        /* Keyframes para animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 10px 20px rgba(26, 41, 128, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 15px 30px rgba(26, 41, 128, 0.4);
+            }
+        }
+
+        @keyframes loadProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        /* Animación de salida */
+        .welcome-modal.fade-out {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        .welcome-modal.fade-out .welcome-modal-content {
+            animation: scaleOut 0.3s ease-out forwards;
+        }
+
+        @keyframes scaleOut {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+
+        /* Estilos para el botón de exportar PDF en historial */
+        .export-pdf-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        
+        .btn-export-pdf {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
+        }
+        
+        .btn-export-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(220, 53, 69, 0.3);
+        }
+        
+        .btn-export-pdf i {
+            font-size: 16px;
+        }
         
         @media (max-width: 1200px) {
             .stats-container {
@@ -1307,6 +1485,10 @@
             .filter-actions {
                 justify-content: center;
             }
+            
+            .export-pdf-container {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -1364,6 +1546,19 @@
                 </div>
             </div>
         </div>
+
+        <!-- ========== MODAL DE BIENVENIDA - NUEVO ========== -->
+        <div id="welcomeModal" class="welcome-modal">
+            <div class="welcome-modal-content">
+                <div class="welcome-icon">
+                    <i class="fas fa-hand-peace"></i>
+                </div>
+                <h2 id="welcomeMessage">¡Bienvenido, Doctor!</h2>
+                <div class="welcome-loader">
+                    <div class="loader-bar"></div>
+                </div>
+            </div>
+        </div>
         
         <footer>
             <div class="footer-content">
@@ -1394,6 +1589,8 @@
         </footer>
     </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <script>
     // Variables globales
     let currentDoctor = null;
@@ -1474,6 +1671,9 @@
                 // Actualizar nombre en UI
                 document.getElementById('doctorName').textContent = `Dr. ${doctor.nombre || currentUsername}`;
                 
+                // ===== NUEVO: Mostrar el modal de bienvenida =====
+                showWelcomeModal();
+                
                 // Cargar la sección inicial
                 loadSection('dashboard');
             } else {
@@ -1484,6 +1684,49 @@
             console.error('❌ Error obteniendo ID del doctor:', error);
             alert('Error al cargar los datos del doctor. Intente de nuevo.');
         }
+    }
+
+    // ==============================================
+    // FUNCIÓN PARA MOSTAR MODAL DE BIENVENIDA - NUEVO
+    // ==============================================
+    function showWelcomeModal() {
+        // Obtener el nombre del doctor de la variable global o del localStorage
+        let doctorName = '';
+        
+        if (currentDoctor && currentDoctor.nombre) {
+            doctorName = currentDoctor.nombre;
+        } else if (currentUsername) {
+            // Si solo tenemos el username, lo formateamos para mostrarlo bonito
+            doctorName = currentUsername.replace('dr.', 'Dr. ');
+        } else {
+            // Si no hay nombre, usamos un título genérico
+            doctorName = 'Dr.';
+        }
+        
+        // Actualizar el mensaje de bienvenida
+        const welcomeMessageEl = document.getElementById('welcomeMessage');
+        if (welcomeMessageEl) {
+            welcomeMessageEl.textContent = `¡Bienvenido, ${doctorName}!`;
+        }
+        
+        // Obtener el modal
+        const modal = document.getElementById('welcomeModal');
+        if (!modal) return;
+        
+        // Mostrar el modal (clase 'show' lo hace visible)
+        modal.classList.add('show');
+        
+        // Configurar el temporizador para ocultarlo después de 2.5 segundos
+        setTimeout(() => {
+            // Agregar clase para animación de salida
+            modal.classList.add('fade-out');
+            
+            // Después de que termine la animación de salida (300ms), ocultarlo completamente
+            setTimeout(() => {
+                modal.classList.remove('show', 'fade-out');
+            }, 300);
+            
+        }, 1700); // 2500 milisegundos = 2.5 segundos
     }
 
     // Configurar event listeners
@@ -3104,7 +3347,7 @@
     }
 
     // ==============================================
-    // CONTENIDO HISTORIAL
+    // CONTENIDO HISTORIAL CON BOTÓN PARA EXPORTAR PDF
     // ==============================================
     
     function loadHistorialContent(container) {
@@ -3114,6 +3357,12 @@
                 <div class="breadcrumb">
                     <span>Inicio</span> > <span>Historial</span>
                 </div>
+            </div>
+            
+            <div class="export-pdf-container">
+                <button class="btn-export-pdf" id="exportHistorialPDF">
+                    <i class="fas fa-file-pdf"></i> Exportar Historial a PDF
+                </button>
             </div>
             
             <div class="section">
@@ -3130,6 +3379,9 @@
         `;
         
         loadHistorial();
+        
+        // Agregar event listener para el botón de exportar PDF
+        document.getElementById('exportHistorialPDF').addEventListener('click', exportHistorialToPDF);
     }
 
     async function loadHistorial() {
@@ -3178,7 +3430,7 @@
         
         let html = `
             <div class="citas-table-container">
-                <table class="citas-table">
+                <table class="citas-table" id="historialTable">
                     <thead>
                         <tr>
                             <th>Folio</th>
@@ -3274,6 +3526,206 @@
                 </button>
             </div>
         `;
+    }
+
+    // ==============================================
+    // FUNCIÓN PARA EXPORTAR HISTORIAL A PDF
+    // ==============================================
+    
+    async function exportHistorialToPDF() {
+        try {
+            if (!currentDoctorId) {
+                alert('No se pudo identificar al doctor');
+                return;
+            }
+            
+            // Mostrar indicador de carga
+            const exportBtn = document.getElementById('exportHistorialPDF');
+            const originalText = exportBtn.innerHTML;
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando PDF...';
+            exportBtn.disabled = true;
+            
+            // Obtener datos actualizados
+            const response = await fetch(`/api/citas/${currentDoctorId}`);
+            if (!response.ok) {
+                throw new Error('No se pudieron cargar los datos');
+            }
+            
+            const historial = await response.json();
+            
+            if (!historial || historial.length === 0) {
+                alert('No hay datos para exportar');
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+                return;
+            }
+            
+            // Calcular estadísticas
+            const totalCitas = historial.length;
+            const totalCompletados = historial.filter(c => c.tiene_resultado === 1 || c.tiene_resultado === true).length;
+            const totalPendientes = totalCitas - totalCompletados;
+            const totalIngresos = historial.reduce((sum, c) => sum + (parseFloat(c.total_estudio) || 0), 0);
+            
+            // Crear PDF con jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            // Configurar fuente y colores
+            const primaryColor = [26, 41, 128]; // #1a2980
+            const secondaryColor = [38, 208, 206]; // #26d0ce
+            
+            // Encabezado del PDF
+            doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.rect(0, 0, 297, 25, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Radiología Médica Avanzada', 15, 15);
+            
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Historial Completo del Doctor', 15, 22);
+            
+            // Información del doctor y fecha
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Doctor:', 15, 35);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`${currentDoctor?.nombre || currentUsername || 'No especificado'}`, 40, 35);
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text('Fecha de generación:', 150, 35);
+            doc.setFont('helvetica', 'normal');
+            doc.text(new Date().toLocaleString('es-MX'), 190, 35);
+            
+            // Estadísticas
+            doc.setFillColor(245, 245, 245);
+            doc.rect(15, 40, 267, 25, 'F');
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Total Citas:', 20, 50);
+            doc.setFont('helvetica', 'normal');
+            doc.text(totalCitas.toString(), 50, 50);
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text('Completados:', 80, 50);
+            doc.setFont('helvetica', 'normal');
+            doc.text(totalCompletados.toString(), 110, 50);
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text('Pendientes:', 140, 50);
+            doc.setFont('helvetica', 'normal');
+            doc.text(totalPendientes.toString(), 170, 50);
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text('Total Ingresos:', 200, 50);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`$${totalIngresos.toFixed(2)}`, 240, 50);
+            
+            // Preparar datos para la tabla
+            const tableData = historial.map(item => {
+                let fechaCita = 'No agendada';
+                if (item.fecha_cita) {
+                    try {
+                        const fecha = new Date(item.fecha_cita + 'T12:00:00');
+                        if (!isNaN(fecha)) {
+                            fechaCita = fecha.toLocaleDateString('es-MX');
+                        }
+                    } catch (e) {}
+                }
+                
+                const total = parseFloat(item.total_estudio) || 0;
+                const estado = (item.tiene_resultado === 1 || item.tiene_resultado === true) ? 'Completado' : 'Pendiente';
+                
+                return [
+                    item.numero_folio || 'N/A',
+                    item.paciente || 'Sin nombre',
+                    item.fecha || 'N/A',
+                    fechaCita,
+                    `$${total.toFixed(2)}`,
+                    estado
+                ];
+            });
+            
+            // Configurar tabla
+            doc.autoTable({
+                startY: 75,
+                head: [['Folio', 'Paciente', 'Fecha Registro', 'Fecha Cita', 'Total', 'Estado']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: {
+                    fillColor: primaryColor,
+                    textColor: 255,
+                    fontSize: 10,
+                    fontStyle: 'bold'
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                },
+                columnStyles: {
+                    0: { cellWidth: 30 },
+                    1: { cellWidth: 60 },
+                    2: { cellWidth: 40 },
+                    3: { cellWidth: 40 },
+                    4: { cellWidth: 30, halign: 'right' },
+                    5: { cellWidth: 30 }
+                },
+                styles: {
+                    fontSize: 9,
+                    cellPadding: 3
+                },
+                didDrawPage: function(data) {
+                    // Agregar pie de página en cada página
+                    doc.setFontSize(8);
+                    doc.setTextColor(128, 128, 128);
+                    doc.text('Radiología Médica Avanzada - Documento generado automáticamente', 15, doc.internal.pageSize.height - 10);
+                    doc.text(`Página ${doc.internal.getNumberOfPages()}`, doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 10);
+                }
+            });
+            
+            // Resumen final
+            const finalY = doc.lastAutoTable.finalY + 10;
+            
+            doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2], 0.1);
+            doc.rect(15, finalY, 267, 20, 'F');
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+            doc.text('Resumen General:', 20, finalY + 7);
+            
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Total de estudios realizados: ${totalCitas}`, 20, finalY + 14);
+            doc.text(`Estudios completados: ${totalCompletados} (${((totalCompletados/totalCitas)*100).toFixed(1)}%)`, 100, finalY + 14);
+            doc.text(`Total facturado: $${totalIngresos.toFixed(2)}`, 200, finalY + 14);
+            
+            // Guardar PDF
+            const nombreDoctor = (currentDoctor?.nombre || currentUsername || 'doctor').replace(/\s+/g, '_');
+            const fecha = new Date().toISOString().slice(0,10);
+            doc.save(`Historial_${nombreDoctor}_${fecha}.pdf`);
+            
+            // Restaurar botón
+            exportBtn.innerHTML = originalText;
+            exportBtn.disabled = false;
+            
+        } catch (error) {
+            console.error('Error generando PDF:', error);
+            alert('Error al generar el PDF. Intente de nuevo.');
+            
+            const exportBtn = document.getElementById('exportHistorialPDF');
+            if (exportBtn) {
+                exportBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Exportar Historial a PDF';
+                exportBtn.disabled = false;
+            }
+        }
     }
 
     // ==============================================
@@ -3460,6 +3912,7 @@
     window.limpiarFiltros = limpiarFiltros;
     window.eliminarTag = eliminarTag;
     window.debugDoctorInfo = debugDoctorInfo;
+    window.exportHistorialToPDF = exportHistorialToPDF;
 </script>
 </body>
 </html>
