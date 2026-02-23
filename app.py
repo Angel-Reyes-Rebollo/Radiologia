@@ -163,6 +163,9 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.handle_update_cita()
         elif self.path == '/api/update-cita-fecha-hora':
             self.handle_update_cita_fecha_hora()
+        # AGREGADO: Endpoint para cancelar cita
+        elif self.path == '/api/cancelar-cita':
+            self.handle_cancelar_cita()
         else:
             self.send_error(404)
     
@@ -174,7 +177,134 @@ class CustomHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(data, cls=CustomJSONEncoder).encode())
     
     # ==============================================
-    # NUEVA FUNCIÓN: ACTUALIZAR SOLO FECHA Y HORA DE LA CITA
+    # NUEVA FUNCIÓN: CANCELAR/ELIMINAR CITA
+    # ==============================================
+    
+    def handle_cancelar_cita(self):
+        """Cancelar/eliminar una cita"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+            
+            cita_id = data.get('cita_id')
+            
+            if not cita_id:
+                raise ValueError("ID de cita no proporcionado")
+            
+            print(f"[CANCELAR] Intentando cancelar cita ID: {cita_id}")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            # Verificar si la cita existe y obtener datos para el log
+            cursor.execute("""
+                SELECT id_cita, numero_folio, paciente, doctor_id
+                FROM citas 
+                WHERE id_cita = %s
+            """, (cita_id,))
+            
+            cita = cursor.fetchone()
+            
+            if not cita:
+                cursor.close()
+                db.close()
+                response = {
+                    'success': False,
+                    'message': 'La cita no existe'
+                }
+                self.send_json_response(response, 404)
+                return
+            
+            folio = cita['numero_folio']
+            paciente = cita['paciente']
+            doctor_id = cita['doctor_id']
+            
+            # Verificar si existe la columna estado
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'estado'")
+            tiene_columna_estado = cursor.fetchone()
+            
+            if tiene_columna_estado:
+                # Si existe la columna estado, actualizar a 'cancelada'
+                cursor.execute("""
+                    UPDATE citas 
+                    SET estado = 'cancelada',
+                        fecha_cancelacion = NOW()
+                    WHERE id_cita = %s
+                """, (cita_id,))
+                print(f"[CANCELAR] Cita marcada como cancelada (soft delete)")
+            else:
+                # Si no existe la columna estado, eliminar permanentemente
+                cursor.execute("DELETE FROM citas WHERE id_cita = %s", (cita_id,))
+                print(f"[CANCELAR] Cita eliminada permanentemente")
+            
+            db.commit()
+            
+            # Registrar en log de actividad
+            self.registrar_actividad_admin(
+                usuario_id='ADMIN',
+                accion='CANCELAR_CITA',
+                detalles=f'Cita cancelada: {folio} - Paciente: {paciente}'
+            )
+            
+            cursor.close()
+            db.close()
+            
+            response = {
+                'success': True,
+                'message': 'Cita cancelada exitosamente',
+                'cita_id': cita_id,
+                'folio': folio,
+                'paciente': paciente
+            }
+            
+            self.send_json_response(response, 200)
+            
+        except Exception as e:
+            print(f"Error cancelando cita: {str(e)}")
+            response = {
+                'success': False,
+                'message': f'Error del servidor: {str(e)}'
+            }
+            self.send_json_response(response, 500)
+    
+    # ==============================================
+    # FUNCIÓN AUXILIAR: REGISTRAR ACTIVIDAD ADMIN
+    # ==============================================
+    
+    def registrar_actividad_admin(self, usuario_id, accion, detalles):
+        """Registra actividad en el log para el panel de administración"""
+        try:
+            db = self.connect_db()
+            cursor = db.cursor()
+            
+            # Verificar si existe la tabla actividad_admin
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS actividad_admin (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    usuario_id VARCHAR(50),
+                    accion VARCHAR(100),
+                    detalles TEXT,
+                    fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            
+            cursor.execute("""
+                INSERT INTO actividad_admin (usuario_id, accion, detalles, fecha)
+                VALUES (%s, %s, %s, NOW())
+            """, (usuario_id, accion, detalles))
+            
+            db.commit()
+            cursor.close()
+            db.close()
+            print(f"[ACTIVIDAD] Registrada: {accion} - {detalles}")
+            
+        except Exception as e:
+            print(f"Error registrando actividad: {str(e)}")
+            # No lanzar error para no interrumpir la operación principal
+    
+    # ==============================================
+    # FUNCIÓN PARA ACTUALIZAR SOLO FECHA Y HORA DE LA CITA
     # ==============================================
     
     def handle_update_cita_fecha_hora(self):
@@ -1137,39 +1267,68 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_json_response({'error': str(e), 'citas': []}, 500)
 
     # ==============================================
-    # FUNCIÓN PARA OBTENER TODAS LAS CITAS (ADMIN)
+    # FUNCIÓN PARA OBTENER TODAS LAS CITAS (ADMIN) - MODIFICADA
     # ==============================================
     
     def handle_get_all_citas(self):
-        """Obtener todas las citas para el panel de admin"""
+        """Obtener todas las citas para el panel de admin (solo activas)"""
         try:
-            print(f"[API] Obteniendo todas las citas")
+            print(f"[API] Obteniendo todas las citas activas")
             
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            cursor.execute("""
-                SELECT 
-                    c.id_cita,
-                    c.numero_folio,
-                    c.paciente,
-                    COALESCE(d.nombre, 'Administrador') as doctor_nombre,
-                    c.doctor_id,
-                    DATE_FORMAT(c.fecha, '%d/%m/%Y') as fecha,
-                    TIME_FORMAT(c.hora, '%H:%i') as hora,
-                    DATE_FORMAT(c.fecha_cita, '%d/%m/%Y') as fecha_cita,
-                    TIME_FORMAT(c.hora_cita, '%H:%i') as hora_cita,
-                    CAST(c.total_estudio AS DECIMAL(10,2)) as total_estudio,
-                    c.documento_nombre,
-                    CASE WHEN c.documento_pdf IS NOT NULL THEN 1 ELSE 0 END as tiene_pdf,
-                    CASE WHEN c.resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado
-                FROM citas c
-                LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
-                ORDER BY c.fecha_cita DESC, c.hora_cita DESC
-            """)
+            # Verificar si existe la columna estado
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'estado'")
+            tiene_estado = cursor.fetchone()
+            
+            if tiene_estado:
+                # Solo mostrar citas activas (no canceladas)
+                cursor.execute("""
+                    SELECT 
+                        c.id_cita,
+                        c.numero_folio,
+                        c.paciente,
+                        COALESCE(d.nombre, 'Administrador') as doctor_nombre,
+                        c.doctor_id,
+                        DATE_FORMAT(c.fecha, '%d/%m/%Y') as fecha,
+                        TIME_FORMAT(c.hora, '%H:%i') as hora,
+                        DATE_FORMAT(c.fecha_cita, '%d/%m/%Y') as fecha_cita,
+                        TIME_FORMAT(c.hora_cita, '%H:%i') as hora_cita,
+                        CAST(c.total_estudio AS DECIMAL(10,2)) as total_estudio,
+                        c.documento_nombre,
+                        CASE WHEN c.documento_pdf IS NOT NULL THEN 1 ELSE 0 END as tiene_pdf,
+                        CASE WHEN c.resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado,
+                        c.estado
+                    FROM citas c
+                    LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
+                    WHERE c.estado = 'activa' OR c.estado IS NULL
+                    ORDER BY c.fecha_cita DESC, c.hora_cita DESC
+                """)
+            else:
+                # Si no hay columna estado, mostrar todas
+                cursor.execute("""
+                    SELECT 
+                        c.id_cita,
+                        c.numero_folio,
+                        c.paciente,
+                        COALESCE(d.nombre, 'Administrador') as doctor_nombre,
+                        c.doctor_id,
+                        DATE_FORMAT(c.fecha, '%d/%m/%Y') as fecha,
+                        TIME_FORMAT(c.hora, '%H:%i') as hora,
+                        DATE_FORMAT(c.fecha_cita, '%d/%m/%Y') as fecha_cita,
+                        TIME_FORMAT(c.hora_cita, '%H:%i') as hora_cita,
+                        CAST(c.total_estudio AS DECIMAL(10,2)) as total_estudio,
+                        c.documento_nombre,
+                        CASE WHEN c.documento_pdf IS NOT NULL THEN 1 ELSE 0 END as tiene_pdf,
+                        CASE WHEN c.resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado
+                    FROM citas c
+                    LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
+                    ORDER BY c.fecha_cita DESC, c.hora_cita DESC
+                """)
             
             citas = cursor.fetchall()
-            print(f"[API] Se encontraron {len(citas)} citas totales")
+            print(f"[API] Se encontraron {len(citas)} citas activas")
             
             # Convertir total_estudio a float
             for cita in citas:
@@ -1201,8 +1360,16 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.execute("SELECT COUNT(*) as total FROM doctores WHERE activo = 1")
             total_doctores = cursor.fetchone()['total']
             
-            # Total de citas
-            cursor.execute("SELECT COUNT(*) as total FROM citas")
+            # Verificar si existe columna estado
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'estado'")
+            tiene_estado = cursor.fetchone()
+            
+            if tiene_estado:
+                # Total de citas activas
+                cursor.execute("SELECT COUNT(*) as total FROM citas WHERE estado = 'activa' OR estado IS NULL")
+            else:
+                # Total de citas
+                cursor.execute("SELECT COUNT(*) as total FROM citas")
             total_citas = cursor.fetchone()['total']
             
             # Nuevos doctores en los últimos 7 días
@@ -1270,6 +1437,17 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     CONCAT('ID: ', d.Diddoctor, ' - ', COALESCE(d.especialidad, 'Sin especialidad'), ' - Puntos: ', d.puntos) as detalles
                 FROM doctores d
                 WHERE d.fecha_registro IS NOT NULL
+                
+                UNION ALL
+                
+                SELECT 
+                    'ADMIN' as usuario_id,
+                    'admin' as tipo_usuario,
+                    'Cancelar cita' as accion,
+                    aa.fecha,
+                    aa.detalles
+                FROM actividad_admin aa
+                WHERE aa.accion = 'CANCELAR_CITA'
                 
                 ORDER BY fecha DESC
                 LIMIT 15
@@ -1944,6 +2122,7 @@ print("\n📝 Registro disponible en: /registro")
 print("👑 Panel de administración: /admin")
 print("✅ CORRECCIÓN: Serialización JSON mejorada")
 print("✅ NUEVA FUNCIÓN: Edición rápida de fecha/hora")
+print("✅ NUEVA FUNCIÓN: Cancelar cita")
 print("=" * 60)
 
 if not os.path.exists('templates'):

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radiología Médica - Dashboard</title>
+    <title>4Digital - Radiología Médica</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Reset y estilos base */
@@ -15,9 +15,9 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #f5f0fa 0%, #d9c9f0 100%);
             min-height: 100vh;
-            color: #333;
+            color: #2d1b4a;
         }
         
         .container {
@@ -26,13 +26,13 @@
             background: white;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 15px 35px rgba(75, 30, 120, 0.15), 0 5px 15px rgba(0, 0, 0, 0.1);
             min-height: 100vh;
         }
         
-        /* Header */
+        /* Header con degradado morado */
         header {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 50%, #9f7aea 100%);
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -54,12 +54,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
         
         .logo i {
             font-size: 28px;
-            color: #1a2980;
+            color: #2d1b4a;
         }
         
         .company-name {
@@ -87,7 +87,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #1a2980;
+            color: #2d1b4a;
             font-size: 20px;
         }
         
@@ -107,16 +107,17 @@
             align-items: center;
             gap: 8px;
             transition: background 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .logout-btn:hover {
             background: rgba(255, 255, 255, 0.25);
         }
         
-        /* Navegación - Modo SPA */
+        /* Navegación */
         .main-nav {
             background: white;
-            border-bottom: 1px solid #e1e5ee;
+            border-bottom: 1px solid #d9c9f0;
             padding: 0 40px;
         }
         
@@ -124,6 +125,7 @@
             display: flex;
             list-style: none;
             gap: 2px;
+            flex-wrap: wrap;
         }
         
         .nav-link {
@@ -132,7 +134,7 @@
             gap: 10px;
             padding: 18px 24px;
             text-decoration: none;
-            color: #666;
+            color: #4a3b6e;
             font-weight: 500;
             font-size: 15px;
             transition: all 0.3s;
@@ -144,17 +146,17 @@
         }
         
         .nav-link:hover {
-            color: #1a2980;
-            background: #f8f9fa;
+            color: #6b3fa0;
+            background: #f5f0fa;
         }
         
         .nav-link.active {
-            color: #1a2980;
-            border-bottom: 3px solid #26d0ce;
-            background: linear-gradient(to bottom, rgba(26, 41, 128, 0.05) 0%, transparent 100%);
+            color: #2d1b4a;
+            border-bottom: 3px solid #9f7aea;
+            background: linear-gradient(to bottom, rgba(107, 63, 160, 0.05) 0%, transparent 100%);
         }
         
-        /* Layout principal - Contenido dinámico */
+        /* Layout principal */
         .content {
             padding: 40px;
             min-height: 600px;
@@ -174,17 +176,17 @@
         
         .content-header h1 {
             font-size: 28px;
-            color: #1a2980;
+            color: #2d1b4a;
             margin-bottom: 8px;
         }
         
         .breadcrumb {
             font-size: 14px;
-            color: #666;
+            color: #6b3fa0;
         }
         
         .breadcrumb a {
-            color: #1a2980;
+            color: #2d1b4a;
             text-decoration: none;
         }
         
@@ -205,20 +207,20 @@
             border-radius: 12px;
             padding: 25px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e1e5ee;
+            box-shadow: 0 5px 15px rgba(75, 30, 120, 0.1);
+            border: 1px solid #d9c9f0;
             transition: transform 0.3s, box-shadow 0.3s;
         }
         
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(107, 63, 160, 0.2);
         }
         
         .stat-icon {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 50%, #9f7aea 100%);
             border-radius: 12px;
             display: flex;
             align-items: center;
@@ -231,14 +233,14 @@
         .stat-number {
             font-size: 32px;
             font-weight: 700;
-            color: #1a2980;
+            color: #2d1b4a;
             margin-bottom: 5px;
             line-height: 1;
         }
         
         .stat-title {
             font-size: 14px;
-            color: #666;
+            color: #6b3fa0;
             margin-bottom: 10px;
         }
         
@@ -247,26 +249,20 @@
             background: white;
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e1e5ee;
+            box-shadow: 0 5px 15px rgba(75, 30, 120, 0.1);
+            border: 1px solid #d9c9f0;
         }
         
         .section-title {
             font-size: 20px;
-            color: #1a2980;
+            color: #2d1b4a;
             margin-bottom: 25px;
             font-weight: 600;
         }
         
-        /* Botón de Generar Informes */
-        .generate-report-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-        }
-        
+        /* Botones */
         .btn-generate-report {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 50%, #9f7aea 100%);
             color: white;
             padding: 12px 24px;
             border-radius: 8px;
@@ -279,14 +275,15 @@
             transition: all 0.3s;
             border: none;
             cursor: pointer;
+            box-shadow: 0 4px 10px rgba(107, 63, 160, 0.3);
         }
         
         .btn-generate-report:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.3);
+            box-shadow: 0 6px 15px rgba(107, 63, 160, 0.4);
         }
         
-        /* Sidebar - Promociones */
+        /* Sidebar */
         .sidebar-layout {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -297,17 +294,17 @@
             background: white;
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e1e5ee;
+            box-shadow: 0 5px 15px rgba(75, 30, 120, 0.1);
+            border: 1px solid #d9c9f0;
         }
         
         .sidebar-widget h3 {
             font-size: 18px;
-            color: #1a2980;
+            color: #2d1b4a;
             margin-bottom: 20px;
             font-weight: 600;
             padding-bottom: 10px;
-            border-bottom: 2px solid #e1e5ee;
+            border-bottom: 2px solid #d9c9f0;
         }
         
         /* Ofertas en Sidebar */
@@ -318,22 +315,22 @@
         }
         
         .offer-item {
-            background: #f8f9fa;
+            background: #f5f0fa;
             border-radius: 10px;
             padding: 20px;
-            border-left: 4px solid #26d0ce;
+            border-left: 4px solid #9f7aea;
             transition: all 0.3s;
         }
         
         .offer-item:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 20px rgba(107, 63, 160, 0.15);
             background: white;
         }
         
         .offer-badge {
             display: inline-block;
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 50%, #9f7aea 100%);
             color: white;
             padding: 4px 12px;
             border-radius: 4px;
@@ -344,14 +341,14 @@
         
         .offer-item h4 {
             font-size: 16px;
-            color: #1a2980;
+            color: #2d1b4a;
             margin-bottom: 8px;
             font-weight: 600;
         }
         
         .offer-item p {
             font-size: 14px;
-            color: #666;
+            color: #6b3fa0;
             margin-bottom: 15px;
             line-height: 1.5;
         }
@@ -362,16 +359,16 @@
             align-items: center;
             margin-top: 10px;
             padding-top: 10px;
-            border-top: 1px solid #e1e5ee;
+            border-top: 1px solid #d9c9f0;
         }
         
         .offer-expiry {
             font-size: 12px;
-            color: #666;
+            color: #6b3fa0;
         }
         
         .offer-link {
-            color: #1a2980;
+            color: #2d1b4a;
             text-decoration: none;
             font-size: 13px;
             font-weight: 500;
@@ -379,6 +376,7 @@
         
         .offer-link:hover {
             text-decoration: underline;
+            color: #6b3fa0;
         }
         
         /* Tabla de Citas */
@@ -394,7 +392,7 @@
         }
         
         .citas-table th {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             padding: 15px;
             text-align: left;
@@ -403,41 +401,41 @@
         
         .citas-table td {
             padding: 15px;
-            border-bottom: 1px solid #e1e5ee;
-            color: #333;
+            border-bottom: 1px solid #d9c9f0;
+            color: #2d1b4a;
         }
         
         .citas-table tr:hover {
-            background: #f8f9fa;
+            background: #f5f0fa;
         }
         
         .table-empty-message {
             text-align: center;
             padding: 40px;
-            color: #999;
-            background: #f8f9fa;
+            color: #6b3fa0;
+            background: #f5f0fa;
             border-radius: 8px;
-            border: 2px dashed #e1e5ee;
+            border: 2px dashed #d9c9f0;
             margin-top: 20px;
         }
         
         .table-empty-message i {
             font-size: 48px;
-            color: #c3cfe2;
+            color: #9f7aea;
             margin-bottom: 15px;
         }
         
         .status-pendiente {
-            color: #f39c12;
+            color: #b44d4d;
             font-weight: 500;
         }
 
         .status-completado {
-            color: #28a745;
+            color: #4a7a5c;
             font-weight: 500;
         }
         
-        /* Modal para detalles */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -445,10 +443,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(45, 27, 74, 0.5);
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(5px);
         }
         
         .modal.active {
@@ -464,6 +463,8 @@
             overflow-y: auto;
             padding: 30px;
             position: relative;
+            border: 2px solid #9f7aea;
+            box-shadow: 0 20px 40px rgba(45, 27, 74, 0.3);
         }
         
         .modal-header {
@@ -472,12 +473,12 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #e1e5ee;
+            border-bottom: 2px solid #d9c9f0;
         }
         
         .modal-header h2 {
             font-size: 22px;
-            color: #1a2980;
+            color: #2d1b4a;
         }
         
         .modal-close {
@@ -485,29 +486,29 @@
             border: none;
             font-size: 24px;
             cursor: pointer;
-            color: #666;
+            color: #6b3fa0;
         }
         
         .modal-close:hover {
-            color: #dc3545;
+            color: #2d1b4a;
         }
         
         .detalle-item {
             display: flex;
             margin-bottom: 12px;
             padding: 8px 0;
-            border-bottom: 1px dashed #e1e5ee;
+            border-bottom: 1px dashed #d9c9f0;
         }
         
         .detalle-label {
             font-weight: 600;
-            color: #1a2980;
+            color: #2d1b4a;
             width: 150px;
         }
         
         .detalle-value {
             flex: 1;
-            color: #333;
+            color: #6b3fa0;
         }
         
         .estudios-list {
@@ -518,24 +519,25 @@
         
         .estudios-list li {
             padding: 8px 12px;
-            background: #f8f9fa;
+            background: #f5f0fa;
             border-radius: 6px;
             margin-bottom: 5px;
             display: flex;
             justify-content: space-between;
+            color: #2d1b4a;
         }
         
-        /* Receta Virtual - Estilos del formulario DRD */
+        /* Formulario DRD con colores morados */
         .form-drd {
             background: white;
             border-radius: 20px;
             padding: 30px 35px;
-            border: 1px solid rgba(255,255,255,0.6);
+            border: 2px solid #d9c9f0;
             margin-top: 20px;
         }
 
         .drd-header {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 50%, #9f7aea 100%);
             margin: -30px -35px 25px -35px;
             padding: 25px 35px;
             border-radius: 20px 20px 0 0;
@@ -554,7 +556,7 @@
 
         .title-section i {
             font-size: 32px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             padding: 12px;
             border-radius: 12px;
         }
@@ -574,7 +576,7 @@
         }
 
         .price-badge {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             padding: 12px 22px;
             border-radius: 40px;
             font-size: 18px;
@@ -583,15 +585,15 @@
             align-items: center;
             gap: 10px;
             backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .info-card {
-            background: #f8f9fa;
+            background: #f5f0fa;
             border-radius: 16px;
             padding: 20px 25px;
-            border: 1px solid #e1e5ee;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            border: 1px solid #d9c9f0;
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.1);
             margin-bottom: 30px;
         }
 
@@ -600,15 +602,15 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 18px;
-            color: #1a2980;
+            color: #2d1b4a;
             font-size: 18px;
             font-weight: 600;
-            border-bottom: 2px solid #e1e5ee;
+            border-bottom: 2px solid #d9c9f0;
             padding-bottom: 12px;
         }
 
         .info-header i {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             padding: 8px;
             border-radius: 10px;
@@ -635,7 +637,7 @@
             display: block;
             font-size: 13px;
             font-weight: 600;
-            color: #4a5568;
+            color: #2d1b4a;
             margin-bottom: 5px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
@@ -644,7 +646,7 @@
         .form-control {
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             border-radius: 10px;
             font-size: 15px;
             transition: all 0.3s;
@@ -653,12 +655,12 @@
 
         .form-control:focus {
             outline: none;
-            border-color: #1a2980;
-            box-shadow: 0 0 0 3px rgba(26,41,128,0.1);
+            border-color: #6b3fa0;
+            box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.2);
         }
 
         .form-control:disabled {
-            background: #f5f5f5;
+            background: #f5f0fa;
             cursor: not-allowed;
         }
 
@@ -667,7 +669,7 @@
             align-items: center;
             gap: 15px;
             margin: 40px 0 25px;
-            color: #1a2980;
+            color: #2d1b4a;
             font-weight: 700;
             font-size: 22px;
         }
@@ -675,7 +677,7 @@
         .divider-line {
             flex: 1;
             height: 3px;
-            background: linear-gradient(90deg, #1a2980, #26d0ce, transparent);
+            background: linear-gradient(90deg, #2d1b4a, #6b3fa0, #9f7aea, transparent);
             border-radius: 3px;
         }
 
@@ -683,15 +685,15 @@
             background: white;
             border-radius: 16px;
             margin-bottom: 30px;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.1);
         }
 
         .section-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #edf2f7 100%);
+            background: linear-gradient(135deg, #f5f0fa 0%, #e9d9ff 100%);
             padding: 18px 25px;
-            border-bottom: 1px solid #e1e5ee;
+            border-bottom: 2px solid #d9c9f0;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -699,17 +701,17 @@
 
         .section-header i {
             font-size: 20px;
-            color: #1a2980;
+            color: #2d1b4a;
             background: white;
             padding: 8px;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(107, 63, 160, 0.2);
         }
 
         .section-header h2 {
             font-size: 20px;
             font-weight: 600;
-            color: #1a2980;
+            color: #2d1b4a;
             margin: 0;
         }
 
@@ -725,7 +727,7 @@
             align-items: center;
             gap: 12px;
             padding: 10px 15px;
-            background: #f8f9fa;
+            background: #f5f0fa;
             border-radius: 10px;
             transition: all 0.2s;
             border: 1px solid transparent;
@@ -734,20 +736,21 @@
 
         .option-item:hover {
             background: white;
-            border-color: #26d0ce;
+            border-color: #9f7aea;
+            box-shadow: 0 2px 8px rgba(107, 63, 160, 0.2);
         }
 
         .option-item input[type="checkbox"] {
             width: 18px;
             height: 18px;
-            accent-color: #1a2980;
+            accent-color: #6b3fa0;
             cursor: pointer;
         }
 
         .option-item label {
             flex: 1;
             font-size: 15px;
-            color: #2d3748;
+            color: #2d1b4a;
             font-weight: 500;
             cursor: pointer;
             display: flex;
@@ -756,7 +759,7 @@
         }
 
         .price-tag {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             padding: 5px 14px;
             border-radius: 30px;
@@ -769,8 +772,8 @@
 
         .text-field-group {
             padding: 15px 25px 20px;
-            background: #f9fbfd;
-            border-top: 1px dashed #cbd5e0;
+            background: #f5f0fa;
+            border-top: 2px dashed #d9c9f0;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
@@ -786,7 +789,7 @@
 
         .text-field label {
             font-weight: 600;
-            color: #1a2980;
+            color: #2d1b4a;
             min-width: 130px;
             font-size: 14px;
         }
@@ -794,7 +797,7 @@
         .text-field input, .text-field textarea {
             flex: 1;
             padding: 10px 15px;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             border-radius: 10px;
             font-size: 14px;
             background: white;
@@ -806,7 +809,7 @@
         }
 
         .total-container {
-            background: linear-gradient(135deg, #f8f9fa 0%, #edf2f7 100%);
+            background: linear-gradient(135deg, #f5f0fa 0%, #e9d9ff 100%);
             border-radius: 16px;
             padding: 25px 30px;
             margin-top: 30px;
@@ -814,7 +817,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
         }
 
         .total-box {
@@ -827,14 +830,14 @@
         .total-label {
             font-size: 22px;
             font-weight: 600;
-            color: #1a2980;
+            color: #2d1b4a;
             text-transform: uppercase;
         }
 
         .total-amount {
             font-size: 42px;
             font-weight: 800;
-            color: #1a2980;
+            color: #2d1b4a;
             letter-spacing: -1px;
             line-height: 1;
         }
@@ -842,11 +845,11 @@
         .total-amount small {
             font-size: 18px;
             font-weight: 500;
-            color: #4a5568;
+            color: #6b3fa0;
         }
 
         .btn-completar {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 50%, #9f7aea 100%);
             color: white;
             border: none;
             padding: 18px 45px;
@@ -858,34 +861,34 @@
             gap: 15px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 10px 25px rgba(26,41,128,0.2);
+            box-shadow: 0 10px 25px rgba(107, 63, 160, 0.3);
         }
 
         .btn-completar:hover {
             transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(26,41,128,0.3);
+            box-shadow: 0 15px 35px rgba(107, 63, 160, 0.4);
         }
 
         .receta-header-info {
-            background: #f8f9fa;
+            background: #f5f0fa;
             padding: 15px 25px;
             border-radius: 12px;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
         }
 
         .folio-info {
             font-size: 16px;
             font-weight: 600;
-            color: #1a2980;
+            color: #2d1b4a;
         }
 
         .date-info {
             font-size: 14px;
-            color: #666;
+            color: #6b3fa0;
         }
 
         /* Configuración */
@@ -899,21 +902,21 @@
             background: white;
             border-radius: 12px;
             padding: 30px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e1e5ee;
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.2);
+            border: 2px solid #d9c9f0;
         }
         
         .config-card h2 {
             font-size: 24px;
-            color: #1a2980;
+            color: #2d1b4a;
             margin-bottom: 30px;
             font-weight: 600;
-            border-bottom: 2px solid #e1e5ee;
+            border-bottom: 2px solid #d9c9f0;
             padding-bottom: 15px;
         }
         
         .btn-change-password {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             padding: 12px 24px;
             border-radius: 8px;
@@ -927,11 +930,12 @@
             cursor: pointer;
             width: 100%;
             justify-content: center;
+            box-shadow: 0 4px 10px rgba(107, 63, 160, 0.3);
         }
         
         .btn-change-password:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.3);
+            box-shadow: 0 6px 15px rgba(107, 63, 160, 0.4);
         }
         
         .message {
@@ -943,22 +947,22 @@
         }
         
         .message.success {
-            background-color: rgba(40, 167, 69, 0.1);
-            color: #28a745;
-            border: 1px solid #28a745;
+            background-color: #e6d9ff;
+            color: #2d1b4a;
+            border: 1px solid #9f7aea;
             display: block;
         }
         
         .message.error {
-            background-color: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-            border: 1px solid #dc3545;
+            background-color: #ffd9d9;
+            color: #b44d4d;
+            border: 1px solid #b44d4d;
             display: block;
         }
         
         /* Footer */
         footer {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             padding: 40px;
             margin-top: 40px;
@@ -1000,8 +1004,8 @@
         }
         
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #1a2980;
+            border: 3px solid #f5f0fa;
+            border-top: 3px solid #6b3fa0;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -1016,7 +1020,7 @@
         
         /* Estilos para subida de archivos */
         .upload-container {
-            border: 2px dashed #e1e5ee;
+            border: 2px dashed #d9c9f0;
             border-radius: 10px;
             padding: 20px;
             text-align: center;
@@ -1026,23 +1030,23 @@
         }
         
         .upload-container:hover {
-            border-color: #1a2980;
-            background: #f8f9fa;
+            border-color: #6b3fa0;
+            background: #f5f0fa;
         }
         
         .upload-container i {
             font-size: 48px;
-            color: #1a2980;
+            color: #6b3fa0;
             margin-bottom: 10px;
         }
         
         .upload-container p {
-            color: #666;
+            color: #2d1b4a;
             margin-bottom: 10px;
         }
         
         .file-info {
-            background: #f8f9fa;
+            background: #f5f0fa;
             padding: 10px;
             border-radius: 8px;
             margin-top: 10px;
@@ -1052,7 +1056,7 @@
         }
         
         .btn-upload {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             border: none;
             padding: 10px 20px;
@@ -1064,7 +1068,7 @@
         
         .btn-upload:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.3);
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.4);
         }
         
         .btn-upload:disabled {
@@ -1074,7 +1078,7 @@
         
         /* Badges */
         .badge-success {
-            background: #28a745;
+            background: #6b3fa0;
             color: white;
             padding: 4px 8px;
             border-radius: 4px;
@@ -1082,21 +1086,21 @@
         }
         
         .badge-warning {
-            background: #f39c12;
+            background: #b44d4d;
             color: white;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
         }
         
-        /* Estilos para filtros */
+        /* Filtros */
         .filters-container {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, #f5f0fa 0%, #e9d9ff 100%);
             border-radius: 16px;
             padding: 25px;
             margin-bottom: 30px;
-            border: 1px solid #e1e5ee;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: 2px solid #d9c9f0;
+            box-shadow: 0 4px 12px rgba(107, 63, 160, 0.1);
         }
         
         .filters-header {
@@ -1104,13 +1108,14 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 20px;
-            color: #1a2980;
+            color: #2d1b4a;
             font-size: 18px;
             font-weight: 600;
         }
         
         .filters-header i {
             font-size: 24px;
+            color: #6b3fa0;
         }
         
         .filters-grid {
@@ -1129,14 +1134,14 @@
         .filter-group label {
             font-size: 13px;
             font-weight: 600;
-            color: #4a5568;
+            color: #2d1b4a;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
         
         .filter-input {
             padding: 10px 15px;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s;
@@ -1145,17 +1150,22 @@
         
         .filter-input:focus {
             outline: none;
-            border-color: #1a2980;
-            box-shadow: 0 0 0 3px rgba(26, 41, 128, 0.1);
+            border-color: #6b3fa0;
+            box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.2);
         }
         
         .filter-select {
             padding: 10px 15px;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             border-radius: 10px;
             font-size: 14px;
             background: white;
             cursor: pointer;
+        }
+        
+        .filter-select:focus {
+            outline: none;
+            border-color: #6b3fa0;
         }
         
         .filter-actions {
@@ -1167,7 +1177,7 @@
         }
         
         .btn-filter {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             border: none;
             padding: 12px 25px;
@@ -1179,15 +1189,16 @@
             gap: 8px;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(107, 63, 160, 0.2);
         }
         
         .btn-filter:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(26, 41, 128, 0.3);
+            box-shadow: 0 6px 15px rgba(107, 63, 160, 0.3);
         }
         
         .btn-clear-filter {
-            background: #6c757d;
+            background: #6b3fa0;
             color: white;
             border: none;
             padding: 12px 25px;
@@ -1199,10 +1210,11 @@
             gap: 8px;
             cursor: pointer;
             transition: all 0.3s;
+            opacity: 0.8;
         }
         
         .btn-clear-filter:hover {
-            background: #5a6268;
+            background: #2d1b4a;
             transform: translateY(-2px);
         }
         
@@ -1215,15 +1227,15 @@
         }
         
         .filter-tag {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            color: #1a2980;
+            background: linear-gradient(135deg, #e6d9ff 0%, #d9c9f0 100%);
+            color: #2d1b4a;
             padding: 6px 15px;
             border-radius: 20px;
             font-size: 13px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            border: 1px solid #1a2980;
+            border: 2px solid #9f7aea;
         }
         
         .filter-tag i {
@@ -1232,56 +1244,459 @@
         }
         
         .filter-tag i:hover {
-            color: #dc3545;
+            color: #b44d4d;
         }
         
-        .date-range-group {
-            display: flex;
-            gap: 10px;
+        .btn-export-pdf {
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            display: inline-flex;
             align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(107, 63, 160, 0.3);
         }
         
-        .date-range-group input {
-            flex: 1;
+        .btn-export-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(107, 63, 160, 0.4);
         }
 
-        /* ============================================== */
-        /* MODAL DE BIENVENIDA - NUEVO */
-        /* ============================================== */
+        /* Promociones */
+        .promotions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .promo-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(107, 63, 160, 0.2);
+            transition: all 0.4s ease;
+            border: 2px solid #d9c9f0;
+            position: relative;
+        }
+        
+        .promo-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(107, 63, 160, 0.3);
+            border-color: #9f7aea;
+        }
+        
+        .promo-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            z-index: 2;
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.3);
+            animation: pulse 2s infinite;
+        }
+        
+        .promo-image-container {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
+            cursor: pointer;
+        }
+        
+        .promo-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .promo-card:hover .promo-image {
+            transform: scale(1.1);
+        }
+        
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(45, 27, 74, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .promo-image-container:hover .image-overlay {
+            opacity: 1;
+        }
+        
+        .image-overlay i {
+            color: white;
+            font-size: 48px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .promo-content {
+            padding: 25px;
+        }
+        
+        .promo-category {
+            display: inline-block;
+            background: #f5f0fa;
+            color: #2d1b4a;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .promo-title {
+            font-size: 22px;
+            color: #2d1b4a;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .promo-description {
+            color: #6b3fa0;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .promo-price {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .original-price {
+            font-size: 16px;
+            color: #b44d4d;
+            text-decoration: line-through;
+        }
+        
+        .discount-price {
+            font-size: 28px;
+            font-weight: 800;
+            color: #2d1b4a;
+        }
+        
+        .discount-badge {
+            background: #b44d4d;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .promo-features {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .promo-features li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #6b3fa0;
+        }
+        
+        .promo-features i {
+            color: #9f7aea;
+            font-size: 16px;
+        }
+        
+        .promo-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #d9c9f0;
+        }
+        
+        .promo-expiry {
+            font-size: 13px;
+            color: #6b3fa0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-promo {
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-promo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.4);
+        }
+        
+        /* Carrusel */
+        .photo-carousel-section {
+            margin-top: 60px;
+            margin-bottom: 40px;
+        }
+        
+        .carousel-title {
+            font-size: 28px;
+            color: #2d1b4a;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .carousel-subtitle {
+            text-align: center;
+            color: #6b3fa0;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .carousel-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(107, 63, 160, 0.3);
+            border: 3px solid #9f7aea;
+        }
+        
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        
+        .carousel-slide {
+            min-width: 100%;
+            height: 500px;
+            position: relative;
+        }
+        
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .slide-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(45, 27, 74, 0.9), transparent);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .slide-caption h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .slide-caption p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(107, 63, 160, 0.3);
+            backdrop-filter: blur(5px);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            z-index: 10;
+        }
+        
+        .carousel-btn:hover {
+            background: rgba(107, 63, 160, 0.6);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .carousel-btn.prev {
+            left: 20px;
+        }
+        
+        .carousel-btn.next {
+            right: 20px;
+        }
+        
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #d9c9f0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .carousel-dot.active {
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
+            transform: scale(1.2);
+        }
+        
+        .carousel-dot:hover {
+            background: #9f7aea;
+        }
+        
+        /* Beneficios */
+        .benefits-section {
+            background: linear-gradient(135deg, #f5f0fa 0%, #e9d9ff 100%);
+            border-radius: 30px;
+            padding: 40px;
+            margin-top: 50px;
+            border: 2px solid #9f7aea;
+        }
+        
+        .benefits-title {
+            font-size: 24px;
+            color: #2d1b4a;
+            margin-bottom: 30px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.1);
+            transition: all 0.3s;
+            border: 1px solid #d9c9f0;
+        }
+        
+        .benefit-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(107, 63, 160, 0.2);
+        }
+        
+        .benefit-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .benefit-text {
+            flex: 1;
+        }
+        
+        .benefit-text h4 {
+            font-size: 16px;
+            color: #2d1b4a;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .benefit-text p {
+            font-size: 13px;
+            color: #6b3fa0;
+        }
+        
+        /* Welcome Modal */
         .welcome-modal {
-            display: none; /* Oculto por defecto */
+            display: none;
             position: fixed;
-            z-index: 2000; /* Por encima de todo */
+            z-index: 2000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px); /* Efecto de desenfoque */
+            background-color: rgba(45, 27, 74, 0.5);
+            backdrop-filter: blur(5px);
             align-items: center;
             justify-content: center;
             animation: fadeIn 0.4s ease-out forwards;
         }
 
         .welcome-modal.show {
-            display: flex; /* Se muestra como flexbox */
+            display: flex;
         }
 
         .welcome-modal-content {
-            background: linear-gradient(145deg, #ffffff, #f8faff);
+            background: linear-gradient(145deg, #ffffff, #f5f0fa);
             padding: 40px 50px;
             border-radius: 30px;
             text-align: center;
             max-width: 450px;
             width: 90%;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(38, 208, 206, 0.1);
-            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 25px 50px -12px rgba(107, 63, 160, 0.5);
+            border: 3px solid #9f7aea;
             transform: scale(0.9);
             animation: popIn 0.5s cubic-bezier(0.26, 1.5, 0.48, 1) forwards;
         }
 
         .welcome-icon {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             width: 90px;
             height: 90px;
             border-radius: 50%;
@@ -1289,7 +1704,7 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 25px;
-            box-shadow: 0 10px 20px rgba(26, 41, 128, 0.3);
+            box-shadow: 0 10px 20px rgba(107, 63, 160, 0.4);
             animation: pulse 2s infinite;
         }
 
@@ -1299,26 +1714,24 @@
         }
 
         .welcome-modal h2 {
-            color: #1a2980;
+            color: #2d1b4a;
             font-size: 32px;
             margin-bottom: 15px;
             font-weight: 700;
             letter-spacing: -0.5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
         }
 
         .welcome-subtext {
-            color: #4a5568;
+            color: #6b3fa0;
             font-size: 16px;
             margin-top: 20px;
             opacity: 0.7;
         }
 
-        /* Loader / Barra de progreso */
         .welcome-loader {
             width: 200px;
             height: 6px;
-            background: #e1e5ee;
+            background: #d9c9f0;
             border-radius: 10px;
             margin: 20px auto 0;
             overflow: hidden;
@@ -1327,20 +1740,25 @@
         .loader-bar {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #1a2980, #26d0ce);
+            background: linear-gradient(90deg, #2d1b4a, #6b3fa0, #9f7aea);
             border-radius: 10px;
             animation: loadProgress 2.5s linear forwards;
         }
 
-        /* Keyframes para animaciones */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 10px 20px rgba(107, 63, 160, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 15px 30px rgba(107, 63, 160, 0.5);
+            }
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
-        }
-
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
         }
 
         @keyframes popIn {
@@ -1354,73 +1772,9 @@
             }
         }
 
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 10px 20px rgba(26, 41, 128, 0.3);
-            }
-            50% {
-                transform: scale(1.05);
-                box-shadow: 0 15px 30px rgba(26, 41, 128, 0.4);
-            }
-        }
-
         @keyframes loadProgress {
             0% { width: 0%; }
             100% { width: 100%; }
-        }
-
-        /* Animación de salida */
-        .welcome-modal.fade-out {
-            animation: fadeOut 0.3s ease-out forwards;
-        }
-
-        .welcome-modal.fade-out .welcome-modal-content {
-            animation: scaleOut 0.3s ease-out forwards;
-        }
-
-        @keyframes scaleOut {
-            0% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-        }
-
-        /* Estilos para el botón de exportar PDF en historial */
-        .export-pdf-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-        }
-        
-        .btn-export-pdf {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
-        }
-        
-        .btn-export-pdf:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(220, 53, 69, 0.3);
-        }
-        
-        .btn-export-pdf i {
-            font-size: 16px;
         }
         
         @media (max-width: 1200px) {
@@ -1434,6 +1788,10 @@
             
             .options-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .promotions-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
         
@@ -1486,8 +1844,16 @@
                 justify-content: center;
             }
             
-            .export-pdf-container {
-                justify-content: center;
+            .promotions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .carousel-slide {
+                height: 300px;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -1501,7 +1867,7 @@
                     <i class="fas fa-x-ray"></i>
                 </div>
                 <div>
-                    <div class="company-name">Radiología Médica Avanzada</div>
+                    <div class="company-name">4Digital - Radiología Médica</div>
                     <div class="company-subtitle">Diagnóstico por Imágenes de Precisión</div>
                 </div>
             </div>
@@ -1517,11 +1883,12 @@
             </div>
         </header>
         
-        <!-- Menú de navegación principal - SPA -->
+        <!-- Menú de navegación principal -->
         <nav class="main-nav">
             <ul>
                 <li><button class="nav-link active" id="dashboardLink" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</button></li>
                 <li><button class="nav-link" id="recetaLink" data-section="receta"><i class="fas fa-prescription"></i> Receta Virtual</button></li>
+                <li><button class="nav-link" id="promocionesLink" data-section="promociones"><i class="fas fa-tags"></i> Promociones</button></li>
                 <li><button class="nav-link" id="citasLink" data-section="citas"><i class="fas fa-calendar-check"></i> Citas/Estudios</button></li>
                 <li><button class="nav-link" id="resultadosLink" data-section="resultados"><i class="fas fa-file-medical"></i> Resultados</button></li>
                 <li><button class="nav-link" id="historialLink" data-section="historial"><i class="fas fa-history"></i> Historial</button></li>
@@ -1547,7 +1914,21 @@
             </div>
         </div>
 
-        <!-- ========== MODAL DE BIENVENIDA - NUEVO ========== -->
+        <!-- Modal para vista ampliada de imagen -->
+        <div id="imageModal" class="modal">
+            <div class="modal-content" style="max-width: 800px; text-align: center;">
+                <div class="modal-header">
+                    <h2 id="modalImageTitle"><i class="fas fa-image"></i> Vista Ampliada</h2>
+                    <button class="modal-close" onclick="cerrarImageModal()">&times;</button>
+                </div>
+                <div style="padding: 20px;">
+                    <img id="modalImage" src="" alt="Imagen ampliada" style="max-width: 100%; max-height: 60vh; border-radius: 10px; box-shadow: 0 5px 20px rgba(107, 63, 160, 0.3);">
+                    <p id="modalImageDesc" style="margin-top: 20px; color: #6b3fa0; font-size: 16px;"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Bienvenida -->
         <div id="welcomeModal" class="welcome-modal">
             <div class="welcome-modal-content">
                 <div class="welcome-icon">
@@ -1563,7 +1944,7 @@
         <footer>
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>Radiología Médica Avanzada</h4>
+                    <h4>4Digital - Radiología Médica</h4>
                     <p>Sistema de Gestión para Diagnóstico por Imágenes</p>
                     <p>Versión 5.0 | Sistema SPA con Resultados</p>
                 </div>
@@ -1571,7 +1952,7 @@
                 <div class="footer-section">
                     <h4>Contacto</h4>
                     <p><i class="fas fa-phone"></i> (555) 123-4567</p>
-                    <p><i class="fas fa-envelope"></i> info@radiologiamedica.com</p>
+                    <p><i class="fas fa-envelope"></i> info@4digital.com</p>
                     <p><i class="fas fa-map-marker-alt"></i> Av. Médica 123, Ciudad</p>
                 </div>
                 
@@ -1584,7 +1965,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p>&copy; 2023 Radiología Médica Avanzada. Sistema completo con gestión de resultados.</p>
+                <p>&copy; 2023 4Digital - Radiología Médica Avanzada. Todos los derechos reservados.</p>
             </div>
         </footer>
     </div>
@@ -1597,12 +1978,16 @@
     let currentDoctorId = null;
     let currentSection = 'dashboard';
     let currentUsername = null;
-    let allCitas = []; // Para almacenar todas las citas y poder filtrarlas
-    let doctorPuntos = 0; // Para almacenar los puntos del doctor
+    let allCitas = [];
+    let doctorPuntos = 0;
+
+    // Variables para el carrusel
+    let currentSlide = 0;
+    let autoSlideInterval;
 
     // Cargar datos al iniciar
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('📌 DOM Cargado - Iniciando aplicación');
+        console.log('📌 4Digital - Iniciando aplicación');
         checkLoginStatus();
         setupEventListeners();
     });
@@ -1627,15 +2012,12 @@
             return;
         }
         
-        // Guardar el nombre de usuario del login
         currentUsername = userName;
         console.log('👤 Username desde login:', currentUsername);
         
-        // Obtener el ID real del doctor desde la base de datos
         getRealDoctorId();
     }
 
-    // Obtener el ID real del doctor (formato D001, D002, etc)
     async function getRealDoctorId() {
         try {
             if (!currentUsername) {
@@ -1665,16 +2047,10 @@
                 console.log('✅ Doctor ID asignado correctamente:', currentDoctorId);
                 console.log('✅ Puntos del doctor:', doctorPuntos);
                 
-                // Guardar en localStorage para referencia
                 localStorage.setItem('current_doctor_id', currentDoctorId);
-                
-                // Actualizar nombre en UI
                 document.getElementById('doctorName').textContent = `Dr. ${doctor.nombre || currentUsername}`;
                 
-                // ===== NUEVO: Mostrar el modal de bienvenida =====
                 showWelcomeModal();
-                
-                // Cargar la sección inicial
                 loadSection('dashboard');
             } else {
                 console.error('❌ No se encontró el doctor con usuario:', currentUsername);
@@ -1686,52 +2062,36 @@
         }
     }
 
-    // ==============================================
-    // FUNCIÓN PARA MOSTAR MODAL DE BIENVENIDA - NUEVO
-    // ==============================================
     function showWelcomeModal() {
-        // Obtener el nombre del doctor de la variable global o del localStorage
         let doctorName = '';
         
         if (currentDoctor && currentDoctor.nombre) {
             doctorName = currentDoctor.nombre;
         } else if (currentUsername) {
-            // Si solo tenemos el username, lo formateamos para mostrarlo bonito
             doctorName = currentUsername.replace('dr.', 'Dr. ');
         } else {
-            // Si no hay nombre, usamos un título genérico
             doctorName = 'Dr.';
         }
         
-        // Actualizar el mensaje de bienvenida
         const welcomeMessageEl = document.getElementById('welcomeMessage');
         if (welcomeMessageEl) {
             welcomeMessageEl.textContent = `¡Bienvenido, ${doctorName}!`;
         }
         
-        // Obtener el modal
         const modal = document.getElementById('welcomeModal');
         if (!modal) return;
         
-        // Mostrar el modal (clase 'show' lo hace visible)
         modal.classList.add('show');
         
-        // Configurar el temporizador para ocultarlo después de 2.5 segundos
         setTimeout(() => {
-            // Agregar clase para animación de salida
             modal.classList.add('fade-out');
-            
-            // Después de que termine la animación de salida (300ms), ocultarlo completamente
             setTimeout(() => {
                 modal.classList.remove('show', 'fade-out');
             }, 300);
-            
-        }, 1700); // 2500 milisegundos = 2.5 segundos
+        }, 1700);
     }
 
-    // Configurar event listeners
     function setupEventListeners() {
-        // Navegación SPA
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1744,20 +2104,18 @@
             });
         });
 
-        // Botón de logout
         document.getElementById('logoutBtn').addEventListener('click', function(e) {
             e.preventDefault();
             logout();
         });
     }
 
-    // Cargar sección
     function loadSection(section) {
         console.log(`📂 Cargando sección: ${section}`);
         currentSection = section;
         const contentDiv = document.getElementById('dynamicContent');
         
-        if (!currentDoctorId) {
+        if (!currentDoctorId && section !== 'login') {
             console.log('⏳ Esperando a que se cargue el ID del doctor...');
             setTimeout(() => loadSection(section), 500);
             return;
@@ -1769,6 +2127,9 @@
                 break;
             case 'receta':
                 loadRecetaContent(contentDiv);
+                break;
+            case 'promociones':
+                loadPromocionesContent(contentDiv);
                 break;
             case 'citas':
                 loadCitasContent(contentDiv);
@@ -1795,7 +2156,7 @@
         container.innerHTML = `
             <div class="dashboard-section">
                 <div class="content-header">
-                    <h1>Panel de Control</h1>
+                    <h1>Panel de Control 4Digital</h1>
                     <div class="breadcrumb">
                         <span>Inicio</span> > <span>Dashboard</span>
                     </div>
@@ -1840,35 +2201,35 @@
                     
                     <div class="sidebar">
                         <div class="sidebar-widget">
-                            <h3>Promociones Activas</h3>
+                            <h3>Promociones Destacadas 4Digital</h3>
                             <div class="offers-list">
                                 <div class="offer-item">
-                                    <div class="offer-badge">OFERTA 1</div>
-                                    <h4>Tomografía Computarizada</h4>
-                                    <p>20% de descuento en tomografías de cuerpo completo</p>
+                                    <div class="offer-badge">¡NUEVO!</div>
+                                    <h4>Paquete Premium 3D</h4>
+                                    <p>Tomografía 3D + Modelo dental 3D + Escaneo facial</p>
                                     <div class="offer-footer">
-                                        <span class="offer-expiry">Expira en 15 días</span>
-                                        <a href="#" class="offer-link">Ver detalles</a>
+                                        <span class="offer-expiry"><i class="far fa-clock"></i> Expira en 7 días</span>
+                                        <a href="#" onclick="loadSection('promociones')" class="offer-link">Ver más</a>
                                     </div>
                                 </div>
                                 
                                 <div class="offer-item">
-                                    <div class="offer-badge">OFERTA 2</div>
-                                    <h4>Resonancia Magnética</h4>
-                                    <p>Paquete completo + informe detallado especializado</p>
+                                    <div class="offer-badge">20% OFF</div>
+                                    <h4>Estudio Ortodóntico Completo</h4>
+                                    <p>Radiografías panorámica + lateral + cefalometría</p>
                                     <div class="offer-footer">
-                                        <span class="offer-expiry">Expira en 30 días</span>
-                                        <a href="#" class="offer-link">Ver detalles</a>
+                                        <span class="offer-expiry"><i class="far fa-clock"></i> Expira en 15 días</span>
+                                        <a href="#" onclick="loadSection('promociones')" class="offer-link">Ver más</a>
                                     </div>
                                 </div>
                                 
                                 <div class="offer-item">
-                                    <div class="offer-badge">OFERTA 3</div>
-                                    <h4>Ecografías Doppler</h4>
-                                    <p>Resultados en 24 horas con prioridad en agenda</p>
+                                    <div class="offer-badge">OFERTA 3x2</div>
+                                    <h4>Tomografía ATM</h4>
+                                    <p>Estudio de ATM boca abierta y cerrada + informe especializado</p>
                                     <div class="offer-footer">
-                                        <span class="offer-expiry">Sin expiración</span>
-                                        <a href="#" class="offer-link">Ver detalles</a>
+                                        <span class="offer-expiry"><i class="far fa-clock"></i> Por tiempo limitado</span>
+                                        <a href="#" onclick="loadSection('promociones')" class="offer-link">Ver más</a>
                                     </div>
                                 </div>
                             </div>
@@ -1881,8 +2242,501 @@
         loadDashboardStats();
     }
 
+    async function loadDashboardStats() {
+        try {
+            if (!currentDoctorId) return;
+            
+            const citasResponse = await fetch(`/api/citas/${currentDoctorId}`);
+            if (citasResponse.ok) {
+                const citas = await citasResponse.json();
+                document.getElementById('totalCitas').textContent = Array.isArray(citas) ? citas.length : 0;
+                
+                const pendientes = Array.isArray(citas) ? citas.filter(c => !(c.tiene_resultado === 1 || c.tiene_resultado === true)).length : 0;
+                const completados = Array.isArray(citas) ? citas.filter(c => c.tiene_resultado === 1 || c.tiene_resultado === true).length : 0;
+                
+                document.getElementById('estudiosPendientes').textContent = pendientes;
+                document.getElementById('estudiosCompletados').textContent = completados;
+                
+                document.getElementById('totalPuntos').textContent = doctorPuntos;
+                
+                try {
+                    const infoResponse = await fetch(`/api/doctor-info/${currentDoctorId}`);
+                    if (infoResponse.ok) {
+                        const doctorInfo = await infoResponse.json();
+                        doctorPuntos = doctorInfo.puntos || 0;
+                        document.getElementById('totalPuntos').textContent = doctorPuntos;
+                    }
+                } catch (e) {
+                    console.error('Error obteniendo puntos actualizados:', e);
+                }
+            }
+        } catch (error) {
+            console.error('Error cargando estadísticas:', error);
+            document.getElementById('totalCitas').textContent = '0';
+            document.getElementById('estudiosPendientes').textContent = '0';
+            document.getElementById('estudiosCompletados').textContent = '0';
+            document.getElementById('totalPuntos').textContent = doctorPuntos || '0';
+        }
+    }
+
     // ==============================================
-    // CONTENIDO RECETA VIRTUAL - CON NUEVOS PRECIOS
+    // NUEVA PÁGINA: PROMOCIONES
+    // ==============================================
+    
+    function loadPromocionesContent(container) {
+        // Detener el auto-slide anterior si existe
+        if (autoSlideInterval) {
+            clearInterval(autoSlideInterval);
+        }
+        
+        container.innerHTML = `
+            <div class="content-header">
+                <h1><i class="fas fa-tags" style="color: #2d1b4a;"></i> Promociones 4Digital</h1>
+                <div class="breadcrumb">
+                    <span>Inicio</span> > <span>Promociones</span>
+                </div>
+            </div>
+            
+            <!-- Grid de Promociones -->
+            <div class="promotions-grid">
+                <!-- Promoción 1: Paquete Ortodóntico Completo -->
+                <div class="promo-card">
+                    <div class="promo-badge">30% OFF</div>
+                    <div class="promo-image-container" onclick="openImageModal('https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 'Estudio Ortodóntico Completo')">
+                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Estudio Ortodóntico" class="promo-image">
+                        <div class="image-overlay">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                    <div class="promo-content">
+                        <span class="promo-category">ORTODONCIA</span>
+                        <h3 class="promo-title">Paquete Ortodóntico Completo</h3>
+                        <p class="promo-description">Incluye ortopantomografía, lateral de cráneo, P-A de cráneo y cefalometría. Ideal para diagnóstico ortodóntico integral.</p>
+                        <div class="promo-price">
+                            <span class="original-price">$1,160</span>
+                            <span class="discount-price">$812</span>
+                            <span class="discount-badge">-30%</span>
+                        </div>
+                        <ul class="promo-features">
+                            <li><i class="fas fa-check-circle"></i> Ortopantomografía (Panorámica) - $290</li>
+                            <li><i class="fas fa-check-circle"></i> Lateral de cráneo 8x10 - $290</li>
+                            <li><i class="fas fa-check-circle"></i> P-A de cráneo - $290</li>
+                            <li><i class="fas fa-check-circle"></i> Cefalometría incluida</li>
+                        </ul>
+                        <div class="promo-footer">
+                            <span class="promo-expiry"><i class="far fa-clock"></i> Válido hasta 30/11/2023</span>
+                            <button class="btn-promo" onclick="irARecetaConEstudios(['ortopantomografia', 'lateralCraneo8x10', 'paCraneo'])">
+                                <i class="fas fa-prescription"></i> Usar promoción
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Promoción 2: Paquete 3D Premium -->
+                <div class="promo-card">
+                    <div class="promo-badge">25% OFF</div>
+                    <div class="promo-image-container" onclick="openImageModal('https://images.unsplash.com/photo-1581595219315-a187dd40c322?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 'Tomografía 3D Premium')">
+                        <img src="https://images.unsplash.com/photo-1581595219315-a187dd40c322?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Tomografía 3D" class="promo-image">
+                        <div class="image-overlay">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                    <div class="promo-content">
+                        <span class="promo-category">3D AVANZADO</span>
+                        <h3 class="promo-title">Paquete 3D Premium</h3>
+                        <p class="promo-description">Tomografía completa + modelo dental 3D + escaneo facial. Diagnóstico preciso y planificación quirúrgica.</p>
+                        <div class="promo-price">
+                            <span class="original-price">$4,580</span>
+                            <span class="discount-price">$3,435</span>
+                            <span class="discount-badge">-25%</span>
+                        </div>
+                        <ul class="promo-features">
+                            <li><i class="fas fa-check-circle"></i> Tomografía completa CD - $1,790</li>
+                            <li><i class="fas fa-check-circle"></i> Modelo dental 3D - $350</li>
+                            <li><i class="fas fa-check-circle"></i> Escaneo facial - $800</li>
+                            <li><i class="fas fa-check-circle"></i> CD Y PLACES RX - $2,290</li>
+                            <li><i class="fas fa-gift"></i> <strong>BONUS:</strong> Informe especializado gratis</li>
+                        </ul>
+                        <div class="promo-footer">
+                            <span class="promo-expiry"><i class="far fa-clock"></i> Válido hasta 15/12/2023</span>
+                            <button class="btn-promo" onclick="irARecetaConEstudios(['tomografiaCompletaCD', 'modeloDental3D', 'escaneoFacial'])">
+                                <i class="fas fa-prescription"></i> Usar promoción
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Promoción 3: Estudio ATM Especial -->
+                <div class="promo-card">
+                    <div class="promo-badge">20% OFF</div>
+                    <div class="promo-image-container" onclick="openImageModal('https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 'Estudio ATM Completo')">
+                        <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Estudio ATM" class="promo-image">
+                        <div class="image-overlay">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                    <div class="promo-content">
+                        <span class="promo-category">ATM</span>
+                        <h3 class="promo-title">Estudio ATM Completo</h3>
+                        <p class="promo-description">Evaluación completa de la articulación temporomandibular con tomografía 3D en boca abierta y cerrada.</p>
+                        <div class="promo-price">
+                            <span class="original-price">$3,440</span>
+                            <span class="discount-price">$2,752</span>
+                            <span class="discount-badge">-20%</span>
+                        </div>
+                        <ul class="promo-features">
+                            <li><i class="fas fa-check-circle"></i> Rx ATM Comparativa lateral - $350</li>
+                            <li><i class="fas fa-check-circle"></i> Rx ATM Comparativa PA - $350</li>
+                            <li><i class="fas fa-check-circle"></i> Tomografía 3D ATM boca abierta - $2,290</li>
+                            <li><i class="fas fa-check-circle"></i> Tomografía 3D ATM boca cerrada - $2,290</li>
+                            <li><i class="fas fa-star"></i> <strong>Precio especial combinado</strong></li>
+                        </ul>
+                        <div class="promo-footer">
+                            <span class="promo-expiry"><i class="far fa-clock"></i> Válido hasta 31/12/2023</span>
+                            <button class="btn-promo" onclick="irARecetaConEstudios(['atmComparativaLateral', 'atmComparativaPA', 'tomografiaATM'])">
+                                <i class="fas fa-prescription"></i> Usar promoción
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Promoción 4: Serie Periapical Completa -->
+                <div class="promo-card">
+                    <div class="promo-badge">40% OFF</div>
+                    <div class="promo-image-container" onclick="openImageModal('https://images.unsplash.com/photo-1606811971618-4486d14f3f8d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 'Serie Periapical')">
+                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f8d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Serie Periapical" class="promo-image">
+                        <div class="image-overlay">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                    <div class="promo-content">
+                        <span class="promo-category">ENDODONCIA</span>
+                        <h3 class="promo-title">Serie Periapical Completa</h3>
+                        <p class="promo-description">Serie periapical completa de 16 radiografías + 4 periapicales individuales de regalo.</p>
+                        <div class="promo-price">
+                            <span class="original-price">$1,120</span>
+                            <span class="discount-price">$672</span>
+                            <span class="discount-badge">-40%</span>
+                        </div>
+                        <ul class="promo-features">
+                            <li><i class="fas fa-check-circle"></i> Serie periapical completa (16) - $1,000</li>
+                            <li><i class="fas fa-check-circle"></i> 4 periapicales individuales GRATIS - $480</li>
+                            <li><i class="fas fa-check-circle"></i> Formato digital incluido</li>
+                            <li><i class="fas fa-check-circle"></i> Entrega en USB</li>
+                        </ul>
+                        <div class="promo-footer">
+                            <span class="promo-expiry"><i class="far fa-clock"></i> Por tiempo limitado</span>
+                            <button class="btn-promo" onclick="irARecetaConEstudios(['seriePeriapical', 'periapicalIndividual'])">
+                                <i class="fas fa-prescription"></i> Usar promoción
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Promoción 5: Senos Paranasales 3D -->
+                <div class="promo-card">
+                    <div class="promo-badge">35% OFF</div>
+                    <div class="promo-image-container" onclick="openImageModal('https://images.unsplash.com/photo-1559757175-0b7e521e1f3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 'Senos Paranasales')">
+                        <img src="https://images.unsplash.com/photo-1559757175-0b7e521e1f3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Senos Paranasales" class="promo-image">
+                        <div class="image-overlay">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                    <div class="promo-content">
+                        <span class="promo-category">OTORRINO</span>
+                        <h3 class="promo-title">Paquete Senos Paranasales</h3>
+                        <p class="promo-description">Estudio completo de senos paranasales con radiografías convencionales + tomografía 3D.</p>
+                        <div class="promo-price">
+                            <span class="original-price">$2,540</span>
+                            <span class="discount-price">$1,651</span>
+                            <span class="discount-badge">-35%</span>
+                        </div>
+                        <ul class="promo-features">
+                            <li><i class="fas fa-check-circle"></i> Senos paranasales (3 proyecciones) - $750</li>
+                            <li><i class="fas fa-check-circle"></i> Tomografía senos paranasales 3D - $1,790</li>
+                            <li><i class="fas fa-check-circle"></i> Informe radiológico especializado</li>
+                            <li><i class="fas fa-check-circle"></i> CD con todas las imágenes</li>
+                        </ul>
+                        <div class="promo-footer">
+                            <span class="promo-expiry"><i class="far fa-clock"></i> Válido hasta 20/11/2023</span>
+                            <button class="btn-promo" onclick="irARecetaConEstudios(['senosParanasales', 'tomografiaSenos'])">
+                                <i class="fas fa-prescription"></i> Usar promoción
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Promoción 6: Radiografías Crecimiento -->
+                <div class="promo-card">
+                    <div class="promo-badge">15% OFF</div>
+                    <div class="promo-image-container" onclick="openImageModal('https://images.unsplash.com/photo-1584636781034-32b0ebf127e6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', 'Estudio de Crecimiento')">
+                        <img src="https://images.unsplash.com/photo-1584636781034-32b0ebf127e6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Estudio de Crecimiento" class="promo-image">
+                        <div class="image-overlay">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+                    <div class="promo-content">
+                        <span class="promo-category">ORTODONCIA INFANTIL</span>
+                        <h3 class="promo-title">Paquete Estudio de Crecimiento</h3>
+                        <p class="promo-description">Evaluación del crecimiento y desarrollo craneofacial con estudios complementarios.</p>
+                        <div class="promo-price">
+                            <span class="original-price">$930</span>
+                            <span class="discount-price">$791</span>
+                            <span class="discount-badge">-15%</span>
+                        </div>
+                        <ul class="promo-features">
+                            <li><i class="fas fa-check-circle"></i> Lateral de cráneo 8x10 - $290</li>
+                            <li><i class="fas fa-check-circle"></i> Dígito-palmar (carpal) - $290</li>
+                            <li><i class="fas fa-check-circle"></i> P-A de cráneo - $290</li>
+                            <li><i class="fas fa-check-circle"></i> Análisis de maduración ósea</li>
+                        </ul>
+                        <div class="promo-footer">
+                            <span class="promo-expiry"><i class="far fa-clock"></i> Válido hasta 30/11/2023</span>
+                            <button class="btn-promo" onclick="irARecetaConEstudios(['lateralCraneo8x10', 'digitoPalmar', 'paCraneo'])">
+                                <i class="fas fa-prescription"></i> Usar promoción
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carrusel de Fotos Promocionales -->
+            <div class="photo-carousel-section">
+                <h2 class="carousel-title"><i class="fas fa-images" style="color: #2d1b4a;"></i> Galería 4Digital</h2>
+                <p class="carousel-subtitle">Conoce nuestras instalaciones y equipos de última tecnología</p>
+                
+                <div class="carousel-container" id="promoCarousel">
+                    <div class="carousel-track" id="carouselTrack">
+                        <div class="carousel-slide">
+                            <img src="https://images.unsplash.com/photo-1581595219315-a187dd40c322?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Tomógrafo 3D">
+                            <div class="slide-caption">
+                                <h3>Tomógrafo 3D de última generación</h3>
+                                <p>Equipo de cone beam con la más alta resolución para diagnósticos precisos</p>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Radiografía Panorámica">
+                            <div class="slide-caption">
+                                <h3>Radiografía Panorámica Digital</h3>
+                                <p>Imágenes de alta definición con mínima radiación</p>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Instalaciones">
+                            <div class="slide-caption">
+                                <h3>Instalaciones modernas y confortables</h3>
+                                <p>Ambiente diseñado para la comodidad del paciente</p>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f8d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Equipo de Rayos X">
+                            <div class="slide-caption">
+                                <h3>Equipo de Rayos X Digital</h3>
+                                <p>Tecnología digital para resultados inmediatos</p>
+                            </div>
+                        </div>
+                        <div class="carousel-slide">
+                            <img src="https://images.unsplash.com/photo-1559757175-0b7e521e1f3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Sala de Espera">
+                            <div class="slide-caption">
+                                <h3>Sala de espera VIP</h3>
+                                <p>Espacio cómodo y acogedor para nuestros pacientes</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="carousel-btn prev" onclick="moveSlide(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="carousel-btn next" onclick="moveSlide(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+                
+                <div class="carousel-dots" id="carouselDots">
+                    <!-- Se llenará con JavaScript -->
+                </div>
+            </div>
+
+            <!-- Beneficios Especiales -->
+            <div class="benefits-section">
+                <h3 class="benefits-title"><i class="fas fa-gem"></i> Beneficios Exclusivos 4Digital</h3>
+                <div class="benefits-grid">
+                    <div class="benefit-item">
+                        <div class="benefit-icon"><i class="fas fa-star"></i></div>
+                        <div class="benefit-text">
+                            <h4>Acumula puntos por cada estudio</h4>
+                            <p>Gana 10 puntos por cada $1000 en estudios realizados</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon"><i class="fas fa-gift"></i></div>
+                        <div class="benefit-text">
+                            <h4>Canjea tus puntos</h4>
+                            <p>Por estudios gratuitos o descuentos especiales</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon"><i class="fas fa-clock"></i></div>
+                        <div class="benefit-text">
+                            <h4>Resultados prioritarios</h4>
+                            <p>Entrega de resultados en 24 horas para paquetes promocionales</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon"><i class="fas fa-users"></i></div>
+                        <div class="benefit-text">
+                            <h4>Descuentos grupales</h4>
+                            <p>10% adicional para 3 o más estudios de la misma clínica</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Inicializar el carrusel después de cargar el contenido
+        initCarousel();
+    }
+
+    // ==============================================
+    // FUNCIONES PARA EL CARRUSEL
+    // ==============================================
+    
+    function initCarousel() {
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dotsContainer = document.getElementById('carouselDots');
+        
+        if (!slides.length || !dotsContainer) return;
+        
+        // Crear dots
+        slides.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.className = `carousel-dot ${index === 0 ? 'active' : ''}`;
+            dot.onclick = () => goToSlide(index);
+            dotsContainer.appendChild(dot);
+        });
+        
+        // Iniciar auto-slide
+        startAutoSlide();
+        
+        // Pausar auto-slide cuando el mouse está sobre el carrusel
+        const carousel = document.getElementById('promoCarousel');
+        if (carousel) {
+            carousel.addEventListener('mouseenter', stopAutoSlide);
+            carousel.addEventListener('mouseleave', startAutoSlide);
+        }
+    }
+    
+    function moveSlide(direction) {
+        const slides = document.querySelectorAll('.carousel-slide');
+        const track = document.getElementById('carouselTrack');
+        const dots = document.querySelectorAll('.carousel-dot');
+        
+        if (!slides.length || !track) return;
+        
+        currentSlide = (currentSlide + direction + slides.length) % slides.length;
+        
+        track.style.transform = `translateX(-${currentSlide * 100}%)`;
+        
+        // Actualizar dots
+        dots.forEach((dot, index) => {
+            if (index === currentSlide) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+    
+    function goToSlide(index) {
+        const slides = document.querySelectorAll('.carousel-slide');
+        const track = document.getElementById('carouselTrack');
+        const dots = document.querySelectorAll('.carousel-dot');
+        
+        if (!slides.length || !track) return;
+        
+        currentSlide = index;
+        
+        track.style.transform = `translateX(-${currentSlide * 100}%)`;
+        
+        dots.forEach((dot, i) => {
+            if (i === currentSlide) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+    
+    function startAutoSlide() {
+        if (autoSlideInterval) clearInterval(autoSlideInterval);
+        autoSlideInterval = setInterval(() => moveSlide(1), 5000);
+    }
+    
+    function stopAutoSlide() {
+        if (autoSlideInterval) {
+            clearInterval(autoSlideInterval);
+            autoSlideInterval = null;
+        }
+    }
+
+    // ==============================================
+    // FUNCIÓN PARA ABRIR MODAL DE IMAGEN
+    // ==============================================
+    
+    function openImageModal(imageUrl, title) {
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const modalTitle = document.getElementById('modalImageTitle');
+        const modalDesc = document.getElementById('modalImageDesc');
+        
+        if (modal && modalImage) {
+            modalImage.src = imageUrl;
+            if (modalTitle) modalTitle.innerHTML = `<i class="fas fa-image"></i> ${title}`;
+            if (modalDesc) modalDesc.textContent = title;
+            modal.classList.add('active');
+        }
+    }
+    
+    function cerrarImageModal() {
+        const modal = document.getElementById('imageModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // ==============================================
+    // FUNCIÓN PARA IR A RECETA CON ESTUDIOS PRE-SELECCIONADOS
+    // ==============================================
+    
+    function irARecetaConEstudios(estudiosIds) {
+        // Primero cambiar a la sección de receta
+        loadSection('receta');
+        
+        // Esperar un momento para que cargue el formulario
+        setTimeout(() => {
+            // Marcar los checkboxes correspondientes
+            estudiosIds.forEach(id => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+            
+            // Recalcular el total
+            if (typeof calcularTotalReceta === 'function') {
+                calcularTotalReceta();
+            }
+            
+            // Hacer scroll hacia el formulario
+            const form = document.querySelector('.form-drd');
+            if (form) {
+                form.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 500);
+    }
+
+    // ==============================================
+    // CONTENIDO RECETA VIRTUAL
     // ==============================================
     
     function loadRecetaContent(container) {
@@ -1892,7 +2746,7 @@
         
         container.innerHTML = `
             <div class="content-header">
-                <h1>Receta Virtual / Formulario de Prescripción</h1>
+                <h1>Receta Virtual 4Digital</h1>
                 <div class="breadcrumb">
                     <span>Inicio</span> > <span>Receta Virtual</span>
                 </div>
@@ -1915,7 +2769,7 @@
                     <div class="title-section">
                         <i class="fas fa-cube"></i>
                         <div>
-                            <h1>Radiología Médica Avanzada
+                            <h1>4Digital - Radiología Médica
                                 <span>Formulario de prescripción / Receta virtual</span>
                             </h1>
                         </div>
@@ -1964,7 +2818,7 @@
                         <div class="form-group">
                             <label>Fecha de la cita *</label>
                             <input type="date" class="form-control" id="fechaCita" required>
-                            <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                            <small style="color: #6b3fa0; font-size: 11px; display: block; margin-top: 5px;">
                                 <i class="fas fa-info-circle"></i> Sólo días hábiles (Lunes a Viernes)
                             </small>
                         </div>
@@ -1973,7 +2827,7 @@
                             <select class="form-control" id="horaCita" required>
                                 <option value="">Seleccione una hora</option>
                             </select>
-                            <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                            <small style="color: #6b3fa0; font-size: 11px; display: block; margin-top: 5px;">
                                 <i class="fas fa-info-circle"></i> Horario: 8:00 AM - 8:00 PM
                             </small>
                         </div>
@@ -2183,7 +3037,7 @@
                 <!-- TOTAL Y BOTÓN COMPLETAR -->
                 <div class="total-container">
                     <div class="total-box">
-                        <span class="total-label"><i class="fas fa-calculator" style="color: #26d0ce;"></i> TOTAL ESTUDIOS:</span>
+                        <span class="total-label"><i class="fas fa-calculator" style="color: #9f7aea;"></i> TOTAL ESTUDIOS:</span>
                         <span class="total-amount" id="totalAmount">$0.00</span>
                     </div>
                     <button class="btn-completar" id="btnCompletarReceta">
@@ -2192,8 +3046,8 @@
                 </div>
                 
                 <!-- FOOTER DEL FORMULARIO -->
-                <div style="text-align: right; margin-top: 15px; color: #718096; font-size: 13px;">
-                    <i class="fas fa-file-signature"></i> Radiología Médica Avanzada · Precios con IVA incluido
+                <div style="text-align: right; margin-top: 15px; color: #6b3fa0; font-size: 13px;">
+                    <i class="fas fa-file-signature"></i> 4Digital - Radiología Médica · Precios con IVA incluido
                 </div>
             </div>
         `;
@@ -2208,12 +3062,10 @@
         
         if (!fechaInput || !horaSelect) return;
         
-        // Configurar fecha mínima (hoy) y máxima (3 meses después)
         const hoy = new Date();
         const tresMesesDespues = new Date();
         tresMesesDespues.setMonth(tresMesesDespues.getMonth() + 3);
         
-        // Formatear fechas para input date (YYYY-MM-DD)
         const formatDate = (date) => {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -2224,7 +3076,6 @@
         fechaInput.min = formatDate(hoy);
         fechaInput.max = formatDate(tresMesesDespues);
         
-        // Validar fecha seleccionada
         fechaInput.addEventListener('input', function(e) {
             if (!this.value) return;
             
@@ -2233,7 +3084,6 @@
             
             const diaSemana = fecha.getDay();
             
-            // Verificar si es domingo
             if (diaSemana === 0) {
                 alert('Los domingos no hay atención. Seleccione un día de lunes a sábado.');
                 this.value = '';
@@ -2242,7 +3092,6 @@
                 return;
             }
             
-            // Generar horas disponibles según el día
             generarHorasDisponibles(fecha);
         });
     }
@@ -2251,12 +3100,10 @@
         const horaSelect = document.getElementById('horaCita');
         if (!horaSelect) return;
         
-        // Limpiar opciones actuales
         horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
         
-        const diaSemana = fecha.getDay(); // 0 = Domingo, 6 = Sábado
+        const diaSemana = fecha.getDay();
         
-        // Determinar horario según el día de la semana
         let horaInicio, horaFin;
         
         if (diaSemana === 6) { // Sábado
@@ -2269,13 +3116,9 @@
             console.log('📅 Entre semana - Horario: 9:00 AM a 6:00 PM');
         }
         
-        // Generar horas cada 30 minutos
         for (let hora = horaInicio; hora <= horaFin; hora++) {
             for (let minuto = 0; minuto < 60; minuto += 30) {
-                // Para sábados: no generar después de las 2:00 PM
                 if (diaSemana === 6 && hora === 14 && minuto > 0) continue;
-                
-                // Para entre semana: no generar después de las 6:00 PM
                 if (diaSemana !== 6 && hora === 18 && minuto > 0) continue;
                 
                 const horaFormateada = String(hora).padStart(2, '0');
@@ -2295,7 +3138,6 @@
         
         horaSelect.disabled = false;
     }
-
 
     function initRecetaForm() {
         const checkboxes = document.querySelectorAll('.study-checkbox');
@@ -2337,10 +3179,6 @@
         document.body.removeChild(link);
     }
 
-    // ==============================================
-    // FUNCIÓN PARA DESCARGAR PDF
-    // ==============================================
-    
     async function descargarPDF(citaId, folio, paciente) {
         try {
             console.log(`📥 Descargando PDF - Cita ID: ${citaId}, Folio: ${folio}`);
@@ -2363,23 +3201,18 @@
                 }
             }
             
-            // Verificar el tipo de contenido
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
-                // Si es JSON, es un error
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Error al descargar el PDF');
             }
             
-            // Obtener el blob del PDF
             const blob = await response.blob();
             
-            // Verificar que el blob no esté vacío
             if (blob.size === 0) {
                 throw new Error('El archivo PDF está vacío');
             }
             
-            // Crear URL del blob y descargar
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -2387,7 +3220,6 @@
             document.body.appendChild(a);
             a.click();
             
-            // Limpiar
             setTimeout(() => {
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
@@ -2401,10 +3233,6 @@
         }
     }
 
-    // ==============================================
-    // FUNCIÓN PARA DESCARGAR RESULTADO (SOLO VISUALIZACIÓN)
-    // ==============================================
-    
     async function descargarResultado(citaId, folio, paciente) {
         try {
             console.log(`📥 Descargando Resultado - Cita ID: ${citaId}, Folio: ${folio}`);
@@ -2452,12 +3280,6 @@
             alert(`Error al descargar el resultado: ${error.message}.`);
         }
     }
-
-    // NOTA: La función abrirUploadModal ha sido eliminada - solo el administrador puede subir resultados
-
-    // ==============================================
-    // FUNCIÓN PARA GENERAR CITA
-    // ==============================================
 
     async function generarCita() {
         const messageEl = document.getElementById('recetaMessage');
@@ -2570,7 +3392,6 @@
                     downloadPDF(result.pdf_base64, filename);
                 }
                 
-                // Limpiar formulario
                 document.getElementById('pacienteNombre').value = '';
                 document.getElementById('pacienteEdad').value = '';
                 document.getElementById('pacienteFN').value = '';
@@ -2588,7 +3409,7 @@
                         input.id !== 'pacienteFN' && input.id !== 'pacienteTel' &&
                         input.id !== 'fechaCita') {
                         if (input.tagName === 'SELECT') {
-                            input.value = 'USB'; // Valor por defecto para el select de formato
+                            input.value = 'USB';
                         } else {
                             input.value = '';
                         }
@@ -2616,21 +3437,9 @@
     // ==============================================
     
     function loadCitasContent(container) {
-        // Obtener fecha actual y fecha de hace 7 días para el filtro por defecto
-        const hoy = new Date();
-        const hace7Dias = new Date();
-        hace7Dias.setDate(hoy.getDate() - 7);
-        
-        const formatDate = (date) => {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        };
-        
         container.innerHTML = `
             <div class="content-header">
-                <h1>Citas y Estudios</h1>
+                <h1>Citas y Estudios 4Digital</h1>
                 <div class="breadcrumb">
                     <span>Inicio</span> > <span>Citas/Estudios</span>
                 </div>
@@ -2650,28 +3459,6 @@
                 </div>
                 
                 <div class="filters-grid">
-                    <!-- Filtro por período rápido -->
-                    <div class="filter-group">
-                        <label><i class="fas fa-clock"></i> Período</label>
-                        <select class="filter-select" id="filterPeriodo">
-                            <option value="7dias" selected>Últimos 7 días</option>
-                            <option value="15dias">Últimos 15 días</option>
-                            <option value="30dias">Últimos 30 días</option>
-                            <option value="rango">Rango personalizado</option>
-                            <option value="todo">Todos</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Filtro por rango de fechas (inicialmente oculto) -->
-                    <div class="filter-group" id="rangoFechasGroup" style="display: none;">
-                        <label><i class="fas fa-calendar"></i> Rango de fechas</label>
-                        <div class="date-range-group">
-                            <input type="date" class="filter-input" id="fechaInicio" value="${formatDate(hace7Dias)}" style="flex: 1;">
-                            <span>a</span>
-                            <input type="date" class="filter-input" id="fechaFin" value="${formatDate(hoy)}" style="flex: 1;">
-                        </div>
-                    </div>
-                    
                     <!-- Filtro por estado -->
                     <div class="filter-group">
                         <label><i class="fas fa-check-circle"></i> Estado</label>
@@ -2706,7 +3493,6 @@
                 
                 <!-- Tags de filtros activos -->
                 <div class="active-filters" id="activeFilters">
-                    <!-- Se llenará dinámicamente -->
                 </div>
             </div>
             
@@ -2722,27 +3508,12 @@
             </div>
         `;
         
-        // Configurar eventos de filtros
-        document.getElementById('filterPeriodo').addEventListener('change', function() {
-            const rangoGroup = document.getElementById('rangoFechasGroup');
-            if (this.value === 'rango') {
-                rangoGroup.style.display = 'block';
-            } else {
-                rangoGroup.style.display = 'none';
-            }
-        });
-        
         document.getElementById('btnAplicarFiltros').addEventListener('click', aplicarFiltros);
         document.getElementById('btnLimpiarFiltros').addEventListener('click', limpiarFiltros);
         
-        // Cargar citas
         loadCitas();
     }
 
-    // ==============================================
-    // FUNCIÓN PARA CARGAR CITAS
-    // ==============================================
-    
     async function loadCitas() {
         try {
             if (!currentDoctorId) {
@@ -2753,7 +3524,7 @@
                         <div class="table-empty-message">
                             <i class="fas fa-exclamation-triangle"></i>
                             <p>Error: No se pudo identificar al doctor</p>
-                            <p style="font-size: 12px; color: #999;">Recargue la página o contacte al administrador</p>
+                            <p style="font-size: 12px; color: #6b3fa0;">Recargue la página o contacte al administrador</p>
                             <button onclick="loadCitas()" class="btn-generate-report" style="margin-top: 15px;">
                                 <i class="fas fa-sync-alt"></i> Reintentar
                             </button>
@@ -2773,7 +3544,6 @@
                 throw new Error(`Error HTTP: ${response.status}`);
             }
             
-            // Verificar que la respuesta sea JSON válido
             const contentType = response.headers.get('content-type');
             if (!contentType || !contentType.includes('application/json')) {
                 console.error('❌ La respuesta no es JSON:', contentType);
@@ -2785,7 +3555,6 @@
             const citas = await response.json();
             console.log('📋 Citas recibidas:', citas);
             
-            // Verificar si hay error en la respuesta
             if (citas.error) {
                 console.error('❌ Error del servidor:', citas.error);
                 displayErrorCitasTable(citas.error);
@@ -2799,9 +3568,8 @@
             }
             
             console.log(`✅ Se encontraron ${citas.length} citas`);
-            allCitas = citas; // Guardar todas las citas para filtrar
+            allCitas = citas;
             
-            // Aplicar filtro por defecto (últimos 7 días)
             aplicarFiltros();
             
         } catch (error) {
@@ -2810,71 +3578,18 @@
         }
     }
 
-    // ==============================================
-    // FUNCIÓN PARA APLICAR FILTROS
-    // ==============================================
-    
     function aplicarFiltros() {
         if (!allCitas || allCitas.length === 0) {
             displayCitasTable([]);
             return;
         }
         
-        // Obtener valores de filtros
-        const periodo = document.getElementById('filterPeriodo').value;
         const estado = document.getElementById('filterEstado').value;
         const pacienteFilter = document.getElementById('filterPaciente').value.toLowerCase().trim();
         const folioFilter = document.getElementById('filterFolio').value.toLowerCase().trim();
         
-        let fechaInicio = null;
-        let fechaFin = null;
-        
-        // Determinar rango de fechas según el período seleccionado
-        const hoy = new Date();
-        hoy.setHours(23, 59, 59, 999); // Fin del día
-        
-        if (periodo === '7dias') {
-            fechaFin = hoy;
-            fechaInicio = new Date();
-            fechaInicio.setDate(hoy.getDate() - 7);
-            fechaInicio.setHours(0, 0, 0, 0);
-        } else if (periodo === '15dias') {
-            fechaFin = hoy;
-            fechaInicio = new Date();
-            fechaInicio.setDate(hoy.getDate() - 15);
-            fechaInicio.setHours(0, 0, 0, 0);
-        } else if (periodo === '30dias') {
-            fechaFin = hoy;
-            fechaInicio = new Date();
-            fechaInicio.setDate(hoy.getDate() - 30);
-            fechaInicio.setHours(0, 0, 0, 0);
-        } else if (periodo === 'rango') {
-            const fechaInicioStr = document.getElementById('fechaInicio').value;
-            const fechaFinStr = document.getElementById('fechaFin').value;
-            
-            if (fechaInicioStr && fechaFinStr) {
-                fechaInicio = new Date(fechaInicioStr + 'T00:00:00');
-                fechaFin = new Date(fechaFinStr + 'T23:59:59');
-            }
-        }
-        
-        // Aplicar filtros
         const citasFiltradas = allCitas.filter(cita => {
             let cumpleFiltro = true;
-            
-            // Filtro por fecha
-            if (fechaInicio && fechaFin) {
-                let fechaCita = null;
-                
-                // Intentar obtener fecha_cita (fecha programada)
-                if (cita.fecha_cita) {
-                    fechaCita = new Date(cita.fecha_cita + 'T12:00:00');
-                }
-                
-                if (fechaCita && !isNaN(fechaCita)) {
-                    cumpleFiltro = cumpleFiltro && (fechaCita >= fechaInicio && fechaCita <= fechaFin);
-                }
-            }
             
             // Filtro por estado
             if (estado !== 'todos') {
@@ -2899,77 +3614,29 @@
             return cumpleFiltro;
         });
         
-        // Actualizar tags de filtros activos
         actualizarTagsActivos();
         
-        // Mostrar resultados
         console.log(`📊 Mostrando ${citasFiltradas.length} citas después de filtrar`);
         displayCitasTable(citasFiltradas);
     }
 
-    // ==============================================
-    // FUNCIÓN PARA LIMPIAR FILTROS
-    // ==============================================
-    
     function limpiarFiltros() {
-        // Restablecer valores por defecto
-        document.getElementById('filterPeriodo').value = '7dias';
-        document.getElementById('rangoFechasGroup').style.display = 'none';
         document.getElementById('filterEstado').value = 'todos';
         document.getElementById('filterPaciente').value = '';
         document.getElementById('filterFolio').value = '';
         
-        // Actualizar fechas de rango a últimos 7 días
-        const hoy = new Date();
-        const hace7Dias = new Date();
-        hace7Dias.setDate(hoy.getDate() - 7);
-        
-        const formatDate = (date) => {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        };
-        
-        document.getElementById('fechaInicio').value = formatDate(hace7Dias);
-        document.getElementById('fechaFin').value = formatDate(hoy);
-        
-        // Limpiar tags
         document.getElementById('activeFilters').innerHTML = '';
         
-        // Aplicar filtros limpios
         aplicarFiltros();
     }
 
-    // ==============================================
-    // FUNCIÓN PARA ACTUALIZAR TAGS DE FILTROS ACTIVOS
-    // ==============================================
-    
     function actualizarTagsActivos() {
         const activeFiltersDiv = document.getElementById('activeFilters');
-        const periodo = document.getElementById('filterPeriodo').value;
         const estado = document.getElementById('filterEstado').value;
         const paciente = document.getElementById('filterPaciente').value.trim();
         const folio = document.getElementById('filterFolio').value.trim();
         
         let tagsHTML = '';
-        
-        // Tag de período
-        if (periodo === '7dias') {
-            tagsHTML += `<span class="filter-tag"><i class="fas fa-clock"></i> Últimos 7 días <i class="fas fa-times" onclick="eliminarTag('periodo')"></i></span>`;
-        } else if (periodo === '15dias') {
-            tagsHTML += `<span class="filter-tag"><i class="fas fa-clock"></i> Últimos 15 días <i class="fas fa-times" onclick="eliminarTag('periodo')"></i></span>`;
-        } else if (periodo === '30dias') {
-            tagsHTML += `<span class="filter-tag"><i class="fas fa-clock"></i> Últimos 30 días <i class="fas fa-times" onclick="eliminarTag('periodo')"></i></span>`;
-        } else if (periodo === 'rango') {
-            const fechaInicio = document.getElementById('fechaInicio').value;
-            const fechaFin = document.getElementById('fechaFin').value;
-            if (fechaInicio && fechaFin) {
-                const fechaInicioFormateada = new Date(fechaInicio + 'T00:00:00').toLocaleDateString('es-MX');
-                const fechaFinFormateada = new Date(fechaFin + 'T00:00:00').toLocaleDateString('es-MX');
-                tagsHTML += `<span class="filter-tag"><i class="fas fa-calendar"></i> ${fechaInicioFormateada} - ${fechaFinFormateada} <i class="fas fa-times" onclick="eliminarTag('rango')"></i></span>`;
-            }
-        }
         
         // Tag de estado
         if (estado !== 'todos') {
@@ -2990,17 +3657,8 @@
         activeFiltersDiv.innerHTML = tagsHTML;
     }
 
-    // ==============================================
-    // FUNCIÓN PARA ELIMINAR TAG ESPECÍFICO
-    // ==============================================
-    
     function eliminarTag(tipo) {
-        if (tipo === 'periodo') {
-            document.getElementById('filterPeriodo').value = 'todo';
-        } else if (tipo === 'rango') {
-            document.getElementById('filterPeriodo').value = 'todo';
-            document.getElementById('rangoFechasGroup').style.display = 'none';
-        } else if (tipo === 'estado') {
+        if (tipo === 'estado') {
             document.getElementById('filterEstado').value = 'todos';
         } else if (tipo === 'paciente') {
             document.getElementById('filterPaciente').value = '';
@@ -3051,7 +3709,6 @@
         citas.forEach((cita, index) => {
             console.log(`Procesando cita ${index + 1}:`, cita);
             
-            // Formatear fecha de cita
             let fechaCitaDisplay = 'No agendada';
             if (cita.fecha_cita) {
                 try {
@@ -3080,7 +3737,6 @@
                 }
             }
             
-            // Formatear hora de cita
             let horaCitaDisplay = 'No asignada';
             if (cita.hora_cita) {
                 try {
@@ -3100,7 +3756,6 @@
                 }
             }
             
-            // Asegurar que total_estudio sea un número
             const totalEstudio = parseFloat(cita.total_estudio) || 0;
             const totalFormateado = totalEstudio.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             
@@ -3113,13 +3768,12 @@
             const folio = cita.numero_folio || 'N/A';
             const paciente = (cita.paciente || 'Paciente').replace(/'/g, "\\'");
             
-            // SOLO DESCARGAR - SIN OPCIÓN DE SUBIR (ELIMINADO)
             const resultadoButton = tieneResultado ?
                 `<button onclick="descargarResultado('${citaId}', '${folio}', '${paciente}')" 
                     class="btn-generate-report" style="padding: 4px 8px; font-size: 12px;">
                     <i class="fas fa-download"></i> Descargar
                 </button>` :
-                `<span style="color: #666; font-size: 12px; font-style: italic;">Solo admin puede subir</span>`;
+                `<span style="color: #6b3fa0; font-size: 12px; font-style: italic;">Solo admin puede subir</span>`;
             
             html += `
                 <tr>
@@ -3180,25 +3834,21 @@
             <div class="table-empty-message">
                 <i class="fas fa-exclamation-triangle"></i>
                 <p>Error al cargar las citas</p>
-                <p style="font-size: 12px; color: #999;">${errorMsg || 'Por favor, intente de nuevo'}</p>
+                <p style="font-size: 12px; color: #6b3fa0;">${errorMsg || 'Por favor, intente de nuevo'}</p>
                 <button onclick="loadCitas()" class="btn-generate-report" style="margin-top: 15px;">
                     <i class="fas fa-sync-alt"></i> Reintentar
                 </button>
-                <button onclick="console.log('Recargando página...'); location.reload()" class="btn-generate-report" style="margin-top: 15px; margin-left: 10px; background: #666;">
+                <button onclick="console.log('Recargando página...'); location.reload()" class="btn-generate-report" style="margin-top: 15px; margin-left: 10px; background: #6b3fa0;">
                     <i class="fas fa-redo-alt"></i> Recargar página
                 </button>
             </div>
         `;
     }
 
-    // ==============================================
-    // CONTENIDO RESULTADOS (SOLO VISUALIZACIÓN)
-    // ==============================================
-    
     function loadResultadosContent(container) {
         container.innerHTML = `
             <div class="content-header">
-                <h1><i class="fas fa-file-medical" style="color: #1a2980;"></i> Resultados de Estudios</h1>
+                <h1><i class="fas fa-file-medical" style="color: #2d1b4a;"></i> Resultados de Estudios</h1>
                 <div class="breadcrumb">
                     <span>Inicio</span> > <span>Resultados</span>
                 </div>
@@ -3319,7 +3969,7 @@
             <div class="table-empty-message">
                 <i class="fas fa-file-medical"></i>
                 <p>No hay resultados disponibles</p>
-                <p style="font-size: 13px; color: #999; margin-top: 10px;">
+                <p style="font-size: 13px; color: #6b3fa0; margin-top: 10px;">
                     <i class="fas fa-info-circle"></i> Los resultados son cargados por el administrador
                 </p>
                 <button onclick="loadSection('citas')" class="btn-generate-report" style="margin-top: 15px;">
@@ -3338,7 +3988,7 @@
             <div class="table-empty-message">
                 <i class="fas fa-exclamation-triangle"></i>
                 <p>Error al cargar los resultados</p>
-                <p style="font-size: 12px; color: #999;">Por favor, intente de nuevo más tarde</p>
+                <p style="font-size: 12px; color: #6b3fa0;">Por favor, intente de nuevo más tarde</p>
                 <button onclick="loadResultados()" class="btn-generate-report" style="margin-top: 15px;">
                     <i class="fas fa-sync-alt"></i> Reintentar
                 </button>
@@ -3346,14 +3996,10 @@
         `;
     }
 
-    // ==============================================
-    // CONTENIDO HISTORIAL CON BOTÓN PARA EXPORTAR PDF
-    // ==============================================
-    
     function loadHistorialContent(container) {
         container.innerHTML = `
             <div class="content-header">
-                <h1><i class="fas fa-history" style="color: #1a2980;"></i> Historial de Estudios</h1>
+                <h1><i class="fas fa-history" style="color: #2d1b4a;"></i> Historial de Estudios</h1>
                 <div class="breadcrumb">
                     <span>Inicio</span> > <span>Historial</span>
                 </div>
@@ -3380,7 +4026,6 @@
         
         loadHistorial();
         
-        // Agregar event listener para el botón de exportar PDF
         document.getElementById('exportHistorialPDF').addEventListener('click', exportHistorialToPDF);
     }
 
@@ -3445,10 +4090,8 @@
         `;
         
         historial.forEach(item => {
-            // Formatear fecha de registro
             let fechaRegistroFormateada = item.fecha || 'N/A';
             
-            // Formatear fecha de cita
             let fechaCitaDisplay = 'No agendada';
             if (item.fecha_cita) {
                 try {
@@ -3520,7 +4163,7 @@
             <div class="table-empty-message">
                 <i class="fas fa-exclamation-triangle"></i>
                 <p>Error al cargar el historial</p>
-                <p style="font-size: 12px; color: #999;">Por favor, intente de nuevo más tarde</p>
+                <p style="font-size: 12px; color: #6b3fa0;">Por favor, intente de nuevo más tarde</p>
                 <button onclick="loadHistorial()" class="btn-generate-report" style="margin-top: 15px;">
                     <i class="fas fa-sync-alt"></i> Reintentar
                 </button>
@@ -3528,10 +4171,6 @@
         `;
     }
 
-    // ==============================================
-    // FUNCIÓN PARA EXPORTAR HISTORIAL A PDF
-    // ==============================================
-    
     async function exportHistorialToPDF() {
         try {
             if (!currentDoctorId) {
@@ -3539,13 +4178,11 @@
                 return;
             }
             
-            // Mostrar indicador de carga
             const exportBtn = document.getElementById('exportHistorialPDF');
             const originalText = exportBtn.innerHTML;
             exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando PDF...';
             exportBtn.disabled = true;
             
-            // Obtener datos actualizados
             const response = await fetch(`/api/citas/${currentDoctorId}`);
             if (!response.ok) {
                 throw new Error('No se pudieron cargar los datos');
@@ -3560,13 +4197,11 @@
                 return;
             }
             
-            // Calcular estadísticas
             const totalCitas = historial.length;
             const totalCompletados = historial.filter(c => c.tiene_resultado === 1 || c.tiene_resultado === true).length;
             const totalPendientes = totalCitas - totalCompletados;
             const totalIngresos = historial.reduce((sum, c) => sum + (parseFloat(c.total_estudio) || 0), 0);
             
-            // Crear PDF con jsPDF
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({
                 orientation: 'landscape',
@@ -3574,24 +4209,21 @@
                 format: 'a4'
             });
             
-            // Configurar fuente y colores
-            const primaryColor = [26, 41, 128]; // #1a2980
-            const secondaryColor = [38, 208, 206]; // #26d0ce
+            const primaryColor = [45, 27, 74]; // #2d1b4a
+            const secondaryColor = [107, 63, 160]; // #6b3fa0
             
-            // Encabezado del PDF
             doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
             doc.rect(0, 0, 297, 25, 'F');
             
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(18);
             doc.setFont('helvetica', 'bold');
-            doc.text('Radiología Médica Avanzada', 15, 15);
+            doc.text('4Digital - Radiología Médica', 15, 15);
             
             doc.setFontSize(12);
             doc.setFont('helvetica', 'normal');
             doc.text('Historial Completo del Doctor', 15, 22);
             
-            // Información del doctor y fecha
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
@@ -3604,7 +4236,6 @@
             doc.setFont('helvetica', 'normal');
             doc.text(new Date().toLocaleString('es-MX'), 190, 35);
             
-            // Estadísticas
             doc.setFillColor(245, 245, 245);
             doc.rect(15, 40, 267, 25, 'F');
             
@@ -3629,7 +4260,6 @@
             doc.setFont('helvetica', 'normal');
             doc.text(`$${totalIngresos.toFixed(2)}`, 240, 50);
             
-            // Preparar datos para la tabla
             const tableData = historial.map(item => {
                 let fechaCita = 'No agendada';
                 if (item.fecha_cita) {
@@ -3654,7 +4284,6 @@
                 ];
             });
             
-            // Configurar tabla
             doc.autoTable({
                 startY: 75,
                 head: [['Folio', 'Paciente', 'Fecha Registro', 'Fecha Cita', 'Total', 'Estado']],
@@ -3682,15 +4311,13 @@
                     cellPadding: 3
                 },
                 didDrawPage: function(data) {
-                    // Agregar pie de página en cada página
                     doc.setFontSize(8);
                     doc.setTextColor(128, 128, 128);
-                    doc.text('Radiología Médica Avanzada - Documento generado automáticamente', 15, doc.internal.pageSize.height - 10);
+                    doc.text('4Digital - Radiología Médica - Documento generado automáticamente', 15, doc.internal.pageSize.height - 10);
                     doc.text(`Página ${doc.internal.getNumberOfPages()}`, doc.internal.pageSize.width - 30, doc.internal.pageSize.height - 10);
                 }
             });
             
-            // Resumen final
             const finalY = doc.lastAutoTable.finalY + 10;
             
             doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2], 0.1);
@@ -3707,12 +4334,10 @@
             doc.text(`Estudios completados: ${totalCompletados} (${((totalCompletados/totalCitas)*100).toFixed(1)}%)`, 100, finalY + 14);
             doc.text(`Total facturado: $${totalIngresos.toFixed(2)}`, 200, finalY + 14);
             
-            // Guardar PDF
             const nombreDoctor = (currentDoctor?.nombre || currentUsername || 'doctor').replace(/\s+/g, '_');
             const fecha = new Date().toISOString().slice(0,10);
-            doc.save(`Historial_${nombreDoctor}_${fecha}.pdf`);
+            doc.save(`4Digital_Historial_${nombreDoctor}_${fecha}.pdf`);
             
-            // Restaurar botón
             exportBtn.innerHTML = originalText;
             exportBtn.disabled = false;
             
@@ -3728,10 +4353,6 @@
         }
     }
 
-    // ==============================================
-    // CONTENIDO CONFIGURACIÓN
-    // ==============================================
-    
     function loadConfiguracionContent(container) {
         container.innerHTML = `
             <div class="content-header">
@@ -3783,50 +4404,6 @@
         console.log('- user_id:', localStorage.getItem('current_user_id'));
         console.log('- user_name:', localStorage.getItem('current_user_name'));
         console.log('- doctor_id:', localStorage.getItem('current_doctor_id'));
-    }
-
-    // ==============================================
-    // FUNCIONES DE CARGA DE DATOS
-    // ==============================================
-    
-    async function loadDashboardStats() {
-        try {
-            if (!currentDoctorId) return;
-            
-            const citasResponse = await fetch(`/api/citas/${currentDoctorId}`);
-            if (citasResponse.ok) {
-                const citas = await citasResponse.json();
-                document.getElementById('totalCitas').textContent = Array.isArray(citas) ? citas.length : 0;
-                
-                // Calcular estudios pendientes y completados
-                const pendientes = Array.isArray(citas) ? citas.filter(c => !(c.tiene_resultado === 1 || c.tiene_resultado === true)).length : 0;
-                const completados = Array.isArray(citas) ? citas.filter(c => c.tiene_resultado === 1 || c.tiene_resultado === true).length : 0;
-                
-                document.getElementById('estudiosPendientes').textContent = pendientes;
-                document.getElementById('estudiosCompletados').textContent = completados;
-                
-                // Mostrar puntos desde la variable global
-                document.getElementById('totalPuntos').textContent = doctorPuntos;
-                
-                // Obtener puntos actualizados del servidor
-                try {
-                    const infoResponse = await fetch(`/api/doctor-info/${currentDoctorId}`);
-                    if (infoResponse.ok) {
-                        const doctorInfo = await infoResponse.json();
-                        doctorPuntos = doctorInfo.puntos || 0;
-                        document.getElementById('totalPuntos').textContent = doctorPuntos;
-                    }
-                } catch (e) {
-                    console.error('Error obteniendo puntos actualizados:', e);
-                }
-            }
-        } catch (error) {
-            console.error('Error cargando estadísticas:', error);
-            document.getElementById('totalCitas').textContent = '0';
-            document.getElementById('estudiosPendientes').textContent = '0';
-            document.getElementById('estudiosCompletados').textContent = '0';
-            document.getElementById('totalPuntos').textContent = doctorPuntos || '0';
-        }
     }
 
     async function changePassword() {
@@ -3889,7 +4466,6 @@
         window.location.href = '/';
     }
 
-    // Funciones para cerrar modales
     function cerrarModal() {
         const modal = document.getElementById('detalleModal');
         if (modal) {
@@ -3913,6 +4489,13 @@
     window.eliminarTag = eliminarTag;
     window.debugDoctorInfo = debugDoctorInfo;
     window.exportHistorialToPDF = exportHistorialToPDF;
+    
+    // Funciones para promociones
+    window.openImageModal = openImageModal;
+    window.cerrarImageModal = cerrarImageModal;
+    window.moveSlide = moveSlide;
+    window.goToSlide = goToSlide;
+    window.irARecetaConEstudios = irARecetaConEstudios;
 </script>
 </body>
 </html>

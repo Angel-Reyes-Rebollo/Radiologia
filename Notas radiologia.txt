@@ -89,18 +89,18 @@ Agregar depuración de tiempo de inactividad a los doctores
 
 SOLO FALTA
     ****pantalla emergente de bienvenida****
-    Sistema de puntos. Para el sistema de puntos, cada 100 pesos es un punto.
-    Boton para cancelar citas.
-    Arreglar el filtro de periodo en el doctores.
-    Imagen de los cráneos en los formularios.
-    Carga de documentos para resultados, el unico que carga documentos es el admin.
-    La agenda del admin.
+   ¡¡¡¡Sistema de puntos. Para el sistema de puntos, cada 100 pesos es un punto.!!!!
+    ****admin Boton para cancelar citas.****
+    ****Arreglar el filtro de periodo en el doctores.****
+    ¡¡¡¡Imagen de los cráneos en los formularios.!!!!
+    ¡¡¡¡Carga de documentos para resultados, el unico que carga documentos es el admin.!!!!
+    ****admin La agenda del admin ve las citas que estan generadas****
     ****Que el doctor pueda genear un pdf con su historial y mandarlo al admin.****
-    Que el admin pueda ver los reportes de los doctores.
-    Agregar pantalla de promociones en la pantalla de doctores
+    ¡¡¡¡Que el admin pueda ver los reportes de los doctores.!!!!
+    ****Agregar pantalla de promociones en la pantalla de doctores****
     QR del whats en el login
     Cambiar los logos y colores.
-    Promociones
+    ****Promociones****
 
 
 

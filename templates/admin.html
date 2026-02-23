@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Radiología Médica</title>
+    <title>4Digital - Panel de Administración</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -14,16 +16,16 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
-            color: #333;
+            background: linear-gradient(135deg, #f5f0fa 0%, #e6d9ff 100%);
+            color: #2d1b4a;
             min-height: 100vh;
         }
         
         .admin-header {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 50%, #9f7aea 100%);
             color: white;
             padding: 15px 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(107, 63, 160, 0.3);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -55,7 +57,7 @@
         
         .admin-logo i {
             font-size: 24px;
-            color: #1a2980;
+            color: #2d1b4a;
         }
         
         .admin-brand h1 {
@@ -97,6 +99,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .logout-btn:hover {
@@ -117,10 +120,11 @@
             background: white;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.15);
             height: fit-content;
             position: sticky;
             top: 90px;
+            border: 1px solid #d9c9f0;
         }
         
         .admin-nav {
@@ -129,7 +133,7 @@
         
         .nav-title {
             font-size: 12px;
-            color: #666;
+            color: #6b3fa0;
             text-transform: uppercase;
             font-weight: 600;
             margin-bottom: 12px;
@@ -144,20 +148,20 @@
             margin-bottom: 6px;
             border-radius: 8px;
             text-decoration: none;
-            color: #333;
+            color: #4a3b6e;
             font-size: 14px;
             transition: all 0.3s;
             cursor: pointer;
         }
         
         .nav-item:hover {
-            background: #f0f7ff;
-            color: #1a2980;
+            background: #f5f0fa;
+            color: #2d1b4a;
             transform: translateX(3px);
         }
         
         .nav-item.active {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
         }
         
@@ -168,7 +172,7 @@
         }
         
         .create-doctor-btn {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -183,12 +187,12 @@
             cursor: pointer;
             transition: all 0.3s;
             margin-top: 15px;
-            box-shadow: 0 4px 12px rgba(26, 41, 128, 0.2);
+            box-shadow: 0 4px 12px rgba(107, 63, 160, 0.3);
         }
         
         .create-doctor-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(26, 41, 128, 0.3);
+            box-shadow: 0 6px 18px rgba(107, 63, 160, 0.4);
         }
         
         .create-doctor-btn i {
@@ -196,7 +200,7 @@
         }
 
         .receta-virtual-btn {
-            background: linear-gradient(135deg, #26d0ce 0%, #1a2980 100%);
+            background: linear-gradient(135deg, #6b3fa0 0%, #9f7aea 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -211,12 +215,12 @@
             cursor: pointer;
             transition: all 0.3s;
             margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(38, 208, 206, 0.3);
+            box-shadow: 0 4px 12px rgba(159, 122, 234, 0.4);
         }
         
         .receta-virtual-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(38, 208, 206, 0.4);
+            box-shadow: 0 6px 18px rgba(159, 122, 234, 0.5);
         }
         
         .receta-virtual-btn i {
@@ -228,8 +232,9 @@
             background: white;
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.1);
             min-height: calc(100vh - 160px);
+            border: 1px solid #d9c9f0;
         }
         
         .content-header {
@@ -238,19 +243,19 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
+            border-bottom: 2px solid #d9c9f0;
         }
         
         .content-header h2 {
             font-size: 20px;
-            color: #1a2980;
+            color: #2d1b4a;
             display: flex;
             align-items: center;
             gap: 10px;
         }
         
         .content-header h2 i {
-            color: #26d0ce;
+            color: #9f7aea;
             font-size: 20px;
         }
         
@@ -262,7 +267,7 @@
         
         .search-box input {
             padding: 10px 15px;
-            border: 2px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             border-radius: 6px;
             width: 250px;
             font-size: 14px;
@@ -270,11 +275,11 @@
         
         .search-box input:focus {
             outline: none;
-            border-color: #1a2980;
+            border-color: #6b3fa0;
         }
         
         .search-btn {
-            background: #1a2980;
+            background: #2d1b4a;
             color: white;
             border: none;
             padding: 10px 16px;
@@ -286,7 +291,7 @@
         }
         
         .search-btn:hover {
-            background: #26d0ce;
+            background: #6b3fa0;
             transform: translateY(-2px);
         }
         
@@ -300,7 +305,7 @@
         .filter-btn {
             padding: 8px 16px;
             background: #f8f9fa;
-            border: 2px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 500;
@@ -309,14 +314,14 @@
         }
         
         .filter-btn.active {
-            background: #1a2980;
+            background: #2d1b4a;
             color: white;
-            border-color: #1a2980;
+            border-color: #2d1b4a;
         }
         
         .filter-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 3px 8px rgba(107, 63, 160, 0.2);
         }
         
         .stats-grid {
@@ -330,19 +335,19 @@
             background: white;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border-left: 4px solid #1a2980;
+            box-shadow: 0 4px 12px rgba(107, 63, 160, 0.1);
+            border-left: 4px solid #6b3fa0;
             transition: transform 0.3s, box-shadow 0.3s;
         }
         
         .stat-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 20px rgba(107, 63, 160, 0.2);
         }
         
         .stat-card h4 {
             font-size: 14px;
-            color: #666;
+            color: #6b3fa0;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
@@ -352,7 +357,7 @@
         .stat-card .value {
             font-size: 28px;
             font-weight: 700;
-            color: #1a2980;
+            color: #2d1b4a;
             margin-bottom: 8px;
         }
         
@@ -370,25 +375,26 @@
         }
         
         .data-table th {
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             padding: 12px 6px;
             text-align: left;
             font-weight: 600;
-            color: #1a2980;
-            border-bottom: 2px solid #e1e5ee;
+            color: white;
+            border-bottom: 2px solid #d9c9f0;
             font-size: 12px;
             white-space: nowrap;
         }
         
         .data-table td {
             padding: 12px 6px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #d9c9f0;
             font-size: 12px;
             vertical-align: middle;
+            color: #2d1b4a;
         }
         
         .data-table tr:hover {
-            background: #f8f9fa;
+            background: #f5f0fa;
         }
         
         .status-badge {
@@ -400,11 +406,16 @@
         }
         
         .status-active {
-            background: #d4edda;
-            color: #155724;
+            background: #e6d9ff;
+            color: #2d1b4a;
         }
         
         .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-cancelled {
             background: #f8d7da;
             color: #721c24;
         }
@@ -429,8 +440,8 @@
         }
         
         .btn-view {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: #e6d9ff;
+            color: #2d1b4a;
         }
         
         .btn-edit {
@@ -444,13 +455,23 @@
         }
         
         .btn-download {
-            background: #e8f5e9;
-            color: #2e7d32;
+            background: #e6d9ff;
+            color: #2d1b4a;
+        }
+        
+        .btn-cancel {
+            background: #ffebee;
+            color: #d32f2f;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .btn-cancel:hover {
+            background: #ffcdd2;
         }
         
         .btn-cargar {
-            background: #e0f2fe;
-            color: #0284c7;
+            background: #e6d9ff;
+            color: #2d1b4a;
         }
         
         .btn-action:hover {
@@ -465,10 +486,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(45, 27, 74, 0.5);
             z-index: 2000;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(5px);
         }
         
         .modal.active {
@@ -483,6 +505,8 @@
             max-height: 90vh;
             overflow-y: auto;
             animation: modalSlide 0.3s ease;
+            border: 2px solid #9f7aea;
+            box-shadow: 0 20px 40px rgba(45, 27, 74, 0.3);
         }
         
         @keyframes modalSlide {
@@ -498,7 +522,7 @@
         
         .modal-header {
             padding: 18px 22px;
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             border-radius: 12px 12px 0 0;
             display: flex;
@@ -546,21 +570,21 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
-            color: #333;
+            color: #2d1b4a;
             font-size: 12px;
         }
         
         .form-control {
             width: 100%;
             padding: 8px 12px;
-            border: 2px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             border-radius: 6px;
             font-size: 13px;
         }
         
         .form-control:focus {
             outline: none;
-            border-color: #1a2980;
+            border-color: #6b3fa0;
         }
         
         .modal-actions {
@@ -568,13 +592,13 @@
             justify-content: flex-end;
             gap: 12px;
             padding: 15px 22px;
-            border-top: 1px solid #e1e5ee;
+            border-top: 1px solid #d9c9f0;
         }
         
         .btn-cancel {
             padding: 8px 18px;
             background: #f8f9fa;
-            border: 2px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             border-radius: 6px;
             color: #666;
             font-weight: 600;
@@ -589,7 +613,7 @@
         
         .btn-save {
             padding: 8px 18px;
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             border: none;
             border-radius: 6px;
             color: white;
@@ -601,7 +625,7 @@
         
         .btn-save:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(26, 41, 128, 0.2);
+            box-shadow: 0 4px 12px rgba(107, 63, 160, 0.3);
         }
         
         .info-grid {
@@ -612,7 +636,7 @@
         
         .info-label {
             font-weight: 600;
-            color: #555;
+            color: #2d1b4a;
             font-size: 12px;
             margin-bottom: 2px;
         }
@@ -620,18 +644,19 @@
         .info-value {
             margin-bottom: 12px;
             padding: 6px 10px;
-            background: #f8f9fa;
+            background: #f5f0fa;
             border-radius: 4px;
             font-size: 13px;
             word-break: break-word;
+            color: #2d1b4a;
         }
         
         .admin-footer {
             text-align: center;
             padding: 15px;
-            color: #666;
+            color: #6b3fa0;
             font-size: 12px;
-            border-top: 1px solid #e1e5ee;
+            border-top: 1px solid #d9c9f0;
             margin-top: 30px;
         }
         
@@ -651,13 +676,13 @@
             z-index: 10;
             padding: 4px;
             border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(107, 63, 160, 0.2);
         }
         
         .no-data {
             text-align: center;
             padding: 40px;
-            color: #666;
+            color: #6b3fa0;
             font-style: italic;
         }
 
@@ -665,12 +690,12 @@
             background: white;
             border-radius: 20px;
             padding: 30px 35px;
-            border: 1px solid rgba(255,255,255,0.6);
+            border: 2px solid #d9c9f0;
             margin-top: 20px;
         }
 
         .drd-header {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 50%, #9f7aea 100%);
             margin: -30px -35px 25px -35px;
             padding: 25px 35px;
             border-radius: 20px 20px 0 0;
@@ -689,7 +714,7 @@
 
         .title-section i {
             font-size: 32px;
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             padding: 12px;
             border-radius: 12px;
         }
@@ -709,7 +734,7 @@
         }
 
         .price-badge {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             padding: 12px 22px;
             border-radius: 40px;
             font-size: 18px;
@@ -718,15 +743,15 @@
             align-items: center;
             gap: 10px;
             backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .info-card {
-            background: #f8f9fa;
+            background: #f5f0fa;
             border-radius: 16px;
             padding: 20px 25px;
-            border: 1px solid #e1e5ee;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            border: 1px solid #d9c9f0;
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.1);
             margin-bottom: 30px;
         }
 
@@ -735,15 +760,15 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 18px;
-            color: #1a2980;
+            color: #2d1b4a;
             font-size: 18px;
             font-weight: 600;
-            border-bottom: 2px solid #e1e5ee;
+            border-bottom: 2px solid #d9c9f0;
             padding-bottom: 12px;
         }
 
         .info-header i {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             padding: 8px;
             border-radius: 10px;
@@ -758,15 +783,15 @@
             background: white;
             border-radius: 16px;
             margin-bottom: 30px;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.1);
         }
 
         .section-header {
-            background: linear-gradient(135deg, #f8f9fa 0%, #edf2f7 100%);
+            background: linear-gradient(135deg, #f5f0fa 0%, #e9d9ff 100%);
             padding: 18px 25px;
-            border-bottom: 1px solid #e1e5ee;
+            border-bottom: 2px solid #d9c9f0;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -774,17 +799,17 @@
 
         .section-header i {
             font-size: 20px;
-            color: #1a2980;
+            color: #2d1b4a;
             background: white;
             padding: 8px;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(107, 63, 160, 0.2);
         }
 
         .section-header h2 {
             font-size: 20px;
             font-weight: 600;
-            color: #1a2980;
+            color: #2d1b4a;
             margin: 0;
         }
 
@@ -800,7 +825,7 @@
             align-items: center;
             gap: 12px;
             padding: 10px 15px;
-            background: #f8f9fa;
+            background: #f5f0fa;
             border-radius: 10px;
             transition: all 0.2s;
             border: 1px solid transparent;
@@ -809,20 +834,21 @@
 
         .option-item:hover {
             background: white;
-            border-color: #26d0ce;
+            border-color: #9f7aea;
+            box-shadow: 0 2px 8px rgba(107, 63, 160, 0.2);
         }
 
         .option-item input[type="checkbox"] {
             width: 18px;
             height: 18px;
-            accent-color: #1a2980;
+            accent-color: #6b3fa0;
             cursor: pointer;
         }
 
         .option-item label {
             flex: 1;
             font-size: 15px;
-            color: #2d3748;
+            color: #2d1b4a;
             font-weight: 500;
             cursor: pointer;
             display: flex;
@@ -831,7 +857,7 @@
         }
 
         .price-tag {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             padding: 5px 14px;
             border-radius: 30px;
@@ -844,8 +870,8 @@
 
         .text-field-group {
             padding: 15px 25px 20px;
-            background: #f9fbfd;
-            border-top: 1px dashed #cbd5e0;
+            background: #f5f0fa;
+            border-top: 2px dashed #d9c9f0;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
@@ -861,7 +887,7 @@
 
         .text-field label {
             font-weight: 600;
-            color: #1a2980;
+            color: #2d1b4a;
             min-width: 130px;
             font-size: 14px;
         }
@@ -869,7 +895,7 @@
         .text-field input, .text-field textarea {
             flex: 1;
             padding: 10px 15px;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
             border-radius: 10px;
             font-size: 14px;
             background: white;
@@ -881,7 +907,7 @@
         }
 
         .total-container {
-            background: linear-gradient(135deg, #f8f9fa 0%, #edf2f7 100%);
+            background: linear-gradient(135deg, #f5f0fa 0%, #e9d9ff 100%);
             border-radius: 16px;
             padding: 25px 30px;
             margin-top: 30px;
@@ -889,7 +915,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
         }
 
         .total-box {
@@ -902,14 +928,14 @@
         .total-label {
             font-size: 22px;
             font-weight: 600;
-            color: #1a2980;
+            color: #2d1b4a;
             text-transform: uppercase;
         }
 
         .total-amount {
             font-size: 42px;
             font-weight: 800;
-            color: #1a2980;
+            color: #2d1b4a;
             letter-spacing: -1px;
             line-height: 1;
         }
@@ -917,11 +943,11 @@
         .total-amount small {
             font-size: 18px;
             font-weight: 500;
-            color: #4a5568;
+            color: #6b3fa0;
         }
 
         .btn-completar {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
             border: none;
             padding: 18px 45px;
@@ -933,12 +959,12 @@
             gap: 15px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 10px 25px rgba(26,41,128,0.2);
+            box-shadow: 0 10px 25px rgba(107, 63, 160, 0.3);
         }
         
         .btn-completar:hover {
             transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(26,41,128,0.3);
+            box-shadow: 0 15px 35px rgba(107, 63, 160, 0.4);
         }
         
         .btn-actualizar {
@@ -982,29 +1008,29 @@
         }
 
         .receta-header-info {
-            background: #f8f9fa;
+            background: #f5f0fa;
             padding: 15px 25px;
             border-radius: 12px;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #e1e5ee;
+            border: 2px solid #d9c9f0;
         }
 
         .folio-info {
             font-size: 16px;
             font-weight: 600;
-            color: #1a2980;
+            color: #2d1b4a;
         }
 
         .date-info {
             font-size: 14px;
-            color: #666;
+            color: #6b3fa0;
         }
         
         .doctor-select-btn {
-            background: #1a2980;
+            background: #2d1b4a;
             color: white;
             border: none;
             border-radius: 6px;
@@ -1016,7 +1042,7 @@
         }
         
         .doctor-select-btn:hover {
-            background: #26d0ce;
+            background: #6b3fa0;
             transform: translateY(-2px);
         }
         
@@ -1026,23 +1052,23 @@
         
         .doctor-item {
             padding: 12px 15px;
-            border-bottom: 1px solid #e1e5ee;
+            border-bottom: 1px solid #d9c9f0;
             cursor: pointer;
             transition: all 0.2s;
         }
         
         .doctor-item:hover {
-            background: #f0f7ff;
+            background: #f5f0fa;
         }
         
         .doctor-item.selected {
-            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
             color: white;
         }
         
         .doctor-id {
             font-weight: 600;
-            color: #1a2980;
+            color: #2d1b4a;
             margin-right: 10px;
         }
         
@@ -1053,16 +1079,17 @@
         .selected-doctor-info {
             margin-top: 10px;
             padding: 10px 15px;
-            background: #e8f5e9;
+            background: #e6d9ff;
             border-radius: 6px;
             font-size: 13px;
             display: flex;
             align-items: center;
             gap: 10px;
+            color: #2d1b4a;
         }
 
         .admin-badge {
-            background: #1a2980;
+            background: #2d1b4a;
             color: white;
             padding: 2px 8px;
             border-radius: 4px;
@@ -1079,9 +1106,9 @@
         }
         
         .message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+            background-color: #e6d9ff;
+            color: #2d1b4a;
+            border: 1px solid #9f7aea;
             display: block;
         }
         
@@ -1100,8 +1127,8 @@
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #1a2980;
+            border: 3px solid #f5f0fa;
+            border-top: 3px solid #6b3fa0;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -1116,8 +1143,8 @@
 
         .puntos-highlight {
             font-weight: 600;
-            color: #1a2980;
-            background: #e8f5e9;
+            color: #2d1b4a;
+            background: #e6d9ff;
             padding: 4px 8px;
             border-radius: 4px;
             text-align: center;
@@ -1142,6 +1169,170 @@
             flex-wrap: wrap;
         }
         
+        /* ============================================== */
+        /* ESTILOS PARA AGENDA Y CALENDARIO - MORADO */
+        /* ============================================== */
+        
+        #calendar-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #d9c9f0;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .calendar-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .calendar-title h2 {
+            font-size: 20px;
+            color: #2d1b4a;
+            margin: 0;
+        }
+        
+        .calendar-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .calendar-filter-select {
+            padding: 8px 12px;
+            border: 2px solid #d9c9f0;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+            min-width: 150px;
+            color: #2d1b4a;
+        }
+        
+        .calendar-filter-select:focus {
+            outline: none;
+            border-color: #6b3fa0;
+        }
+        
+        .refresh-calendar-btn {
+            background: #2d1b4a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 15px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .refresh-calendar-btn:hover {
+            background: #6b3fa0;
+            transform: translateY(-2px);
+        }
+        
+        #calendar {
+            min-height: 600px;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(107, 63, 160, 0.1);
+        }
+        
+        .fc-toolbar-title {
+            font-size: 18px !important;
+            color: #2d1b4a;
+        }
+        
+        .fc-button-primary {
+            background: #2d1b4a !important;
+            border-color: #2d1b4a !important;
+        }
+        
+        .fc-button-primary:hover {
+            background: #6b3fa0 !important;
+            border-color: #6b3fa0 !important;
+        }
+        
+        .fc-day-today {
+            background: rgba(159, 122, 234, 0.1) !important;
+        }
+        
+        .fc-event {
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: none !important;
+            padding: 2px 4px !important;
+        }
+        
+        .fc-event:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(107, 63, 160, 0.3);
+        }
+        
+        .event-pendiente {
+            background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%) !important;
+            border-left: 4px solid #e67e22 !important;
+        }
+        
+        .event-completado {
+            background: linear-gradient(135deg, #6b3fa0 0%, #9f7aea 100%) !important;
+            border-left: 4px solid #2d1b4a !important;
+        }
+        
+        .event-cancelado {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+            border-left: 4px solid #a71d2a !important;
+            opacity: 0.8;
+        }
+        
+        .day-summary {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px;
+        }
+        
+        .summary-item {
+            width: 100%;
+            padding: 3px;
+            margin: 1px 0;
+            border-radius: 3px;
+            font-size: 11px;
+            text-align: center;
+        }
+        
+        .summary-total {
+            background: #2d1b4a;
+            color: white;
+        }
+        
+        .summary-pendiente {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .summary-completado {
+            background: #6b3fa0;
+            color: white;
+        }
+        
+        .summary-cancelado {
+            background: #dc3545;
+            color: white;
+        }
+        
         @media (max-width: 1200px) {
             .admin-container {
                 flex-direction: column;
@@ -1154,6 +1345,19 @@
             
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .calendar-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .calendar-filters {
+                width: 100%;
+            }
+            
+            .calendar-filter-select {
+                flex: 1;
             }
         }
         
@@ -1195,6 +1399,15 @@
             .button-group {
                 flex-direction: column;
             }
+            
+            .fc-toolbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .fc-toolbar-title {
+                font-size: 16px !important;
+            }
         }
     </style>
 </head>
@@ -1206,7 +1419,7 @@
                     <i class="fas fa-x-ray"></i>
                 </div>
                 <div>
-                    <h1>Panel de Administración</h1>
+                    <h1>4Digital - Panel de Administración</h1>
                     <p>Sistema de Radiología Médica</p>
                 </div>
             </div>
@@ -1214,7 +1427,7 @@
             <div class="admin-user">
                 <div class="user-info">
                     <h3 id="adminName">Administrador Principal</h3>
-                    <p id="adminEmail">admin@radiologia.com</p>
+                    <p id="adminEmail">admin@4digital.com</p>
                 </div>
                 <button class="logout-btn" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> Cerrar
@@ -1227,13 +1440,17 @@
         <aside class="admin-sidebar">
             <nav class="admin-nav">
                 <div class="nav-title">Navegación</div>
-                <a href="#" class="nav-item active" onclick="showSection('dashboard', event)">
+                <a href="#" class="nav-item" onclick="showSection('dashboard', event)">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
                 <a href="#" class="nav-item" onclick="showSection('doctores', event)">
                     <i class="fas fa-user-md"></i>
                     <span>Gestión de Doctores</span>
+                </a>
+                <a href="#" class="nav-item active" onclick="showSection('agenda', event)">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Agenda</span>
                 </a>
                 <a href="#" class="nav-item" onclick="showSection('citas', event)">
                     <i class="fas fa-calendar-check"></i>
@@ -1257,9 +1474,9 @@
         </aside>
 
         <main class="admin-content">
-            <div id="dashboard-section" class="content-section">
+            <div id="dashboard-section" class="content-section" style="display: none;">
                 <div class="content-header">
-                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard 4Digital</h2>
                     <div class="search-box">
                         <input type="text" id="searchGlobal" placeholder="Buscar...">
                         <button class="search-btn" onclick="searchGlobal()">
@@ -1361,6 +1578,61 @@
                 </div>
             </div>
 
+            <!-- ============================================== -->
+            <!-- SECCIÓN: AGENDA CON CALENDARIO -->
+            <!-- ============================================== -->
+            
+            <div id="agenda-section" class="content-section" style="display: block;">
+                <div class="content-header">
+                    <h2><i class="fas fa-calendar-alt"></i> Agenda de Citas 4Digital</h2>
+                    <div class="search-box">
+                        <button class="refresh-calendar-btn" onclick="cargarEventosCalendario()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
+                </div>
+
+                <div id="calendar-section">
+                    <div class="calendar-header">
+                        <div class="calendar-title">
+                            <i class="fas fa-calendar-check" style="color: #2d1b4a; font-size: 24px;"></i>
+                            <h2>Calendario de Citas</h2>
+                        </div>
+                        
+                        <div class="calendar-filters">
+                            <select id="doctorFilter" class="calendar-filter-select" onchange="filtrarCalendarioPorDoctor()">
+                                <option value="todos">Todos los doctores</option>
+                            </select>
+                            
+                            <select id="estadoFilter" class="calendar-filter-select" onchange="filtrarCalendarioPorEstado()">
+                                <option value="todos">Todos los estados</option>
+                                <option value="activa">Activas</option>
+                                <option value="pendiente">Pendientes</option>
+                                <option value="completado">Completadas</option>
+                                <option value="cancelada">Canceladas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="calendar"></div>
+
+                    <div style="margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 15px; height: 15px; background: linear-gradient(135deg, #f39c12 0%, #f1c40f 100%); border-radius: 3px;"></div>
+                            <span style="font-size: 12px;">Pendiente</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 15px; height: 15px; background: linear-gradient(135deg, #6b3fa0 0%, #9f7aea 100%); border-radius: 3px;"></div>
+                            <span style="font-size: 12px;">Completado</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 15px; height: 15px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border-radius: 3px;"></div>
+                            <span style="font-size: 12px;">Cancelado</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div id="citas-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-calendar-check"></i> Gestión de Citas</h2>
@@ -1401,8 +1673,8 @@
                 <div class="content-header">
                     <h2><i class="fas fa-chart-bar"></i> Reportes</h2>
                 </div>
-                <div style="padding: 40px; text-align: center; color: #666;">
-                    <i class="fas fa-chart-pie" style="font-size: 48px; margin-bottom: 20px; color: #1a2980;"></i>
+                <div style="padding: 40px; text-align: center; color: #6b3fa0;">
+                    <i class="fas fa-chart-pie" style="font-size: 48px; margin-bottom: 20px; color: #2d1b4a;"></i>
                     <h3>Módulo de Reportes en Desarrollo</h3>
                     <p style="margin-top: 15px;">Próximamente podrá generar reportes detallados.</p>
                 </div>
@@ -1437,7 +1709,7 @@
                         <div class="title-section">
                             <i class="fas fa-cube"></i>
                             <div>
-                                <h1>Radiología Médica Avanzada
+                                <h1>4Digital - Radiología Médica
                                     <span>Formulario de prescripción / Receta virtual</span>
                                 </h1>
                             </div>
@@ -1484,7 +1756,7 @@
                             <div class="form-group">
                                 <label>Fecha de la cita *</label>
                                 <input type="date" class="form-control" id="fechaCita" required>
-                                <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                                <small style="color: #6b3fa0; font-size: 11px; display: block; margin-top: 5px;">
                                     <i class="fas fa-info-circle"></i> Lunes a Viernes 9:00 AM - 6:00 PM | Sábados 9:00 AM - 2:00 PM
                                 </small>
                             </div>
@@ -1504,17 +1776,17 @@
                             <div class="form-group">
                                 <label>Doctor asignado *</label>
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <input type="text" class="form-control" id="doctorSeleccionadoDisplay" placeholder="Seleccione un doctor..." readonly style="background-color: #f5f5f5;">
+                                    <input type="text" class="form-control" id="doctorSeleccionadoDisplay" placeholder="Seleccione un doctor..." readonly style="background-color: #f5f0fa;">
                                     <button type="button" class="doctor-select-btn" onclick="abrirSelectorDoctores()">
                                         <i class="fas fa-search"></i> Buscar
                                     </button>
                                 </div>
                                 <input type="hidden" id="doctorSeleccionadoId">
                                 <div id="selectedDoctorInfo" class="selected-doctor-info" style="display: none;">
-                                    <i class="fas fa-check-circle" style="color: #2e7d32;"></i>
+                                    <i class="fas fa-check-circle" style="color: #2d1b4a;"></i>
                                     <span id="selectedDoctorNombre"></span> (<span id="selectedDoctorId"></span>)
                                 </div>
-                                <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                                <small style="color: #6b3fa0; font-size: 11px; display: block; margin-top: 5px;">
                                     <i class="fas fa-info-circle"></i> Seleccione el doctor que realizará el estudio
                                 </small>
                             </div>
@@ -1712,7 +1984,7 @@
 
                     <div class="total-container">
                         <div class="total-box">
-                            <span class="total-label"><i class="fas fa-calculator" style="color: #26d0ce;"></i> TOTAL ESTUDIOS:</span>
+                            <span class="total-label"><i class="fas fa-calculator" style="color: #9f7aea;"></i> TOTAL ESTUDIOS:</span>
                             <span class="total-amount" id="totalAmount">$0.00</span>
                         </div>
                         <div class="button-group" id="recetaButtons">
@@ -1728,8 +2000,8 @@
                         </div>
                     </div>
                     
-                    <div style="text-align: right; margin-top: 15px; color: #718096; font-size: 13px;">
-                        <i class="fas fa-file-signature"></i> Radiología Médica Avanzada · Precios con IVA incluido
+                    <div style="text-align: right; margin-top: 15px; color: #6b3fa0; font-size: 13px;">
+                        <i class="fas fa-file-signature"></i> 4Digital - Radiología Médica · Precios con IVA incluido
                     </div>
                 </div>
             </div>
@@ -1737,7 +2009,7 @@
     </div>
 
     <footer class="admin-footer">
-        <p>Sistema de Radiología Médica - Panel de Administración</p>
+        <p>4Digital - Sistema de Radiología Médica · Panel de Administración</p>
         <p>Última actualización: <span id="lastUpdate">Cargando...</span></p>
     </footer>
 
@@ -1924,7 +2196,7 @@
                 <div style="margin-bottom: 15px;">
                     <input type="text" id="searchDoctoresSelector" class="form-control" placeholder="Buscar doctor..." onkeyup="filtrarDoctoresSelector()">
                 </div>
-                <div id="doctoresListContainer" style="max-height: 300px; overflow-y: auto; border: 1px solid #e1e5ee; border-radius: 6px;">
+                <div id="doctoresListContainer" style="max-height: 300px; overflow-y: auto; border: 1px solid #d9c9f0; border-radius: 6px;">
                     <div style="text-align: center; padding: 20px;" id="doctoresListLoading">
                         <i class="fas fa-spinner fa-spin"></i> Cargando doctores...
                     </div>
@@ -1938,13 +2210,61 @@
         </div>
     </div>
 
+    <div id="cancelarCitaModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                <h3><i class="fas fa-times-circle"></i> Cancelar Cita</h3>
+                <button class="close-modal" onclick="closeModal('cancelarCitaModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="cancelarCitaMessage" style="padding: 20px; text-align: center; font-size: 16px;">
+                    ¿Está seguro que desea cancelar esta cita?
+                </p>
+                <p style="text-align: center; color: #666; font-size: 14px; margin-top: -10px;">
+                    Esta acción no se puede deshacer.
+                </p>
+                <div style="margin-top: 15px; padding: 15px; background: #f5f0fa; border-radius: 8px;">
+                    <p><strong>Folio:</strong> <span id="cancelarFolio"></span></p>
+                    <p><strong>Paciente:</strong> <span id="cancelarPaciente"></span></p>
+                    <p><strong>Doctor:</strong> <span id="cancelarDoctor"></span></p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('cancelarCitaModal')">Volver</button>
+                <button class="btn-save" style="background: #dc3545;" onclick="confirmarCancelarCita()">
+                    <i class="fas fa-times"></i> Sí, Cancelar Cita
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="eventoDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);">
+                <h3><i class="fas fa-calendar-check"></i> Detalles de la Cita</h3>
+                <button class="close-modal" onclick="closeModal('eventoDetailModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="eventoDetailContent"></div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('eventoDetailModal')">Cerrar</button>
+                <button class="btn-save" id="eventoDownloadPdfBtn" onclick="descargarPDFEvento()">Descargar PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script>
         let currentUserToDelete = null;
         let currentUserToDeleteType = null;
         let currentUserToEdit = null;
-        let currentSection = 'dashboard';
+        let currentSection = 'agenda';
         let allDoctores = [];
+        let allCitas = [];
         let currentCitaIdForModal = null;
+        let currentCitaIdToCancel = null;
         let doctoresList = [];
         let doctorSeleccionadoTemp = null;
         let adminInfo = {
@@ -1952,16 +2272,17 @@
             nombre: 'Administrador'
         };
         let citaEditando = null;
+        let calendar = null;
 
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Admin panel cargado');
+            console.log('4Digital - Admin panel cargado');
             loadAdminStats();
             loadActivityLog();
             loadDoctores();
             loadAllCitas();
             
             const adminName = localStorage.getItem('adminName') || 'Administrador Principal';
-            const adminEmail = localStorage.getItem('adminEmail') || 'admin@radiologia.com';
+            const adminEmail = localStorage.getItem('adminEmail') || 'admin@4digital.com';
             document.getElementById('adminName').textContent = adminName;
             document.getElementById('adminEmail').textContent = adminEmail;
             
@@ -1972,6 +2293,13 @@
 
             actualizarFechaHora();
             setInterval(actualizarFechaHora, 1000);
+            
+            // Inicializar calendario
+            setTimeout(() => {
+                if (document.getElementById('calendar')) {
+                    initCalendar();
+                }
+            }, 500);
         });
 
         function actualizarFechaHora() {
@@ -2014,6 +2342,245 @@
                 loadDoctores();
             } else if (sectionId === 'citas') {
                 loadAllCitas();
+            } else if (sectionId === 'agenda') {
+                setTimeout(() => {
+                    if (calendar) {
+                        calendar.render();
+                    } else {
+                        initCalendar();
+                    }
+                    cargarEventosCalendario();
+                }, 100);
+            }
+        }
+
+        // ==============================================
+        // FUNCIONES PARA CALENDARIO
+        // ==============================================
+        
+        function initCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return;
+            
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día'
+                },
+                events: [],
+                eventClick: function(info) {
+                    mostrarDetalleEvento(info.event);
+                },
+                dayMaxEvents: true,
+                eventTimeFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                },
+                loading: function(isLoading) {
+                    console.log('Cargando calendario...', isLoading);
+                }
+            });
+            
+            calendar.render();
+            cargarEventosCalendario();
+        }
+        
+        async function cargarEventosCalendario() {
+            try {
+                console.log('Cargando eventos para calendario...');
+                const response = await fetch('/api/citas');
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                allCitas = await response.json();
+                console.log('Citas cargadas para calendario:', allCitas.length);
+                
+                // Actualizar filtro de doctores
+                actualizarFiltroDoctores();
+                
+                // Aplicar filtros actuales
+                filtrarCalendario();
+                
+            } catch (error) {
+                console.error('Error cargando citas para calendario:', error);
+            }
+        }
+        
+        function actualizarFiltroDoctores() {
+            const doctorFilter = document.getElementById('doctorFilter');
+            if (!doctorFilter) return;
+            
+            // Mantener la opción "Todos"
+            const currentValue = doctorFilter.value;
+            doctorFilter.innerHTML = '<option value="todos">Todos los doctores</option>';
+            
+            // Obtener doctores únicos de las citas
+            const doctoresUnicos = new Set();
+            allCitas.forEach(cita => {
+                if (cita.doctor_nombre && cita.doctor_nombre !== 'Administrador') {
+                    doctoresUnicos.add(cita.doctor_nombre);
+                }
+            });
+            
+            // Agregar opciones de doctores
+            Array.from(doctoresUnicos).sort().forEach(doctor => {
+                const option = document.createElement('option');
+                option.value = doctor;
+                option.textContent = doctor;
+                doctorFilter.appendChild(option);
+            });
+            
+            // Restaurar valor seleccionado si existe
+            if (currentValue && currentValue !== 'todos') {
+                doctorFilter.value = currentValue;
+            }
+        }
+        
+        function filtrarCalendarioPorDoctor() {
+            filtrarCalendario();
+        }
+        
+        function filtrarCalendarioPorEstado() {
+            filtrarCalendario();
+        }
+        
+        function filtrarCalendario() {
+            if (!calendar) return;
+            
+            const doctorSeleccionado = document.getElementById('doctorFilter')?.value || 'todos';
+            const estadoSeleccionado = document.getElementById('estadoFilter')?.value || 'todos';
+            
+            // Filtrar citas
+            let citasFiltradas = allCitas;
+            
+            if (doctorSeleccionado !== 'todos') {
+                citasFiltradas = citasFiltradas.filter(cita => cita.doctor_nombre === doctorSeleccionado);
+            }
+            
+            if (estadoSeleccionado !== 'todos') {
+                if (estadoSeleccionado === 'activa') {
+                    citasFiltradas = citasFiltradas.filter(cita => 
+                        !cita.tiene_resultado && !cita.estado?.includes('cancelada')
+                    );
+                } else if (estadoSeleccionado === 'pendiente') {
+                    citasFiltradas = citasFiltradas.filter(cita => 
+                        !cita.tiene_resultado && !cita.estado?.includes('cancelada')
+                    );
+                } else if (estadoSeleccionado === 'completado') {
+                    citasFiltradas = citasFiltradas.filter(cita => cita.tiene_resultado);
+                } else if (estadoSeleccionado === 'cancelada') {
+                    citasFiltradas = citasFiltradas.filter(cita => cita.estado?.includes('cancelada'));
+                }
+            }
+            
+            // Convertir a eventos de FullCalendar
+            const eventos = citasFiltradas.map(cita => {
+                let fechaStr = cita.fecha_cita;
+                if (fechaStr && fechaStr.includes('/')) {
+                    const partes = fechaStr.split('/');
+                    fechaStr = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                }
+                
+                const fecha = fechaStr || cita.fecha || new Date().toISOString().split('T')[0];
+                const hora = cita.hora_cita || '09:00';
+                
+                let fechaHora = `${fecha}T${hora}:00`;
+                
+                // Determinar clase del evento
+                let className = 'event-pendiente';
+                if (cita.tiene_resultado) {
+                    className = 'event-completado';
+                } else if (cita.estado?.includes('cancelada')) {
+                    className = 'event-cancelado';
+                }
+                
+                // Crear título del evento
+                let estado = cita.tiene_resultado ? '✓' : (cita.estado?.includes('cancelada') ? '✗' : '⏳');
+                let titulo = `${estado} ${cita.paciente} - ${cita.doctor_nombre || 'Admin'}`;
+                
+                return {
+                    id: cita.id_cita,
+                    title: titulo,
+                    start: fechaHora,
+                    end: fechaHora,
+                    allDay: false,
+                    className: className,
+                    extendedProps: {
+                        folio: cita.numero_folio,
+                        paciente: cita.paciente,
+                        doctor: cita.doctor_nombre,
+                        total: cita.total_estudio,
+                        tienePDF: cita.tiene_pdf,
+                        tieneResultado: cita.tiene_resultado,
+                        estado: cita.tiene_resultado ? 'completado' : (cita.estado?.includes('cancelada') ? 'cancelada' : 'pendiente')
+                    }
+                };
+            });
+            
+            calendar.removeAllEvents();
+            calendar.addEventSource(eventos);
+        }
+        
+        function mostrarDetalleEvento(event) {
+            const props = event.extendedProps;
+            
+            let estadoClass = 'status-active';
+            let estadoTexto = 'Pendiente';
+            
+            if (props.tieneResultado) {
+                estadoClass = 'status-active';
+                estadoTexto = 'Completado';
+            } else if (props.estado === 'cancelada') {
+                estadoClass = 'status-cancelled';
+                estadoTexto = 'Cancelada';
+            }
+            
+            const fecha = new Date(event.start);
+            const fechaFormateada = fecha.toLocaleDateString('es-MX', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const horaFormateada = fecha.toLocaleTimeString('es-MX', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const content = `
+                <div style="padding: 10px;">
+                    <div style="background: #f5f0fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <p><strong>Folio:</strong> ${props.folio || 'N/A'}</p>
+                        <p><strong>Paciente:</strong> ${props.paciente || 'N/A'}</p>
+                        <p><strong>Doctor:</strong> ${props.doctor || 'Administrador'}</p>
+                        <p><strong>Fecha:</strong> ${fechaFormateada}</p>
+                        <p><strong>Hora:</strong> ${horaFormateada}</p>
+                        <p><strong>Total:</strong> $${props.total ? props.total.toFixed(2) : '0.00'}</p>
+                        <p><strong>Estado:</strong> <span class="status-badge ${estadoClass}">${estadoTexto}</span></p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('eventoDetailContent').innerHTML = content;
+            currentCitaIdForModal = event.id;
+            document.getElementById('eventoDetailModal').classList.add('active');
+        }
+        
+        function descargarPDFEvento() {
+            if (currentCitaIdForModal) {
+                descargarPDFCita(currentCitaIdForModal);
             }
         }
 
@@ -2318,7 +2885,7 @@
         }
 
         // ==============================================
-        // FUNCIÓN MODIFICADA: loadAllCitas - Cambia el botón de editar
+        // FUNCIÓN MODIFICADA: loadAllCitas - Añade botón de cancelar
         // ==============================================
         
         async function loadAllCitas() {
@@ -2330,19 +2897,19 @@
                     throw new Error(`Error HTTP: ${response.status}`);
                 }
                 
-                const citas = await response.json();
-                console.log('Citas cargadas:', citas.length);
+                allCitas = await response.json();
+                console.log('Citas cargadas:', allCitas.length);
                 
                 const table = document.getElementById('citasTable');
                 
-                if (!citas || citas.length === 0) {
+                if (!allCitas || allCitas.length === 0) {
                     table.innerHTML = `<tr><td colspan="8" class="no-data">No hay citas registradas</td></tr>`;
                     return;
                 }
                 
                 table.innerHTML = '';
                 
-                citas.forEach(cita => {
+                allCitas.forEach(cita => {
                     const row = document.createElement('tr');
                     
                     let fechaDisplay = cita.fecha_cita || cita.fecha || 'N/A';
@@ -2379,7 +2946,10 @@
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 <button class="btn-action btn-edit" onclick="mostrarOpcionesEdicion('${citaId}')" title="Editar">
-                                    <i class="fas fa-edit"></i> Editar
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-action btn-delete" onclick="mostrarModalCancelarCita('${citaId}', '${folio}', '${paciente.replace(/'/g, "\\'")}', '${doctorNombre.replace(/'/g, "\\'")}')" title="Cancelar Cita">
+                                    <i class="fas fa-times-circle"></i> Cancelar
                                 </button>
                             </div>
                         </td>
@@ -2392,7 +2962,7 @@
                 const table = document.getElementById('citasTable');
                 table.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px; color: #dc3545;">
                     <i class="fas fa-exclamation-triangle"></i> Error al cargar citas: ${error.message}
-                    <br><button onclick="loadAllCitas()" style="margin-top: 10px; padding: 5px 15px; background: #1a2980; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    <br><button onclick="loadAllCitas()" style="margin-top: 10px; padding: 5px 15px; background: #2d1b4a; color: white; border: none; border-radius: 4px; cursor: pointer;">
                         <i class="fas fa-sync-alt"></i> Reintentar
                     </button>
                 </td></tr>`;
@@ -2400,7 +2970,78 @@
         }
 
         // ==============================================
-        // NUEVA FUNCIÓN: mostrarOpcionesEdicion
+        // NUEVAS FUNCIONES PARA CANCELAR CITA
+        // ==============================================
+        
+        function mostrarModalCancelarCita(citaId, folio, paciente, doctor) {
+            console.log('Mostrando modal cancelar cita:', citaId);
+            currentCitaIdToCancel = citaId;
+            
+            document.getElementById('cancelarFolio').textContent = folio;
+            document.getElementById('cancelarPaciente').textContent = paciente;
+            document.getElementById('cancelarDoctor').textContent = doctor;
+            
+            document.getElementById('cancelarCitaModal').classList.add('active');
+        }
+
+        async function confirmarCancelarCita() {
+            if (!currentCitaIdToCancel) {
+                alert('Error: No se identificó la cita a cancelar');
+                closeModal('cancelarCitaModal');
+                return;
+            }
+            
+            try {
+                console.log('Cancelando cita ID:', currentCitaIdToCancel);
+                
+                // Mostrar indicador de carga
+                const cancelBtn = document.querySelector('#cancelarCitaModal .btn-save');
+                const originalText = cancelBtn.innerHTML;
+                cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelando...';
+                cancelBtn.disabled = true;
+                
+                const response = await fetch('/api/cancelar-cita', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cita_id: currentCitaIdToCancel
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Respuesta cancelación:', result);
+                
+                // Restaurar botón
+                cancelBtn.innerHTML = originalText;
+                cancelBtn.disabled = false;
+                
+                if (result.success) {
+                    alert('Cita cancelada exitosamente');
+                    closeModal('cancelarCitaModal');
+                    loadAllCitas(); // Recargar lista de citas
+                    cargarEventosCalendario(); // Recargar calendario
+                    loadAdminStats(); // Actualizar estadísticas
+                } else {
+                    alert('Error al cancelar la cita: ' + (result.message || 'Error desconocido'));
+                }
+                
+            } catch (error) {
+                console.error('Error cancelando cita:', error);
+                alert('Error de conexión al cancelar la cita');
+                
+                // Restaurar botón
+                const cancelBtn = document.querySelector('#cancelarCitaModal .btn-save');
+                if (cancelBtn) {
+                    cancelBtn.innerHTML = '<i class="fas fa-times"></i> Sí, Cancelar Cita';
+                    cancelBtn.disabled = false;
+                }
+            }
+        }
+
+        // ==============================================
+        // FUNCIÓN: mostrarOpcionesEdicion
         // ==============================================
         
         function mostrarOpcionesEdicion(citaId) {
@@ -2414,7 +3055,7 @@
                 opcionesModal.className = 'modal';
                 opcionesModal.innerHTML = `
                     <div class="modal-content" style="max-width: 500px;">
-                        <div class="modal-header" style="background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);">
                             <h3><i class="fas fa-edit"></i> Opciones de Edición</h3>
                             <button class="close-modal" onclick="closeModal('opcionesEdicionModal')">&times;</button>
                         </div>
@@ -2425,7 +3066,7 @@
                                 <button class="btn-save" id="opcionFechaHora" style="padding: 15px; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
                                     <i class="fas fa-calendar-alt"></i> Solo Fecha y Hora
                                 </button>
-                                <button class="btn-save" id="opcionFormularioCompleto" style="padding: 15px; font-size: 16px; background: linear-gradient(135deg, #26d0ce 0%, #1a2980 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                <button class="btn-save" id="opcionFormularioCompleto" style="padding: 15px; font-size: 16px; background: linear-gradient(135deg, #9f7aea 0%, #6b3fa0 100%); display: flex; align-items: center; justify-content: center; gap: 10px;">
                                     <i class="fas fa-file-alt"></i> Formulario Completo
                                 </button>
                             </div>
@@ -2477,7 +3118,7 @@
         }
 
         // ==============================================
-        // NUEVA FUNCIÓN: mostrarModalEditarFechaHora
+        // FUNCIÓN: mostrarModalEditarFechaHora
         // ==============================================
         
         function mostrarModalEditarFechaHora(citaId) {
@@ -2502,7 +3143,7 @@
                                 <div class="modal-body" style="padding: 25px;">
                                     <div id="editFechaHoraMessage" class="message" style="display: none;"></div>
                                     
-                                    <div class="info-card" style="background: #f0f7ff; padding: 15px; margin-bottom: 20px;">
+                                    <div class="info-card" style="background: #f5f0fa; padding: 15px; margin-bottom: 20px;">
                                         <p><strong>Paciente:</strong> <span id="editPacienteNombre"></span></p>
                                         <p><strong>Folio:</strong> <span id="editFolioNumero"></span></p>
                                         <p><strong>Doctor:</strong> <span id="editDoctorNombre"></span></p>
@@ -2513,7 +3154,7 @@
                                     <div class="form-group">
                                         <label>Nueva Fecha de la Cita *</label>
                                         <input type="date" class="form-control" id="editFechaCita" required>
-                                        <small style="color: #666; font-size: 11px; display: block; margin-top: 5px;">
+                                        <small style="color: #6b3fa0; font-size: 11px; display: block; margin-top: 5px;">
                                             <i class="fas fa-info-circle"></i> Lunes a Viernes 9:00 AM - 6:00 PM | Sábados 9:00 AM - 2:00 PM
                                         </small>
                                     </div>
@@ -2581,7 +3222,7 @@
         }
 
         // ==============================================
-        // NUEVA FUNCIÓN: generarHorasDisponiblesModal
+        // FUNCIÓN: generarHorasDisponiblesModal
         // ==============================================
         
         function generarHorasDisponiblesModal(fecha, horaSeleccionada) {
@@ -2633,7 +3274,7 @@
         }
 
         // ==============================================
-        // NUEVA FUNCIÓN: guardarEdicionFechaHora
+        // FUNCIÓN: guardarEdicionFechaHora
         // ==============================================
         
         async function guardarEdicionFechaHora(citaId) {
@@ -2682,6 +3323,7 @@
                     setTimeout(() => {
                         closeModal('editarFechaHoraModal');
                         loadAllCitas(); // Recargar lista de citas
+                        cargarEventosCalendario(); // Recargar calendario
                     }, 1500);
                 } else {
                     messageEl.className = 'message error';
@@ -3358,7 +4000,7 @@
                             <div class="info-value">${user.direccion_consultorio || 'N/A'}</div>
                             
                             <div class="info-label">Puntos:</div>
-                            <div class="info-value puntos-highlight" style="background: #e8f5e9; text-align: center;">${user.puntos || '0'}</div>
+                            <div class="info-value puntos-highlight" style="background: #e6d9ff; text-align: center;">${user.puntos || '0'}</div>
                             
                             <div class="info-label">Fecha Registro:</div>
                             <div class="info-value">${user.fecha_registro || 'N/A'}</div>
@@ -3635,6 +4277,12 @@
             if (modalId === 'citaDetailModal') {
                 currentCitaIdForModal = null;
             }
+            if (modalId === 'cancelarCitaModal') {
+                currentCitaIdToCancel = null;
+            }
+            if (modalId === 'eventoDetailModal') {
+                currentCitaIdForModal = null;
+            }
             if (modalId === 'doctorSelectorModal') {
                 doctorSeleccionadoTemp = null;
             }
@@ -3705,6 +4353,11 @@
         window.generarCitaAdmin = generarCitaAdmin;
         window.closeModal = closeModal;
         window.logout = logout;
+        window.mostrarModalCancelarCita = mostrarModalCancelarCita;
+        window.confirmarCancelarCita = confirmarCancelarCita;
+        window.cargarEventosCalendario = cargarEventosCalendario;
+        window.filtrarCalendarioPorDoctor = filtrarCalendarioPorDoctor;
+        window.filtrarCalendarioPorEstado = filtrarCalendarioPorEstado;
     </script>
 </body>
 </html>
