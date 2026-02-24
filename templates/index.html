@@ -3255,19 +3255,53 @@
                 }
             }
             
+            // Obtener el nombre del archivo del header Content-Disposition
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = `Resultado_${folio || 'sin_folio'}_${(paciente || 'Paciente').replace(/\s+/g, '_')}`;
+            
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (filenameMatch && filenameMatch[1]) {
+                    filename = filenameMatch[1].replace(/['"]/g, '');
+                }
+            } else {
+                // Si no hay Content-Disposition, determinar extensión del Content-Type
+                const contentType = response.headers.get('content-type');
+                if (contentType) {
+                    if (contentType.includes('zip')) {
+                        filename += '.zip';
+                    } else if (contentType.includes('pdf')) {
+                        filename += '.pdf';
+                    } else if (contentType.includes('jpeg') || contentType.includes('jpg')) {
+                        filename += '.jpg';
+                    } else if (contentType.includes('png')) {
+                        filename += '.png';
+                    } else {
+                        filename += '.bin';
+                    }
+                } else {
+                    filename += '.bin';
+                }
+            }
+            
+            // Obtener el blob de la respuesta
             const blob = await response.blob();
             
             if (blob.size === 0) {
-                throw new Error('El archivo de resultado está vacío');
+                throw new Error('El archivo está vacío');
             }
             
+            console.log(`📦 Archivo recibido: ${filename}, tamaño: ${blob.size} bytes, tipo: ${blob.type}`);
+            
+            // Crear URL del blob y descargar
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `Resultado_${folio || 'sin_folio'}_${(paciente || 'Paciente').replace(/\s+/g, '_')}.pdf`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             
+            // Limpiar
             setTimeout(() => {
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);

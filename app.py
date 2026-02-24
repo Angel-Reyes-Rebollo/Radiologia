@@ -1,4 +1,4 @@
-# app.py - VERSIÓN COMPLETA CORREGIDA - CON SERIALIZACIÓN JSON ADECUADA
+# app.py - VERSIÓN COMPLETA CON GESTIÓN DE RESULTADOS Y ELIMINACIÓN PROGRAMADA
 import base64
 import io
 import json
@@ -113,6 +113,20 @@ class CustomHandler(SimpleHTTPRequestHandler):
             if self.path == '/api/citas':
                 self.handle_get_all_citas()
                 return
+            
+            # ==============================================
+            # NUEVA RUTA: CITAS A ELIMINAR
+            # ==============================================
+            if self.path == '/api/citas-eliminar':
+                self.handle_get_citas_eliminar()
+                return
+            
+            # ==============================================
+            # NUEVA RUTA: CITAS SIN RESULTADO PARA GESTIÓN DE RESULTADOS
+            # ==============================================
+            if self.path == '/api/citas-sin-resultado':
+                self.handle_get_citas_sin_resultado()
+                return
                 
             # RUTA PARA OBTENER DETALLES DE UNA CITA ESPECÍFICA
             if self.path.startswith('/api/cita/'):
@@ -166,6 +180,16 @@ class CustomHandler(SimpleHTTPRequestHandler):
         # AGREGADO: Endpoint para cancelar cita
         elif self.path == '/api/cancelar-cita':
             self.handle_cancelar_cita()
+        # AGREGADO: Endpoint para entregar resultado (con cálculo de puntos)
+        elif self.path == '/api/entregar-resultado':
+            self.handle_entregar_resultado()
+        # ==============================================
+        # NUEVO: Endpoint para programar eliminación
+        # ==============================================
+        elif self.path == '/api/programar-eliminacion':
+            self.handle_programar_eliminacion()
+        elif self.path == '/api/cancelar-eliminacion':
+            self.handle_cancelar_eliminacion()
         else:
             self.send_error(404)
     
@@ -177,7 +201,388 @@ class CustomHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(data, cls=CustomJSONEncoder).encode())
     
     # ==============================================
-    # NUEVA FUNCIÓN: CANCELAR/ELIMINAR CITA
+    # NUEVAS FUNCIONES: ELIMINACIÓN PROGRAMADA
+    # ==============================================
+    
+    def handle_get_citas_eliminar(self):
+        """Obtener todas las citas programadas para eliminar"""
+        try:
+            print(f"[API] Obteniendo citas programadas para eliminar")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            # Verificar si existe la columna fecha_eliminacion
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'fecha_eliminacion'")
+            if not cursor.fetchone():
+                # Si no existe, crear la columna
+                cursor.execute("ALTER TABLE citas ADD COLUMN fecha_eliminacion DATE NULL")
+                db.commit()
+                print("[API] Columna fecha_eliminacion creada exitosamente")
+            
+            cursor.execute("""
+                SELECT 
+                    c.id_cita,
+                    c.numero_folio,
+                    c.paciente,
+                    COALESCE(d.nombre, 'Administrador') as doctor_nombre,
+                    c.doctor_id,
+                    DATE_FORMAT(c.fecha_cita, '%d/%m/%Y') as fecha_cita,
+                    TIME_FORMAT(c.hora_cita, '%H:%i') as hora_cita,
+                    CAST(c.total_estudio AS DECIMAL(10,2)) as total_estudio,
+                    CASE WHEN c.resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado,
+                    DATE_FORMAT(c.fecha_eliminacion, '%d/%m/%Y') as fecha_eliminacion_formateada,
+                    c.fecha_eliminacion
+                FROM citas c
+                LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
+                WHERE c.fecha_eliminacion IS NOT NULL
+                ORDER BY c.fecha_eliminacion ASC, c.fecha_cita DESC
+            """)
+            
+            citas = cursor.fetchall()
+            print(f"[API] Se encontraron {len(citas)} citas programadas para eliminar")
+            
+            # Convertir total_estudio a float
+            for cita in citas:
+                if cita['total_estudio'] is None:
+                    cita['total_estudio'] = 0.00
+                else:
+                    cita['total_estudio'] = float(cita['total_estudio'])
+            
+            cursor.close()
+            db.close()
+            
+            self.send_json_response(citas, 200)
+            
+        except Exception as e:
+            print(f"Error obteniendo citas a eliminar: {str(e)}")
+            self.send_json_response({'error': str(e)}, 500)
+    
+    def handle_programar_eliminacion(self):
+        """Programar una fecha de eliminación para una cita"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+            
+            cita_id = data.get('cita_id')
+            fecha_eliminacion = data.get('fecha_eliminacion')
+            
+            if not cita_id or not fecha_eliminacion:
+                raise ValueError("Faltan datos requeridos")
+            
+            print(f"[ELIMINACION] Programando eliminación para cita ID: {cita_id}, fecha: {fecha_eliminacion}")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            # Verificar que la cita existe
+            cursor.execute("""
+                SELECT id_cita, numero_folio, paciente, doctor_id
+                FROM citas 
+                WHERE id_cita = %s
+            """, (cita_id,))
+            
+            cita = cursor.fetchone()
+            
+            if not cita:
+                cursor.close()
+                db.close()
+                response = {
+                    'success': False,
+                    'message': 'La cita no existe'
+                }
+                self.send_json_response(response, 404)
+                return
+            
+            # Verificar si existe la columna fecha_eliminacion
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'fecha_eliminacion'")
+            if not cursor.fetchone():
+                cursor.execute("ALTER TABLE citas ADD COLUMN fecha_eliminacion DATE NULL")
+                db.commit()
+                print("[API] Columna fecha_eliminacion creada durante la operación")
+            
+            # Actualizar la cita con la fecha de eliminación
+            cursor.execute("""
+                UPDATE citas 
+                SET fecha_eliminacion = %s
+                WHERE id_cita = %s
+            """, (fecha_eliminacion, cita_id))
+            
+            db.commit()
+            
+            # Registrar en log de actividad
+            self.registrar_actividad_admin(
+                usuario_id='ADMIN',
+                accion='PROGRAMAR_ELIMINACION',
+                detalles=f'Eliminación programada para cita {cita["numero_folio"]} - Paciente: {cita["paciente"]} - Fecha: {fecha_eliminacion}'
+            )
+            
+            cursor.close()
+            db.close()
+            
+            response = {
+                'success': True,
+                'message': 'Eliminación programada exitosamente',
+                'cita_id': cita_id,
+                'fecha_eliminacion': fecha_eliminacion
+            }
+            
+            self.send_json_response(response, 200)
+            
+        except Exception as e:
+            print(f"Error programando eliminación: {str(e)}")
+            response = {
+                'success': False,
+                'message': f'Error del servidor: {str(e)}'
+            }
+            self.send_json_response(response, 500)
+    
+    def handle_cancelar_eliminacion(self):
+        """Cancelar la eliminación programada de una cita"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+            
+            cita_id = data.get('cita_id')
+            
+            if not cita_id:
+                raise ValueError("ID de cita no proporcionado")
+            
+            print(f"[ELIMINACION] Cancelando eliminación para cita ID: {cita_id}")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            # Verificar que la cita existe
+            cursor.execute("""
+                SELECT id_cita, numero_folio, paciente, doctor_id
+                FROM citas 
+                WHERE id_cita = %s
+            """, (cita_id,))
+            
+            cita = cursor.fetchone()
+            
+            if not cita:
+                cursor.close()
+                db.close()
+                response = {
+                    'success': False,
+                    'message': 'La cita no existe'
+                }
+                self.send_json_response(response, 404)
+                return
+            
+            # Eliminar la fecha de eliminación
+            cursor.execute("""
+                UPDATE citas 
+                SET fecha_eliminacion = NULL
+                WHERE id_cita = %s
+            """, (cita_id,))
+            
+            db.commit()
+            
+            # Registrar en log de actividad
+            self.registrar_actividad_admin(
+                usuario_id='ADMIN',
+                accion='CANCELAR_ELIMINACION',
+                detalles=f'Eliminación cancelada para cita {cita["numero_folio"]} - Paciente: {cita["paciente"]}'
+            )
+            
+            cursor.close()
+            db.close()
+            
+            response = {
+                'success': True,
+                'message': 'Eliminación cancelada exitosamente',
+                'cita_id': cita_id
+            }
+            
+            self.send_json_response(response, 200)
+            
+        except Exception as e:
+            print(f"Error cancelando eliminación: {str(e)}")
+            response = {
+                'success': False,
+                'message': f'Error del servidor: {str(e)}'
+            }
+            self.send_json_response(response, 500)
+    
+    # ==============================================
+    # FUNCIÓN PARA OBTENER CITAS SIN RESULTADO
+    # ==============================================
+    
+    def handle_get_citas_sin_resultado(self):
+        """Obtener todas las citas que aún no tienen resultado cargado"""
+        try:
+            print(f"[API] Obteniendo citas sin resultado")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            cursor.execute("""
+                SELECT 
+                    c.id_cita,
+                    c.numero_folio,
+                    c.paciente,
+                    COALESCE(d.nombre, 'Administrador') as doctor_nombre,
+                    c.doctor_id,
+                    DATE_FORMAT(c.fecha_cita, '%d/%m/%Y') as fecha_cita,
+                    TIME_FORMAT(c.hora_cita, '%H:%i') as hora_cita,
+                    CAST(c.total_estudio AS DECIMAL(10,2)) as total_estudio,
+                    CASE WHEN c.resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado,
+                    c.documento_nombre
+                FROM citas c
+                LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
+                WHERE c.resultado IS NULL AND c.fecha_eliminacion IS NULL
+                ORDER BY c.fecha_cita DESC, c.hora_cita DESC
+            """)
+            
+            citas = cursor.fetchall()
+            print(f"[API] Se encontraron {len(citas)} citas sin resultado")
+            
+            # Convertir total_estudio a float
+            for cita in citas:
+                if cita['total_estudio'] is None:
+                    cita['total_estudio'] = 0.00
+                else:
+                    cita['total_estudio'] = float(cita['total_estudio'])
+            
+            cursor.close()
+            db.close()
+            
+            self.send_json_response(citas, 200)
+            
+        except Exception as e:
+            print(f"Error obteniendo citas sin resultado: {str(e)}")
+            self.send_json_response({'error': str(e)}, 500)
+    
+    # ==============================================
+    # FUNCIÓN MEJORADA: ENTREGAR RESULTADO (CON MANEJO DE ARCHIVOS GRANDES)
+    # ==============================================
+
+    def handle_entregar_resultado(self):
+        """Subir resultado y asignar puntos al doctor basado en el total del estudio"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+            
+            cita_id = data.get('cita_id')
+            resultado_base64 = data.get('resultado_base64')
+            resultado_nombre = data.get('resultado_nombre')
+            resultado_tipo = data.get('resultado_tipo')
+            
+            if not all([cita_id, resultado_base64, resultado_nombre, resultado_tipo]):
+                raise ValueError("Faltan datos requeridos para subir el resultado")
+            
+            # Decodificar el archivo base64
+            resultado_pdf = base64.b64decode(resultado_base64)
+            resultado_tamano = len(resultado_pdf)
+            
+            # Verificar tamaño (máximo 50MB)
+            max_size = 50 * 1024 * 1024  # 50MB
+            if resultado_tamano > max_size:
+                raise ValueError(f"El archivo es demasiado grande ({resultado_tamano/1024/1024:.1f}MB). Máximo 50MB")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            # Obtener el total_estudio de la cita para calcular puntos
+            cursor.execute("""
+                SELECT total_estudio, doctor_id, paciente, numero_folio
+                FROM citas 
+                WHERE id_cita = %s
+            """, (cita_id,))
+            
+            cita = cursor.fetchone()
+            
+            if not cita:
+                raise ValueError("Cita no encontrada")
+            
+            total_estudio = float(cita['total_estudio'] or 0)
+            doctor_id = cita['doctor_id']
+            
+            # Calcular puntos: 1 punto por cada 100 pesos
+            puntos_a_asignar = int(total_estudio / 100)
+            
+            # Verificar si existe la columna fecha_eliminacion
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'fecha_eliminacion'")
+            tiene_fecha_eliminacion = cursor.fetchone() is not None
+            
+            # Actualizar la cita con el resultado
+            if tiene_fecha_eliminacion:
+                cursor.execute("""
+                    UPDATE citas 
+                    SET resultado = %s,
+                        resultado_nombre = %s,
+                        resultado_tipo = %s,
+                        resultado_tamano = %s,
+                        resultado_fecha_carga = NOW(),
+                        fecha_eliminacion = NULL
+                    WHERE id_cita = %s
+                """, (resultado_pdf, resultado_nombre, resultado_tipo, resultado_tamano, cita_id))
+            else:
+                cursor.execute("""
+                    UPDATE citas 
+                    SET resultado = %s,
+                        resultado_nombre = %s,
+                        resultado_tipo = %s,
+                        resultado_tamano = %s,
+                        resultado_fecha_carga = NOW()
+                    WHERE id_cita = %s
+                """, (resultado_pdf, resultado_nombre, resultado_tipo, resultado_tamano, cita_id))
+            
+            db.commit()
+            
+            # Asignar puntos al doctor (solo si no es ADMIN)
+            if doctor_id != 'ADMIN' and puntos_a_asignar > 0:
+                cursor.execute("""
+                    UPDATE doctores 
+                    SET puntos = puntos + %s 
+                    WHERE Diddoctor = %s
+                """, (puntos_a_asignar, doctor_id))
+                db.commit()
+                print(f"[PUNTOS] Doctor {doctor_id} ganó {puntos_a_asignar} puntos por cita {cita_id} (Total: ${total_estudio})")
+            
+            # Registrar en log de actividad
+            self.registrar_actividad_admin(
+                usuario_id='ADMIN',
+                accion='ENTREGAR_RESULTADO',
+                detalles=f'Resultado entregado para cita {cita["numero_folio"]} - Paciente: {cita["paciente"]} - Puntos asignados: {puntos_a_asignar} - Tamaño: {resultado_tamano/1024:.1f}KB'
+            )
+            
+            cursor.close()
+            db.close()
+            
+            response = {
+                'success': True,
+                'message': f'✅ Resultado subido exitosamente. Se han añadido {puntos_a_asignar} puntos al doctor.',
+                'puntos_asignados': puntos_a_asignar,
+                'tamano': f"{resultado_tamano/1024:.1f}KB"
+            }
+            
+            self.send_json_response(response, 200)
+            
+        except ValueError as e:
+            print(f"Error de validación: {str(e)}")
+            response = {'success': False, 'message': str(e)}
+            self.send_json_response(response, 400)
+        except mysql.connector.Error as e:
+            print(f"Error MySQL: {str(e)}")
+            if e.errno == 2013:  # Lost connection
+                response = {'success': False, 'message': 'Error: El archivo es demasiado grande para la base de datos. Reduzca el tamaño o contacte al administrador.'}
+            else:
+                response = {'success': False, 'message': f'Error de base de datos: {str(e)}'}
+            self.send_json_response(response, 500)
+        except Exception as e:
+            print(f"Error entregando resultado: {str(e)}")
+            response = {'success': False, 'message': f'Error del servidor: {str(e)}'}
+            self.send_json_response(response, 500)
+
+    # ==============================================
+    # FUNCIÓN: CANCELAR/ELIMINAR CITA
     # ==============================================
     
     def handle_cancelar_cita(self):
@@ -612,7 +1017,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
     # ==============================================
     
     def handle_descargar_resultado(self, cita_id):
-        """Descargar el resultado de una cita específica"""
+        """Descargar el resultado de una cita específica (cualquier tipo de archivo)"""
         try:
             print(f"[API] Descargando resultado para cita ID: {cita_id}")
             
@@ -620,7 +1025,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor = db.cursor(dictionary=True)
             
             cursor.execute("""
-                SELECT resultado, resultado_nombre, numero_folio, paciente
+                SELECT resultado, resultado_nombre, resultado_tipo, numero_folio, paciente
                 FROM citas 
                 WHERE id_cita = %s AND resultado IS NOT NULL
             """, (cita_id,))
@@ -638,16 +1043,26 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 return
             
             resultado_content = cita['resultado']
-            filename = cita['resultado_nombre'] or f"resultado_{cita['numero_folio']}.pdf"
             
-            print(f"[API] Enviando resultado: {filename}, tamaño: {len(resultado_content)} bytes")
+            # Usar el nombre original del archivo
+            filename = cita['resultado_nombre'] or f"resultado_{cita['numero_folio']}{self.get_file_extension(cita['resultado_tipo'])}"
+            
+            # Usar el tipo MIME original o detectarlo
+            content_type = cita['resultado_tipo'] or 'application/octet-stream'
+            
+            print(f"[API] Enviando resultado: {filename}, tipo: {content_type}, tamaño: {len(resultado_content)} bytes")
             
             self.send_response(200)
-            self.send_header('Content-Type', 'application/pdf')
+            self.send_header('Content-Type', content_type)
             self.send_header('Content-Disposition', f'attachment; filename="{filename}"')
             self.send_header('Content-Length', str(len(resultado_content)))
+            self.send_header('Content-Transfer-Encoding', 'binary')
             self.end_headers()
-            self.wfile.write(resultado_content)
+            
+            # Enviar el archivo en chunks para archivos grandes
+            chunk_size = 8192  # 8KB chunks
+            for i in range(0, len(resultado_content), chunk_size):
+                self.wfile.write(resultado_content[i:i+chunk_size])
             
         except Exception as e:
             print(f"Error descargando resultado: {str(e)}")
@@ -655,7 +1070,23 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({'error': str(e)}).encode())
-    
+
+    def get_file_extension(self, mime_type):
+        """Obtener extensión de archivo basada en el tipo MIME"""
+        extension_map = {
+            'application/zip': '.zip',
+            'application/x-zip-compressed': '.zip',
+            'application/pdf': '.pdf',
+            'image/jpeg': '.jpg',
+            'image/png': '.png',
+            'image/gif': '.gif',
+            'application/msword': '.doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+            'application/vnd.ms-excel': '.xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+        }
+        return extension_map.get(mime_type, '')
+
     # ==============================================
     # FUNCIÓN PARA OBTENER RESULTADOS DEL DOCTOR
     # ==============================================
@@ -1129,7 +1560,34 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.execute("SHOW COLUMNS FROM citas LIKE 'observaciones'")
             tiene_observaciones = cursor.fetchone() is not None
             
-            if tiene_observaciones:
+            # Verificar si existe la columna fecha_eliminacion
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'fecha_eliminacion'")
+            tiene_fecha_eliminacion = cursor.fetchone() is not None
+            
+            if tiene_observaciones and tiene_fecha_eliminacion:
+                cursor.execute("""
+                    INSERT INTO citas (
+                        numero_folio, paciente, doctor_id, fecha, hora, 
+                        fecha_cita, hora_cita, total_estudio, observaciones,
+                        documento_nombre, documento_pdf, documento_tamano, documento_tipo
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    numero_folio,
+                    paciente,
+                    doctor_id,
+                    fecha_registro,
+                    hora_registro,
+                    fecha_cita,
+                    hora_cita,
+                    total_estudio,
+                    observaciones,
+                    f"{paciente}_{numero_folio}.pdf".replace(' ', '_'),
+                    pdf_content,
+                    pdf_size,
+                    'application/pdf'
+                ))
+            elif tiene_observaciones:
                 cursor.execute("""
                     INSERT INTO citas (
                         numero_folio, paciente, doctor_id, fecha, hora, 
@@ -1282,6 +1740,10 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.execute("SHOW COLUMNS FROM citas LIKE 'estado'")
             tiene_estado = cursor.fetchone()
             
+            # Verificar si existe la columna fecha_eliminacion
+            cursor.execute("SHOW COLUMNS FROM citas LIKE 'fecha_eliminacion'")
+            tiene_fecha_eliminacion = cursor.fetchone() is not None
+            
             if tiene_estado:
                 # Solo mostrar citas activas (no canceladas)
                 cursor.execute("""
@@ -1299,10 +1761,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
                         c.documento_nombre,
                         CASE WHEN c.documento_pdf IS NOT NULL THEN 1 ELSE 0 END as tiene_pdf,
                         CASE WHEN c.resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado,
-                        c.estado
+                        c.estado,
+                        DATE_FORMAT(c.fecha_eliminacion, '%d/%m/%Y') as fecha_eliminacion_formateada,
+                        c.fecha_eliminacion
                     FROM citas c
                     LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
-                    WHERE c.estado = 'activa' OR c.estado IS NULL
+                    WHERE (c.estado = 'activa' OR c.estado IS NULL)
                     ORDER BY c.fecha_cita DESC, c.hora_cita DESC
                 """)
             else:
@@ -1321,7 +1785,9 @@ class CustomHandler(SimpleHTTPRequestHandler):
                         CAST(c.total_estudio AS DECIMAL(10,2)) as total_estudio,
                         c.documento_nombre,
                         CASE WHEN c.documento_pdf IS NOT NULL THEN 1 ELSE 0 END as tiene_pdf,
-                        CASE WHEN c.resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado
+                        CASE WHEN c.resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado,
+                        DATE_FORMAT(c.fecha_eliminacion, '%d/%m/%Y') as fecha_eliminacion_formateada,
+                        c.fecha_eliminacion
                     FROM citas c
                     LEFT JOIN doctores d ON c.doctor_id = d.Diddoctor
                     ORDER BY c.fecha_cita DESC, c.hora_cita DESC
@@ -1388,6 +1854,18 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cursor.execute("SELECT COUNT(*) as total FROM citas WHERE resultado IS NULL")
             estudios_pendientes = cursor.fetchone()['total']
             
+            # Citas programadas para eliminar
+            cursor.execute("SELECT COUNT(*) as total FROM citas WHERE fecha_eliminacion IS NOT NULL")
+            citas_eliminar = cursor.fetchone()['total']
+            
+            # Próxima fecha de eliminación
+            cursor.execute("""
+                SELECT DATE_FORMAT(MIN(fecha_eliminacion), '%d/%m/%Y') as proxima 
+                FROM citas 
+                WHERE fecha_eliminacion IS NOT NULL AND fecha_eliminacion >= CURDATE()
+            """)
+            proxima_eliminacion = cursor.fetchone()['proxima']
+            
             # Total de puntos acumulados por todos los doctores
             cursor.execute("SELECT SUM(puntos) as total_puntos FROM doctores")
             total_puntos = cursor.fetchone()['total_puntos'] or 0
@@ -1401,7 +1879,9 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'nuevosDoctores': nuevos_doctores,
                 'estudiosCompletados': citas_completadas,
                 'totalCitas': total_citas,
-                'totalPuntos': total_puntos
+                'totalPuntos': total_puntos,
+                'citasAEliminar': citas_eliminar,
+                'proximaEliminacion': proxima_eliminacion or '-'
             }
             
             self.send_json_response(stats, 200)
@@ -1449,8 +1929,41 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 FROM actividad_admin aa
                 WHERE aa.accion = 'CANCELAR_CITA'
                 
+                UNION ALL
+                
+                SELECT 
+                    'ADMIN' as usuario_id,
+                    'admin' as tipo_usuario,
+                    'Entregar resultado' as accion,
+                    aa.fecha,
+                    aa.detalles
+                FROM actividad_admin aa
+                WHERE aa.accion = 'ENTREGAR_RESULTADO'
+                
+                UNION ALL
+                
+                SELECT 
+                    'ADMIN' as usuario_id,
+                    'admin' as tipo_usuario,
+                    'Programar eliminación' as accion,
+                    aa.fecha,
+                    aa.detalles
+                FROM actividad_admin aa
+                WHERE aa.accion = 'PROGRAMAR_ELIMINACION'
+                
+                UNION ALL
+                
+                SELECT 
+                    'ADMIN' as usuario_id,
+                    'admin' as tipo_usuario,
+                    'Cancelar eliminación' as accion,
+                    aa.fecha,
+                    aa.detalles
+                FROM actividad_admin aa
+                WHERE aa.accion = 'CANCELAR_ELIMINACION'
+                
                 ORDER BY fecha DESC
-                LIMIT 15
+                LIMIT 20
             """)
             
             actividades = cursor.fetchall()
@@ -2120,9 +2633,9 @@ print("   • Doctor:    dr.rodriguez / doctor123")
 print("   • Admin:     admin / admin123")
 print("\n📝 Registro disponible en: /registro")
 print("👑 Panel de administración: /admin")
-print("✅ CORRECCIÓN: Serialización JSON mejorada")
-print("✅ NUEVA FUNCIÓN: Edición rápida de fecha/hora")
-print("✅ NUEVA FUNCIÓN: Cancelar cita")
+print("✅ NUEVO: Gestión de Resultados con puntos automáticos")
+print("✅ NUEVO: 1 punto por cada $100 en resultados entregados")
+print("✅ NUEVO: Eliminación programada de citas")
 print("=" * 60)
 
 if not os.path.exists('templates'):

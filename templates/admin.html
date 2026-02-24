@@ -420,6 +420,22 @@
             color: #721c24;
         }
         
+        .status-pendiente {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-completado {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-eliminacion-programada {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
         .action-buttons {
             display: flex;
             gap: 4px;
@@ -459,6 +475,15 @@
             color: #2d1b4a;
         }
         
+        .btn-calendar {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            color: white;
+        }
+        
+        .btn-calendar:hover {
+            background: linear-gradient(135deg, #ff5722 0%, #e65100 100%);
+        }
+        
         .btn-cancel {
             background: #ffebee;
             color: #d32f2f;
@@ -472,6 +497,15 @@
         .btn-cargar {
             background: #e6d9ff;
             color: #2d1b4a;
+        }
+        
+        .btn-entregar {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-entregar:hover {
+            background: #218838;
         }
         
         .btn-action:hover {
@@ -1169,6 +1203,35 @@
             flex-wrap: wrap;
         }
         
+        /* Estilos para la tabla de resultados */
+        .puntos-badge {
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .resultado-pendiente {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .resultado-completado {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
         /* ============================================== */
         /* ESTILOS PARA AGENDA Y CALENDARIO - MORADO */
         /* ============================================== */
@@ -1295,6 +1358,12 @@
             background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
             border-left: 4px solid #a71d2a !important;
             opacity: 0.8;
+        }
+
+        .event-eliminacion-programada {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%) !important;
+            border-left: 4px solid #e65100 !important;
+            opacity: 0.9;
         }
         
         .day-summary {
@@ -1448,7 +1517,7 @@
                     <i class="fas fa-user-md"></i>
                     <span>Gestión de Doctores</span>
                 </a>
-                <a href="#" class="nav-item active" onclick="showSection('agenda', event)">
+                <a href="#" class="nav-item" onclick="showSection('agenda', event)">
                     <i class="fas fa-calendar-alt"></i>
                     <span>Agenda</span>
                 </a>
@@ -1456,9 +1525,17 @@
                     <i class="fas fa-calendar-check"></i>
                     <span>Gestión de Citas</span>
                 </a>
+                <a href="#" class="nav-item" onclick="showSection('resultados', event)">
+                    <i class="fas fa-file-medical"></i>
+                    <span>Gestión de Resultados</span>
+                </a>
                 <a href="#" class="nav-item" onclick="showSection('reportes', event)">
                     <i class="fas fa-chart-bar"></i>
                     <span>Reportes</span>
+                </a>
+                <a href="#" class="nav-item" onclick="showSection('citas-eliminar', event)">
+                    <i class="fas fa-clock"></i>
+                    <span>Citas a Eliminar</span>
                 </a>
             </nav>
             
@@ -1495,12 +1572,23 @@
                         <div class="value" id="totalPuntosDashboard">0</div>
                     </div>
                     <div class="stat-card">
-                        <h4><i class="fas fa-user-clock"></i> Nuevos Doctores (7d)</h4>
-                        <div class="value" id="nuevosDoctores">0</div>
+                        <h4><i class="fas fa-clock"></i> Estudios Pendientes</h4>
+                        <div class="value" id="estudiosPendientes">0</div>
                     </div>
                     <div class="stat-card">
-                        <h4><i class="fas fa-calendar-check"></i> Total Citas</h4>
-                        <div class="value" id="totalCitas">0</div>
+                        <h4><i class="fas fa-check-circle"></i> Estudios Completados</h4>
+                        <div class="value" id="estudiosCompletados">0</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4><i class="fas fa-calendar-times"></i> Citas a Eliminar</h4>
+                        <div class="value" id="citasAEliminarDashboard">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4><i class="fas fa-clock"></i> Próxima Eliminación</h4>
+                        <div class="value" id="proximaEliminacion">-</div>
                     </div>
                 </div>
 
@@ -1578,11 +1666,9 @@
                 </div>
             </div>
 
-            <!-- ============================================== -->
             <!-- SECCIÓN: AGENDA CON CALENDARIO -->
-            <!-- ============================================== -->
             
-            <div id="agenda-section" class="content-section" style="display: block;">
+            <div id="agenda-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-calendar-alt"></i> Agenda de Citas 4Digital</h2>
                     <div class="search-box">
@@ -1610,6 +1696,7 @@
                                 <option value="pendiente">Pendientes</option>
                                 <option value="completado">Completadas</option>
                                 <option value="cancelada">Canceladas</option>
+                                <option value="eliminacion">A eliminar</option>
                             </select>
                         </div>
                     </div>
@@ -1628,6 +1715,10 @@
                         <div style="display: flex; align-items: center; gap: 5px;">
                             <div style="width: 15px; height: 15px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border-radius: 3px;"></div>
                             <span style="font-size: 12px;">Cancelado</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <div style="width: 15px; height: 15px; background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%); border-radius: 3px;"></div>
+                            <span style="font-size: 12px;">A eliminar</span>
                         </div>
                     </div>
                 </div>
@@ -1655,13 +1746,116 @@
                                 <th>Hora Cita</th>
                                 <th>Total</th>
                                 <th>PDF</th>
+                                <th>Estado</th>
+                                <th>Fecha Eliminación</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="citasTable">
                             <tr>
-                                <td colspan="8" style="text-align: center; padding: 30px;">
+                                <td colspan="10" style="text-align: center; padding: 30px;">
                                     <i class="fas fa-spinner fa-spin"></i> Cargando citas...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- NUEVA SECCIÓN: CITAS A ELIMINAR -->
+            <!-- ============================================== -->
+            
+            <div id="citas-eliminar-section" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h2><i class="fas fa-clock"></i> Citas Programadas para Eliminar</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchCitasEliminar" placeholder="Buscar cita..." onkeyup="searchCitasEliminar()">
+                        <button class="search-btn" onclick="searchCitasEliminar()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="info-card" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%); margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <i class="fas fa-info-circle" style="font-size: 24px; color: #ff9800;"></i>
+                        <div>
+                            <strong>Eliminación Automática:</strong> Las citas en esta sección serán eliminadas automáticamente en la fecha programada. Si desea cancelar la eliminación, use el botón "Cancelar Eliminación".
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Paciente</th>
+                                <th>Doctor</th>
+                                <th>Fecha Cita</th>
+                                <th>Hora Cita</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Fecha Eliminación</th>
+                                <th>Días Restantes</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="citasEliminarTable">
+                            <tr>
+                                <td colspan="10" style="text-align: center; padding: 30px;">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando citas a eliminar...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- NUEVA SECCIÓN: GESTIÓN DE RESULTADOS -->
+            <!-- ============================================== -->
+            
+            <div id="resultados-section" class="content-section" style="display: none;">
+                <div class="content-header">
+                    <h2><i class="fas fa-file-medical"></i> Gestión de Resultados</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchResultados" placeholder="Buscar resultado..." onkeyup="searchResultados()">
+                        <button class="search-btn" onclick="searchResultados()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="info-card" style="background: linear-gradient(135deg, #f5f0fa 0%, #e9d9ff 100%); margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                        <i class="fas fa-info-circle" style="font-size: 24px; color: #2d1b4a;"></i>
+                        <div>
+                            <strong>Sistema de Puntos:</strong> Al entregar un resultado, el doctor recibirá <span class="puntos-badge">1 punto por cada $100</span> del costo total del estudio.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Doctor</th>
+                                <th>Paciente</th>
+                                <th>Fecha Cita</th>
+                                <th>Hora Cita</th>
+                                <th>Total Estudio</th>
+                                <th>Puntos a Ganar</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultadosTable">
+                            <tr>
+                                <td colspan="9" style="text-align: center; padding: 30px;">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando resultados pendientes...
                                 </td>
                             </tr>
                         </tbody>
@@ -2252,6 +2446,141 @@
         </div>
     </div>
 
+    <!-- ============================================== -->
+    <!-- NUEVO MODAL: PROGRAMAR ELIMINACIÓN -->
+    <!-- ============================================== -->
+    
+    <div id="programarEliminacionModal" class="modal">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);">
+                <h3><i class="fas fa-clock"></i> Programar Eliminación de Cita</h3>
+                <button class="close-modal" onclick="closeModal('programarEliminacionModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="programarEliminacionMessage" class="message" style="display: none;"></div>
+                
+                <div class="info-card" style="margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="fas fa-info-circle" style="color: #ff9800;"></i>
+                        <strong>Información de la cita:</strong>
+                    </div>
+                    <p><strong>Folio:</strong> <span id="eliminarFolio"></span></p>
+                    <p><strong>Paciente:</strong> <span id="eliminarPaciente"></span></p>
+                    <p><strong>Doctor:</strong> <span id="eliminarDoctor"></span></p>
+                    <p><strong>Total Estudio:</strong> <span id="eliminarTotal" class="puntos-highlight"></span></p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #2d1b4a;">
+                        <i class="fas fa-calendar-alt"></i> Fecha de eliminación automática:
+                    </label>
+                    <input type="date" id="fechaEliminacion" class="form-control" min="" required>
+                    <small style="color: #6b3fa0; font-size: 11px; display: block; margin-top: 5px;">
+                        <i class="fas fa-info-circle"></i> La cita será eliminada automáticamente en esta fecha. Los puntos ya asignados no se verán afectados.
+                    </small>
+                </div>
+                
+                <div class="warning-message" style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin-top: 15px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                    <strong style="color: #856404;">Importante:</strong>
+                    <p style="color: #856404; margin-top: 5px; font-size: 12px;">
+                        Una vez programada la eliminación, la cita se moverá a la sección "Citas a Eliminar". 
+                        Puedes cancelar la eliminación en cualquier momento antes de la fecha programada.
+                    </p>
+                </div>
+                
+                <input type="hidden" id="eliminarCitaId">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('programarEliminacionModal')">Cancelar</button>
+                <button class="btn-save" style="background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);" onclick="programarEliminacion()">
+                    <i class="fas fa-clock"></i> Programar Eliminación
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- NUEVO MODAL: CANCELAR ELIMINACIÓN -->
+    <!-- ============================================== -->
+    
+    <div id="cancelarEliminacionModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
+                <h3><i class="fas fa-undo-alt"></i> Cancelar Eliminación</h3>
+                <button class="close-modal" onclick="closeModal('cancelarEliminacionModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="padding: 20px; text-align: center; font-size: 16px;">
+                    ¿Está seguro que desea cancelar la eliminación programada para esta cita?
+                </p>
+                <p style="text-align: center; color: #666; font-size: 14px; margin-top: -10px;">
+                    La cita volverá a estar disponible en la sección de "Gestión de Citas".
+                </p>
+                <div style="margin-top: 15px; padding: 15px; background: #f5f0fa; border-radius: 8px;">
+                    <p><strong>Folio:</strong> <span id="cancelarEliminarFolio"></span></p>
+                    <p><strong>Paciente:</strong> <span id="cancelarEliminarPaciente"></span></p>
+                    <p><strong>Doctor:</strong> <span id="cancelarEliminarDoctor"></span></p>
+                </div>
+                <input type="hidden" id="cancelarEliminarCitaId">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('cancelarEliminacionModal')">Volver</button>
+                <button class="btn-save" style="background: #28a745;" onclick="confirmarCancelarEliminacion()">
+                    <i class="fas fa-undo-alt"></i> Cancelar Eliminación
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- NUEVO MODAL: ENTREGAR RESULTADO -->
+    <!-- ============================================== -->
+    
+    <div id="entregarResultadoModal" class="modal">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
+                <h3><i class="fas fa-file-medical"></i> Entregar Resultado</h3>
+                <button class="close-modal" onclick="closeModal('entregarResultadoModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="entregarResultadoMessage" class="message" style="display: none;"></div>
+                
+                <div class="info-card" style="margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="fas fa-info-circle" style="color: #28a745;"></i>
+                        <strong>Información de la cita:</strong>
+                    </div>
+                    <p><strong>Folio:</strong> <span id="resultadoFolio"></span></p>
+                    <p><strong>Paciente:</strong> <span id="resultadoPaciente"></span></p>
+                    <p><strong>Doctor:</strong> <span id="resultadoDoctor"></span></p>
+                    <p><strong>Total Estudio:</strong> <span id="resultadoTotal" class="puntos-highlight"></span></p>
+                    <p><strong>Puntos a ganar:</strong> <span id="resultadoPuntos" class="puntos-badge" style="font-size: 14px; padding: 4px 12px;"></span></p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #2d1b4a;">
+                        <i class="fas fa-file-upload"></i> Seleccionar archivo(s) del resultado:
+                    </label>
+                    <div style="border: 2px dashed #d9c9f0; border-radius: 8px; padding: 20px; text-align: center; background: #f5f0fa;">
+                        <input type="file" id="resultadoFile" multiple style="margin-bottom: 10px;">
+                        <p style="font-size: 12px; color: #6b3fa0;">
+                            <i class="fas fa-info-circle"></i> Si son múltiples archivos, comprímalos en un ZIP o RAR antes de subir.
+                        </p>
+                    </div>
+                </div>
+                
+                <input type="hidden" id="resultadoCitaId">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('entregarResultadoModal')">Cancelar</button>
+                <button class="btn-save" style="background: #28a745;" onclick="subirResultado()">
+                    <i class="fas fa-check-circle"></i> Confirmar Entrega
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -2263,6 +2592,7 @@
         let currentSection = 'agenda';
         let allDoctores = [];
         let allCitas = [];
+        let citasAEliminar = [];
         let currentCitaIdForModal = null;
         let currentCitaIdToCancel = null;
         let doctoresList = [];
@@ -2273,6 +2603,7 @@
         };
         let citaEditando = null;
         let calendar = null;
+        let citasSinResultado = [];
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('4Digital - Admin panel cargado');
@@ -2280,6 +2611,8 @@
             loadActivityLog();
             loadDoctores();
             loadAllCitas();
+            loadCitasAEliminar();
+            loadCitasSinResultado();
             
             const adminName = localStorage.getItem('adminName') || 'Administrador Principal';
             const adminEmail = localStorage.getItem('adminEmail') || 'admin@4digital.com';
@@ -2300,6 +2633,18 @@
                     initCalendar();
                 }
             }, 500);
+
+            // Configurar fecha mínima para eliminación (mañana)
+            const fechaEliminacion = document.getElementById('fechaEliminacion');
+            if (fechaEliminacion) {
+                const hoy = new Date();
+                const manana = new Date(hoy);
+                manana.setDate(manana.getDate() + 1);
+                const year = manana.getFullYear();
+                const month = String(manana.getMonth() + 1).padStart(2, '0');
+                const day = String(manana.getDate()).padStart(2, '0');
+                fechaEliminacion.min = `${year}-${month}-${day}`;
+            }
         });
 
         function actualizarFechaHora() {
@@ -2342,6 +2687,10 @@
                 loadDoctores();
             } else if (sectionId === 'citas') {
                 loadAllCitas();
+            } else if (sectionId === 'citas-eliminar') {
+                loadCitasAEliminar();
+            } else if (sectionId === 'resultados') {
+                loadCitasSinResultado();
             } else if (sectionId === 'agenda') {
                 setTimeout(() => {
                     if (calendar) {
@@ -2352,6 +2701,449 @@
                     cargarEventosCalendario();
                 }, 100);
             }
+        }
+
+        // ==============================================
+        // FUNCIONES PARA GESTIÓN DE RESULTADOS
+        // ==============================================
+        
+        async function loadCitasSinResultado() {
+            try {
+                console.log('Cargando citas sin resultado...');
+                const response = await fetch('/api/citas-sin-resultado');
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                citasSinResultado = await response.json();
+                console.log('Citas sin resultado cargadas:', citasSinResultado.length);
+                
+                const table = document.getElementById('resultadosTable');
+                
+                if (!citasSinResultado || citasSinResultado.length === 0) {
+                    table.innerHTML = `<tr><td colspan="9" class="no-data">No hay citas pendientes de resultado</td></tr>`;
+                    return;
+                }
+                
+                table.innerHTML = '';
+                
+                citasSinResultado.forEach(cita => {
+                    const row = document.createElement('tr');
+                    
+                    const total = cita.total_estudio || 0;
+                    const puntosGanar = Math.floor(total / 100);
+                    
+                    row.innerHTML = `
+                        <td><strong>${cita.numero_folio || 'N/A'}</strong></td>
+                        <td>${cita.doctor_nombre || 'N/A'}</td>
+                        <td>${cita.paciente || 'N/A'}</td>
+                        <td>${cita.fecha_cita || 'N/A'}</td>
+                        <td>${cita.hora_cita || 'N/A'}</td>
+                        <td>$${total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</td>
+                        <td><span class="puntos-badge">${puntosGanar} puntos</span></td>
+                        <td><span class="resultado-pendiente">Pendiente</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action btn-entregar" onclick="mostrarModalEntregarResultado('${cita.id_cita}', '${cita.numero_folio}', '${cita.paciente.replace(/'/g, "\\'")}', '${cita.doctor_nombre.replace(/'/g, "\\'")}', ${total})" title="Entregar resultado">
+                                    <i class="fas fa-check-circle"></i> Entregar
+                                </button>
+                                <button class="btn-action btn-download" onclick="descargarPDFCita('${cita.id_cita}')" title="Descargar PDF de la cita">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    table.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Error cargando citas sin resultado:', error);
+                const table = document.getElementById('resultadosTable');
+                table.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 30px; color: #dc3545;">
+                    <i class="fas fa-exclamation-triangle"></i> Error al cargar resultados: ${error.message}
+                    <br><button onclick="loadCitasSinResultado()" style="margin-top: 10px; padding: 5px 15px; background: #2d1b4a; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        <i class="fas fa-sync-alt"></i> Reintentar
+                    </button>
+                </td></tr>`;
+            }
+        }
+
+        function mostrarModalEntregarResultado(citaId, folio, paciente, doctor, total) {
+            console.log('Mostrando modal entregar resultado:', citaId);
+            
+            document.getElementById('resultadoCitaId').value = citaId;
+            document.getElementById('resultadoFolio').textContent = folio;
+            document.getElementById('resultadoPaciente').textContent = paciente;
+            document.getElementById('resultadoDoctor').textContent = doctor;
+            document.getElementById('resultadoTotal').textContent = `$${total.toFixed(2)}`;
+            
+            const puntosGanar = Math.floor(total / 100);
+            document.getElementById('resultadoPuntos').textContent = `${puntosGanar} puntos`;
+            
+            // Limpiar mensaje anterior
+            const messageEl = document.getElementById('entregarResultadoMessage');
+            messageEl.className = 'message';
+            messageEl.style.display = 'none';
+            
+            // Limpiar input file
+            document.getElementById('resultadoFile').value = '';
+            
+            document.getElementById('entregarResultadoModal').classList.add('active');
+        }
+
+        async function subirResultado() {
+            const citaId = document.getElementById('resultadoCitaId').value;
+            const fileInput = document.getElementById('resultadoFile');
+            
+            if (!citaId) {
+                alert('Error: No se identificó la cita');
+                closeModal('entregarResultadoModal');
+                return;
+            }
+            
+            if (fileInput.files.length === 0) {
+                const messageEl = document.getElementById('entregarResultadoMessage');
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione al menos un archivo';
+                messageEl.style.display = 'block';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const fileSize = file.size;
+            const maxSize = 50 * 1024 * 1024; // 50MB
+            
+            if (fileSize > maxSize) {
+                const messageEl = document.getElementById('entregarResultadoMessage');
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> El archivo es demasiado grande (máximo 50MB)';
+                messageEl.style.display = 'block';
+                return;
+            }
+            
+            const fileName = file.name;
+            const fileExt = fileName.split('.').pop().toLowerCase();
+            if (!['zip', 'rar', 'pdf', 'jpg', 'jpeg', 'png', 'dcm'].includes(fileExt)) {
+                if (!confirm('El archivo no tiene una extensión común para resultados (PDF, ZIP, RAR, JPG, etc.). ¿Desea continuar de todas formas?')) {
+                    return;
+                }
+            }
+            
+            try {
+                const messageEl = document.getElementById('entregarResultadoMessage');
+                messageEl.className = 'message';
+                messageEl.innerHTML = '<div class="spinner"></div> Subiendo archivo y asignando puntos...';
+                messageEl.style.display = 'block';
+                
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                
+                reader.onload = async function() {
+                    const base64Data = reader.result.split(',')[1];
+                    
+                    const response = await fetch('/api/entregar-resultado', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            cita_id: citaId,
+                            resultado_base64: base64Data,
+                            resultado_nombre: file.name,
+                            resultado_tipo: file.type || 'application/octet-stream'
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    console.log('Respuesta del servidor:', result);
+                    
+                    if (result.success) {
+                        messageEl.className = 'message success';
+                        messageEl.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message}`;
+                        
+                        setTimeout(() => {
+                            closeModal('entregarResultadoModal');
+                            loadCitasSinResultado();
+                            loadAdminStats();
+                            loadAllCitas();
+                        }, 2000);
+                    } else {
+                        messageEl.className = 'message error';
+                        messageEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message || 'Error al subir el resultado'}`;
+                    }
+                };
+                
+            } catch (error) {
+                console.error('Error subiendo resultado:', error);
+                const messageEl = document.getElementById('entregarResultadoMessage');
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error de conexión con el servidor';
+            }
+        }
+
+        function searchResultados() {
+            const searchTerm = document.getElementById('searchResultados').value.toLowerCase();
+            const rows = document.querySelectorAll('#resultadosTable tr');
+            
+            rows.forEach(row => {
+                if (row.cells.length > 1 && 
+                    row.cells[0].textContent !== 'No hay citas pendientes de resultado' &&
+                    !row.cells[0].textContent.includes('Error')) {
+                    
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                }
+            });
+        }
+
+        // ==============================================
+        // FUNCIONES PARA ELIMINACIÓN PROGRAMADA
+        // ==============================================
+        
+        function mostrarModalProgramarEliminacion(citaId, folio, paciente, doctor, total) {
+            console.log('Mostrando modal programar eliminación:', citaId);
+            
+            document.getElementById('eliminarCitaId').value = citaId;
+            document.getElementById('eliminarFolio').textContent = folio;
+            document.getElementById('eliminarPaciente').textContent = paciente;
+            document.getElementById('eliminarDoctor').textContent = doctor;
+            document.getElementById('eliminarTotal').textContent = `$${total.toFixed(2)}`;
+            
+            // Configurar fecha mínima (mañana)
+            const fechaInput = document.getElementById('fechaEliminacion');
+            const hoy = new Date();
+            const manana = new Date(hoy);
+            manana.setDate(manana.getDate() + 1);
+            
+            const year = manana.getFullYear();
+            const month = String(manana.getMonth() + 1).padStart(2, '0');
+            const day = String(manana.getDate()).padStart(2, '0');
+            fechaInput.min = `${year}-${month}-${day}`;
+            fechaInput.value = ''; // Limpiar valor anterior
+            
+            // Limpiar mensaje anterior
+            const messageEl = document.getElementById('programarEliminacionMessage');
+            messageEl.className = 'message';
+            messageEl.style.display = 'none';
+            
+            document.getElementById('programarEliminacionModal').classList.add('active');
+        }
+
+        async function programarEliminacion() {
+            const citaId = document.getElementById('eliminarCitaId').value;
+            const fechaEliminacion = document.getElementById('fechaEliminacion').value;
+            
+            if (!citaId) {
+                alert('Error: No se identificó la cita');
+                closeModal('programarEliminacionModal');
+                return;
+            }
+            
+            if (!fechaEliminacion) {
+                const messageEl = document.getElementById('programarEliminacionMessage');
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione una fecha de eliminación';
+                messageEl.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const messageEl = document.getElementById('programarEliminacionMessage');
+                messageEl.className = 'message';
+                messageEl.innerHTML = '<div class="spinner"></div> Programando eliminación...';
+                messageEl.style.display = 'block';
+                
+                const response = await fetch('/api/programar-eliminacion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cita_id: citaId,
+                        fecha_eliminacion: fechaEliminacion
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result);
+                
+                if (result.success) {
+                    messageEl.className = 'message success';
+                    messageEl.innerHTML = '<i class="fas fa-check-circle"></i> Eliminación programada exitosamente';
+                    
+                    setTimeout(() => {
+                        closeModal('programarEliminacionModal');
+                        loadAllCitas();
+                        loadCitasAEliminar();
+                        loadAdminStats();
+                        cargarEventosCalendario();
+                    }, 1500);
+                } else {
+                    messageEl.className = 'message error';
+                    messageEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message || 'Error al programar eliminación'}`;
+                }
+            } catch (error) {
+                console.error('Error programando eliminación:', error);
+                const messageEl = document.getElementById('programarEliminacionMessage');
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error de conexión con el servidor';
+            }
+        }
+
+        function mostrarModalCancelarEliminacion(citaId, folio, paciente, doctor) {
+            console.log('Mostrando modal cancelar eliminación:', citaId);
+            
+            document.getElementById('cancelarEliminarCitaId').value = citaId;
+            document.getElementById('cancelarEliminarFolio').textContent = folio;
+            document.getElementById('cancelarEliminarPaciente').textContent = paciente;
+            document.getElementById('cancelarEliminarDoctor').textContent = doctor;
+            
+            document.getElementById('cancelarEliminacionModal').classList.add('active');
+        }
+
+        async function confirmarCancelarEliminacion() {
+            const citaId = document.getElementById('cancelarEliminarCitaId').value;
+            
+            if (!citaId) {
+                alert('Error: No se identificó la cita');
+                closeModal('cancelarEliminacionModal');
+                return;
+            }
+            
+            try {
+                const cancelBtn = document.querySelector('#cancelarEliminacionModal .btn-save');
+                const originalText = cancelBtn.innerHTML;
+                cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelando...';
+                cancelBtn.disabled = true;
+                
+                const response = await fetch('/api/cancelar-eliminacion', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cita_id: citaId
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result);
+                
+                cancelBtn.innerHTML = originalText;
+                cancelBtn.disabled = false;
+                
+                if (result.success) {
+                    alert('Eliminación cancelada exitosamente');
+                    closeModal('cancelarEliminacionModal');
+                    loadCitasAEliminar();
+                    loadAllCitas();
+                    cargarEventosCalendario();
+                    loadAdminStats();
+                } else {
+                    alert('Error al cancelar la eliminación: ' + (result.message || 'Error desconocido'));
+                }
+            } catch (error) {
+                console.error('Error cancelando eliminación:', error);
+                alert('Error de conexión al cancelar la eliminación');
+                
+                const cancelBtn = document.querySelector('#cancelarEliminacionModal .btn-save');
+                if (cancelBtn) {
+                    cancelBtn.innerHTML = '<i class="fas fa-undo-alt"></i> Cancelar Eliminación';
+                    cancelBtn.disabled = false;
+                }
+            }
+        }
+
+        async function loadCitasAEliminar() {
+            try {
+                console.log('Cargando citas programadas para eliminar...');
+                const response = await fetch('/api/citas-eliminar');
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
+                citasAEliminar = await response.json();
+                console.log('Citas a eliminar cargadas:', citasAEliminar.length);
+                
+                const table = document.getElementById('citasEliminarTable');
+                
+                if (!citasAEliminar || citasAEliminar.length === 0) {
+                    table.innerHTML = `<tr><td colspan="10" class="no-data">No hay citas programadas para eliminar</td></tr>`;
+                    return;
+                }
+                
+                table.innerHTML = '';
+                
+                const hoy = new Date();
+                
+                citasAEliminar.forEach(cita => {
+                    const row = document.createElement('tr');
+                    
+                    const total = cita.total_estudio || 0;
+                    const fechaEliminacion = new Date(cita.fecha_eliminacion);
+                    const diffTime = fechaEliminacion - hoy;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    let diasRestantesClass = 'status-active';
+                    let diasRestantesText = diffDays > 0 ? `${diffDays} días` : 'Hoy';
+                    
+                    if (diffDays <= 3) {
+                        diasRestantesClass = 'status-cancelled';
+                    } else if (diffDays <= 7) {
+                        diasRestantesClass = 'status-pendiente';
+                    }
+                    
+                    row.innerHTML = `
+                        <td><strong>${cita.numero_folio || 'N/A'}</strong></td>
+                        <td>${cita.paciente || 'N/A'}</td>
+                        <td>${cita.doctor_nombre || 'N/A'}</td>
+                        <td>${cita.fecha_cita || 'N/A'}</td>
+                        <td>${cita.hora_cita || 'N/A'}</td>
+                        <td>$${total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}</td>
+                        <td><span class="status-badge ${cita.tiene_resultado ? 'status-completado' : 'status-active'}">${cita.tiene_resultado ? 'Completada' : 'Activa'}</span></td>
+                        <td>${cita.fecha_eliminacion_formateada || cita.fecha_eliminacion}</td>
+                        <td><span class="status-badge ${diasRestantesClass}">${diasRestantesText}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action btn-view" onclick="verDetallesCita('${cita.id_cita}', '${cita.numero_folio}', '${cita.paciente.replace(/'/g, "\\'")}', '${cita.doctor_nombre.replace(/'/g, "\\'")}', '${cita.fecha_cita}', '${cita.hora_cita}', '${total}')" title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-action btn-download" onclick="descargarPDFCita('${cita.id_cita}')" title="Descargar PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                                <button class="btn-action btn-edit" style="background: #28a745; color: white;" onclick="mostrarModalCancelarEliminacion('${cita.id_cita}', '${cita.numero_folio}', '${cita.paciente.replace(/'/g, "\\'")}', '${cita.doctor_nombre.replace(/'/g, "\\'")}')" title="Cancelar Eliminación">
+                                    <i class="fas fa-undo-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    table.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Error cargando citas a eliminar:', error);
+                const table = document.getElementById('citasEliminarTable');
+                table.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 30px; color: #dc3545;">
+                    <i class="fas fa-exclamation-triangle"></i> Error al cargar citas a eliminar: ${error.message}
+                </td></tr>`;
+            }
+        }
+
+        function searchCitasEliminar() {
+            const searchTerm = document.getElementById('searchCitasEliminar').value.toLowerCase();
+            const rows = document.querySelectorAll('#citasEliminarTable tr');
+            
+            rows.forEach(row => {
+                if (row.cells.length > 1 && 
+                    row.cells[0].textContent !== 'No hay citas programadas para eliminar' &&
+                    !row.cells[0].textContent.includes('Error')) {
+                    
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                }
+            });
         }
 
         // ==============================================
@@ -2407,6 +3199,17 @@
                 allCitas = await response.json();
                 console.log('Citas cargadas para calendario:', allCitas.length);
                 
+                // También cargar citas a eliminar
+                try {
+                    const responseEliminar = await fetch('/api/citas-eliminar');
+                    if (responseEliminar.ok) {
+                        const citasEliminar = await responseEliminar.json();
+                        allCitas = [...allCitas, ...citasEliminar];
+                    }
+                } catch (e) {
+                    console.log('No se pudieron cargar citas a eliminar para el calendario');
+                }
+                
                 // Actualizar filtro de doctores
                 actualizarFiltroDoctores();
                 
@@ -2422,11 +3225,9 @@
             const doctorFilter = document.getElementById('doctorFilter');
             if (!doctorFilter) return;
             
-            // Mantener la opción "Todos"
             const currentValue = doctorFilter.value;
             doctorFilter.innerHTML = '<option value="todos">Todos los doctores</option>';
             
-            // Obtener doctores únicos de las citas
             const doctoresUnicos = new Set();
             allCitas.forEach(cita => {
                 if (cita.doctor_nombre && cita.doctor_nombre !== 'Administrador') {
@@ -2434,7 +3235,6 @@
                 }
             });
             
-            // Agregar opciones de doctores
             Array.from(doctoresUnicos).sort().forEach(doctor => {
                 const option = document.createElement('option');
                 option.value = doctor;
@@ -2442,7 +3242,6 @@
                 doctorFilter.appendChild(option);
             });
             
-            // Restaurar valor seleccionado si existe
             if (currentValue && currentValue !== 'todos') {
                 doctorFilter.value = currentValue;
             }
@@ -2472,16 +3271,18 @@
             if (estadoSeleccionado !== 'todos') {
                 if (estadoSeleccionado === 'activa') {
                     citasFiltradas = citasFiltradas.filter(cita => 
-                        !cita.tiene_resultado && !cita.estado?.includes('cancelada')
+                        !cita.tiene_resultado && !cita.estado?.includes('cancelada') && !cita.fecha_eliminacion
                     );
                 } else if (estadoSeleccionado === 'pendiente') {
                     citasFiltradas = citasFiltradas.filter(cita => 
-                        !cita.tiene_resultado && !cita.estado?.includes('cancelada')
+                        !cita.tiene_resultado && !cita.estado?.includes('cancelada') && !cita.fecha_eliminacion
                     );
                 } else if (estadoSeleccionado === 'completado') {
-                    citasFiltradas = citasFiltradas.filter(cita => cita.tiene_resultado);
+                    citasFiltradas = citasFiltradas.filter(cita => cita.tiene_resultado && !cita.fecha_eliminacion);
                 } else if (estadoSeleccionado === 'cancelada') {
                     citasFiltradas = citasFiltradas.filter(cita => cita.estado?.includes('cancelada'));
+                } else if (estadoSeleccionado === 'eliminacion') {
+                    citasFiltradas = citasFiltradas.filter(cita => cita.fecha_eliminacion);
                 }
             }
             
@@ -2500,15 +3301,23 @@
                 
                 // Determinar clase del evento
                 let className = 'event-pendiente';
-                if (cita.tiene_resultado) {
+                let estado = '⏳';
+                
+                if (cita.fecha_eliminacion) {
+                    className = 'event-eliminacion-programada';
+                    estado = '🗓️';
+                } else if (cita.tiene_resultado) {
                     className = 'event-completado';
+                    estado = '✓';
                 } else if (cita.estado?.includes('cancelada')) {
                     className = 'event-cancelado';
+                    estado = '✗';
                 }
                 
-                // Crear título del evento
-                let estado = cita.tiene_resultado ? '✓' : (cita.estado?.includes('cancelada') ? '✗' : '⏳');
                 let titulo = `${estado} ${cita.paciente} - ${cita.doctor_nombre || 'Admin'}`;
+                if (cita.fecha_eliminacion) {
+                    titulo = `🗑️ ${cita.paciente} - Elim: ${cita.fecha_eliminacion_formateada || cita.fecha_eliminacion}`;
+                }
                 
                 return {
                     id: cita.id_cita,
@@ -2524,6 +3333,7 @@
                         total: cita.total_estudio,
                         tienePDF: cita.tiene_pdf,
                         tieneResultado: cita.tiene_resultado,
+                        fechaEliminacion: cita.fecha_eliminacion,
                         estado: cita.tiene_resultado ? 'completado' : (cita.estado?.includes('cancelada') ? 'cancelada' : 'pendiente')
                     }
                 };
@@ -2539,8 +3349,11 @@
             let estadoClass = 'status-active';
             let estadoTexto = 'Pendiente';
             
-            if (props.tieneResultado) {
-                estadoClass = 'status-active';
+            if (props.fechaEliminacion) {
+                estadoClass = 'status-eliminacion-programada';
+                estadoTexto = `A eliminar: ${props.fechaEliminacion}`;
+            } else if (props.tieneResultado) {
+                estadoClass = 'status-completado';
                 estadoTexto = 'Completado';
             } else if (props.estado === 'cancelada') {
                 estadoClass = 'status-cancelled';
@@ -2559,6 +3372,11 @@
                 minute: '2-digit'
             });
             
+            let fechaEliminacionHtml = '';
+            if (props.fechaEliminacion) {
+                fechaEliminacionHtml = `<p><strong>Eliminará:</strong> ${props.fechaEliminacion}</p>`;
+            }
+            
             const content = `
                 <div style="padding: 10px;">
                     <div style="background: #f5f0fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
@@ -2568,6 +3386,7 @@
                         <p><strong>Fecha:</strong> ${fechaFormateada}</p>
                         <p><strong>Hora:</strong> ${horaFormateada}</p>
                         <p><strong>Total:</strong> $${props.total ? props.total.toFixed(2) : '0.00'}</p>
+                        ${fechaEliminacionHtml}
                         <p><strong>Estado:</strong> <span class="status-badge ${estadoClass}">${estadoTexto}</span></p>
                     </div>
                 </div>
@@ -2595,7 +3414,7 @@
             if (recetaSection) {
                 recetaSection.style.display = 'block';
                 initRecetaVirtualForm();
-                cancelarEdicionReceta(); // Asegurar que no esté en modo edición
+                cancelarEdicionReceta();
             } else {
                 console.error('No se encontró la sección de receta virtual');
             }
@@ -2739,15 +3558,21 @@
                 
                 document.getElementById('totalDoctoresDashboard').textContent = data.totalDoctores || '0';
                 document.getElementById('totalPuntosDashboard').textContent = data.totalPuntos || '0';
-                document.getElementById('nuevosDoctores').textContent = data.nuevosDoctores || '0';
-                document.getElementById('totalCitas').textContent = data.totalCitas || '0';
+                document.getElementById('estudiosPendientes').textContent = data.estudiosPendientes || '0';
+                document.getElementById('estudiosCompletados').textContent = data.estudiosCompletados || '0';
+                document.getElementById('citasAEliminarDashboard').textContent = data.citasAEliminar || '0';
+                
+                const proxima = data.proximaEliminacion || '-';
+                document.getElementById('proximaEliminacion').textContent = proxima;
                 
             } catch (error) {
                 console.error('Error cargando estadísticas:', error);
                 document.getElementById('totalDoctoresDashboard').textContent = '0';
                 document.getElementById('totalPuntosDashboard').textContent = '0';
-                document.getElementById('nuevosDoctores').textContent = '0';
-                document.getElementById('totalCitas').textContent = '0';
+                document.getElementById('estudiosPendientes').textContent = '0';
+                document.getElementById('estudiosCompletados').textContent = '0';
+                document.getElementById('citasAEliminarDashboard').textContent = '0';
+                document.getElementById('proximaEliminacion').textContent = '-';
             }
         }
 
@@ -2884,10 +3709,7 @@
             }
         }
 
-        // ==============================================
-        // FUNCIÓN MODIFICADA: loadAllCitas - Añade botón de cancelar
-        // ==============================================
-        
+        // FUNCIÓN CORREGIDA: loadAllCitas - Ahora permite programar eliminación en citas completadas
         async function loadAllCitas() {
             try {
                 console.log('Cargando todas las citas...');
@@ -2903,7 +3725,7 @@
                 const table = document.getElementById('citasTable');
                 
                 if (!allCitas || allCitas.length === 0) {
-                    table.innerHTML = `<tr><td colspan="8" class="no-data">No hay citas registradas</td></tr>`;
+                    table.innerHTML = `<tr><td colspan="10" class="no-data">No hay citas registradas</td></tr>`;
                     return;
                 }
                 
@@ -2925,9 +3747,25 @@
                         '<i class="fas fa-file-pdf" style="color: #d32f2f;"></i> Sí' : 
                         '<i class="fas fa-file-pdf" style="color: #999;"></i> No';
                     
+                    let estadoClass = 'status-active';
+                    let estadoTexto = 'Activa';
+                    
+                    if (cita.tiene_resultado) {
+                        estadoClass = 'status-completado';
+                        estadoTexto = 'Completada';
+                    } else if (cita.estado === 'cancelada') {
+                        estadoClass = 'status-cancelled';
+                        estadoTexto = 'Cancelada';
+                    } else if (cita.fecha_eliminacion) {
+                        estadoClass = 'status-eliminacion-programada';
+                        estadoTexto = 'A eliminar';
+                    }
+                    
                     const citaId = cita.id_cita;
                     const folio = cita.numero_folio || `FOL-${citaId}`;
                     const paciente = cita.paciente || 'N/A';
+                    
+                    let fechaEliminacionDisplay = cita.fecha_eliminacion_formateada || cita.fecha_eliminacion || '-';
                     
                     row.innerHTML = `
                         <td><strong>${folio}</strong></td>
@@ -2937,6 +3775,8 @@
                         <td>${horaDisplay}</td>
                         <td>${totalFormateado}</td>
                         <td>${pdfIcon}</td>
+                        <td><span class="status-badge ${estadoClass}">${estadoTexto}</span></td>
+                        <td>${fechaEliminacionDisplay}</td>
                         <td>
                             <div class="action-buttons">
                                 <button class="btn-action btn-download" onclick="descargarPDFCita('${citaId}')" title="Descargar PDF">
@@ -2948,9 +3788,20 @@
                                 <button class="btn-action btn-edit" onclick="mostrarOpcionesEdicion('${citaId}')" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn-action btn-delete" onclick="mostrarModalCancelarCita('${citaId}', '${folio}', '${paciente.replace(/'/g, "\\'")}', '${doctorNombre.replace(/'/g, "\\'")}')" title="Cancelar Cita">
-                                    <i class="fas fa-times-circle"></i> Cancelar
-                                </button>
+                                ${cita.estado !== 'cancelada' && !cita.fecha_eliminacion ? `
+                                    <button class="btn-action btn-delete" onclick="mostrarModalCancelarCita('${citaId}', '${folio}', '${paciente.replace(/'/g, "\\'")}', '${doctorNombre.replace(/'/g, "\\'")}')" title="Cancelar Cita">
+                                        <i class="fas fa-times-circle"></i>
+                                    </button>
+                                    <!-- Botón de programar eliminación disponible para TODAS las citas no canceladas (incluyendo completadas) -->
+                                    <button class="btn-action btn-calendar" onclick="mostrarModalProgramarEliminacion('${citaId}', '${folio}', '${paciente.replace(/'/g, "\\'")}', '${doctorNombre.replace(/'/g, "\\'")}', ${parseFloat(cita.total_estudio || 0)})" title="Programar Eliminación">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                ` : ''}
+                                ${cita.fecha_eliminacion ? `
+                                    <button class="btn-action btn-edit" style="background: #28a745; color: white;" onclick="mostrarModalCancelarEliminacion('${citaId}', '${folio}', '${paciente.replace(/'/g, "\\'")}', '${doctorNombre.replace(/'/g, "\\'")}')" title="Cancelar Eliminación">
+                                        <i class="fas fa-undo-alt"></i>
+                                                                   </button>
+                                ` : ''}
                             </div>
                         </td>
                     `;
@@ -2960,7 +3811,7 @@
             } catch (error) {
                 console.error('Error cargando citas:', error);
                 const table = document.getElementById('citasTable');
-                table.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px; color: #dc3545;">
+                table.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 30px; color: #dc3545;">
                     <i class="fas fa-exclamation-triangle"></i> Error al cargar citas: ${error.message}
                     <br><button onclick="loadAllCitas()" style="margin-top: 10px; padding: 5px 15px; background: #2d1b4a; color: white; border: none; border-radius: 4px; cursor: pointer;">
                         <i class="fas fa-sync-alt"></i> Reintentar
@@ -2969,10 +3820,7 @@
             }
         }
 
-        // ==============================================
-        // NUEVAS FUNCIONES PARA CANCELAR CITA
-        // ==============================================
-        
+        // FUNCIONES PARA CANCELAR CITA
         function mostrarModalCancelarCita(citaId, folio, paciente, doctor) {
             console.log('Mostrando modal cancelar cita:', citaId);
             currentCitaIdToCancel = citaId;
@@ -2994,7 +3842,6 @@
             try {
                 console.log('Cancelando cita ID:', currentCitaIdToCancel);
                 
-                // Mostrar indicador de carga
                 const cancelBtn = document.querySelector('#cancelarCitaModal .btn-save');
                 const originalText = cancelBtn.innerHTML;
                 cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelando...';
@@ -3013,16 +3860,16 @@
                 const result = await response.json();
                 console.log('Respuesta cancelación:', result);
                 
-                // Restaurar botón
                 cancelBtn.innerHTML = originalText;
                 cancelBtn.disabled = false;
                 
                 if (result.success) {
                     alert('Cita cancelada exitosamente');
                     closeModal('cancelarCitaModal');
-                    loadAllCitas(); // Recargar lista de citas
-                    cargarEventosCalendario(); // Recargar calendario
-                    loadAdminStats(); // Actualizar estadísticas
+                    loadAllCitas();
+                    loadCitasAEliminar();
+                    cargarEventosCalendario();
+                    loadAdminStats();
                 } else {
                     alert('Error al cancelar la cita: ' + (result.message || 'Error desconocido'));
                 }
@@ -3031,7 +3878,6 @@
                 console.error('Error cancelando cita:', error);
                 alert('Error de conexión al cancelar la cita');
                 
-                // Restaurar botón
                 const cancelBtn = document.querySelector('#cancelarCitaModal .btn-save');
                 if (cancelBtn) {
                     cancelBtn.innerHTML = '<i class="fas fa-times"></i> Sí, Cancelar Cita';
@@ -3040,14 +3886,10 @@
             }
         }
 
-        // ==============================================
         // FUNCIÓN: mostrarOpcionesEdicion
-        // ==============================================
-        
         function mostrarOpcionesEdicion(citaId) {
             console.log('Mostrando opciones de edición para cita:', citaId);
             
-            // Crear modal de opciones si no existe
             let opcionesModal = document.getElementById('opcionesEdicionModal');
             if (!opcionesModal) {
                 opcionesModal = document.createElement('div');
@@ -3082,7 +3924,6 @@
                 `;
                 document.body.appendChild(opcionesModal);
                 
-                // Agregar event listeners
                 document.getElementById('opcionFechaHora').addEventListener('click', function() {
                     closeModal('opcionesEdicionModal');
                     mostrarModalEditarFechaHora(citaId);
@@ -3093,7 +3934,6 @@
                     cargarCitaParaEdicion(citaId);
                 });
             } else {
-                // Actualizar event listeners
                 const oldFechaHora = document.getElementById('opcionFechaHora');
                 const oldFormulario = document.getElementById('opcionFormularioCompleto');
                 
@@ -3117,18 +3957,13 @@
             opcionesModal.classList.add('active');
         }
 
-        // ==============================================
         // FUNCIÓN: mostrarModalEditarFechaHora
-        // ==============================================
-        
         function mostrarModalEditarFechaHora(citaId) {
             console.log('Mostrando modal editar fecha/hora para cita:', citaId);
             
-            // Obtener datos de la cita
             fetch(`/api/cita/${citaId}`)
                 .then(response => response.json())
                 .then(cita => {
-                    // Crear modal de edición rápida
                     let modal = document.getElementById('editarFechaHoraModal');
                     if (!modal) {
                         modal = document.createElement('div');
@@ -3175,7 +4010,6 @@
                         document.body.appendChild(modal);
                     }
                     
-                    // Llenar datos
                     document.getElementById('editPacienteNombre').textContent = cita.paciente || 'N/A';
                     document.getElementById('editFolioNumero').textContent = cita.numero_folio || 'N/A';
                     document.getElementById('editDoctorNombre').textContent = cita.doctor_nombre || 'N/A';
@@ -3185,7 +4019,6 @@
                         document.getElementById('editFechaCita').value = cita.fecha_cita;
                     }
                     
-                    // Configurar calendario
                     const fechaInput = document.getElementById('editFechaCita');
                     const hoy = new Date();
                     const tresMesesDespues = new Date();
@@ -3199,13 +4032,11 @@
                         generarHorasDisponiblesModal(fecha, cita.hora_cita);
                     });
                     
-                    // Generar horas iniciales si hay fecha
                     if (cita.fecha_cita) {
                         const fecha = new Date(cita.fecha_cita + 'T12:00:00');
                         generarHorasDisponiblesModal(fecha, cita.hora_cita);
                     }
                     
-                    // Actualizar botón guardar
                     const btnGuardar = document.getElementById('btnGuardarFechaHora');
                     const newBtn = btnGuardar.cloneNode(true);
                     btnGuardar.parentNode.replaceChild(newBtn, btnGuardar);
@@ -3221,10 +4052,7 @@
                 });
         }
 
-        // ==============================================
         // FUNCIÓN: generarHorasDisponiblesModal
-        // ==============================================
-        
         function generarHorasDisponiblesModal(fecha, horaSeleccionada) {
             const horaSelect = document.getElementById('editHoraCita');
             if (!horaSelect) return;
@@ -3273,10 +4101,7 @@
             }
         }
 
-        // ==============================================
         // FUNCIÓN: guardarEdicionFechaHora
-        // ==============================================
-        
         async function guardarEdicionFechaHora(citaId) {
             const messageEl = document.getElementById('editFechaHoraMessage');
             const fechaCita = document.getElementById('editFechaCita').value;
@@ -3322,8 +4147,9 @@
                     
                     setTimeout(() => {
                         closeModal('editarFechaHoraModal');
-                        loadAllCitas(); // Recargar lista de citas
-                        cargarEventosCalendario(); // Recargar calendario
+                        loadAllCitas();
+                        loadCitasAEliminar();
+                        cargarEventosCalendario();
                     }, 1500);
                 } else {
                     messageEl.className = 'message error';
@@ -3408,15 +4234,12 @@
             try {
                 console.log(`Cargando cita ID: ${citaId} para edición`);
                 
-                // Mostrar mensaje de carga
                 const messageEl = document.getElementById('recetaMessage');
                 messageEl.className = 'message warning';
                 messageEl.innerHTML = '<div class="spinner"></div> Cargando datos de la cita...';
                 
-                // Cambiar a la sección de receta virtual
                 showRecetaVirtual();
                 
-                // Obtener datos de la cita
                 const response = await fetch(`/api/cita/${citaId}`);
                 
                 if (!response.ok) {
@@ -3426,16 +4249,13 @@
                 const cita = await response.json();
                 console.log('Datos de cita cargados:', cita);
                 
-                // Guardar ID de cita en edición
                 citaEditando = cita;
                 document.getElementById('citaEditandoId').value = cita.id_cita;
                 
-                // Rellenar formulario
                 document.getElementById('pacienteNombre').value = cita.paciente || '';
                 document.getElementById('fechaCita').value = cita.fecha_cita || '';
                 document.getElementById('horaCita').value = cita.hora_cita || '';
                 
-                // Mostrar doctor seleccionado
                 if (cita.doctor_id && cita.doctor_nombre) {
                     document.getElementById('doctorSeleccionadoDisplay').value = cita.doctor_nombre;
                     document.getElementById('doctorSeleccionadoId').value = cita.doctor_id;
@@ -3444,36 +4264,24 @@
                     document.getElementById('selectedDoctorInfo').style.display = 'flex';
                 }
                 
-                // Actualizar folio display
                 document.getElementById('folioDisplay').textContent = cita.numero_folio || 'Editando cita';
-                
-                // Mostrar badge de edición
                 document.getElementById('editingBadge').style.display = 'inline-flex';
                 
-                // Cambiar botones
                 document.getElementById('btnCompletarReceta').style.display = 'none';
                 document.getElementById('btnActualizarReceta').style.display = 'block';
                 document.getElementById('btnCancelarEdicion').style.display = 'block';
                 
-                // Generar horas disponibles para la fecha seleccionada
                 if (cita.fecha_cita) {
                     const fecha = new Date(cita.fecha_cita + 'T12:00:00');
                     generarHorasDisponibles(fecha);
                 }
                 
-                // Intentar seleccionar estudios basados en observaciones (simplificado)
-                // En un sistema real, los estudios deberían estar en una tabla separada
                 const estudiosExistentes = document.querySelectorAll('.study-checkbox');
                 estudiosExistentes.forEach(cb => cb.checked = false);
                 
-                // Aquí podrías implementar lógica para detectar estudios en las observaciones
-                // Por ahora, calculamos total basado en el total_estudio
                 const totalEstudio = parseFloat(cita.total_estudio) || 0;
-                
-                // Actualizar total mostrado
                 document.getElementById('totalAmount').innerHTML = `$${totalEstudio.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
                 
-                // Ocultar mensaje de carga
                 messageEl.className = 'message';
                 messageEl.innerHTML = '';
                 
@@ -3530,7 +4338,6 @@
             
             console.log('📝 Actualizando cita:', citaId);
             
-            // Recolectar estudios seleccionados (para observaciones)
             const estudiosSeleccionados = [];
             const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox:checked');
             
@@ -3605,11 +4412,9 @@
                         <strong>Total estudios:</strong> $${totalEstudio.toFixed(2)}
                     `;
                     
-                    // Salir del modo edición
                     cancelarEdicionReceta();
-                    
-                    // Recargar lista de citas
                     loadAllCitas();
+                    loadCitasAEliminar();
                     
                     setTimeout(() => {
                         showSection('citas', null);
@@ -3627,25 +4432,18 @@
 
         // FUNCIÓN PARA CANCELAR EDICIÓN
         function cancelarEdicionReceta() {
-            // Limpiar ID de edición
             document.getElementById('citaEditandoId').value = '';
             citaEditando = null;
             
-            // Limpiar formulario
             limpiarFormularioReceta();
             
-            // Restaurar folio display
             document.getElementById('folioDisplay').textContent = 'Nueva receta';
-            
-            // Ocultar badge de edición
             document.getElementById('editingBadge').style.display = 'none';
             
-            // Restaurar botones
             document.getElementById('btnCompletarReceta').style.display = 'block';
             document.getElementById('btnActualizarReceta').style.display = 'none';
             document.getElementById('btnCancelarEdicion').style.display = 'none';
             
-            // Limpiar mensajes
             const messageEl = document.getElementById('recetaMessage');
             messageEl.className = 'message';
             messageEl.innerHTML = '';
@@ -3773,7 +4571,6 @@
         }
 
         async function generarCitaAdmin() {
-            // Verificar si estamos en modo edición
             if (document.getElementById('citaEditandoId').value) {
                 if (confirm('Ya hay una cita en edición. ¿Desea cancelar la edición y crear una nueva?')) {
                     cancelarEdicionReceta();
@@ -4286,6 +5083,12 @@
             if (modalId === 'doctorSelectorModal') {
                 doctorSeleccionadoTemp = null;
             }
+            if (modalId === 'entregarResultadoModal') {
+                document.getElementById('resultadoFile').value = '';
+            }
+            if (modalId === 'programarEliminacionModal') {
+                document.getElementById('fechaEliminacion').value = '';
+            }
         }
 
         function formatDate(date) {
@@ -4332,6 +5135,8 @@
         window.filterDoctores = filterDoctores;
         window.searchDoctores = searchDoctores;
         window.searchCitas = searchCitas;
+        window.searchResultados = searchResultados;
+        window.searchCitasEliminar = searchCitasEliminar;
         window.searchGlobal = searchGlobal;
         window.viewUserDetails = viewUserDetails;
         window.editUser = editUser;
@@ -4358,6 +5163,14 @@
         window.cargarEventosCalendario = cargarEventosCalendario;
         window.filtrarCalendarioPorDoctor = filtrarCalendarioPorDoctor;
         window.filtrarCalendarioPorEstado = filtrarCalendarioPorEstado;
+        window.mostrarModalEntregarResultado = mostrarModalEntregarResultado;
+        window.subirResultado = subirResultado;
+        window.loadCitasSinResultado = loadCitasSinResultado;
+        window.mostrarModalProgramarEliminacion = mostrarModalProgramarEliminacion;
+        window.programarEliminacion = programarEliminacion;
+        window.mostrarModalCancelarEliminacion = mostrarModalCancelarEliminacion;
+        window.confirmarCancelarEliminacion = confirmarCancelarEliminacion;
+        window.loadCitasAEliminar = loadCitasAEliminar;
     </script>
 </body>
 </html>
