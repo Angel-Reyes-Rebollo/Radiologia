@@ -92,7 +92,7 @@ SOLO FALTA
     ****Sistema de puntos. Para el sistema de puntos, cada 100 pesos es un punto.****
     ****admin Boton para cancelar citas.****
     ****Arreglar el filtro de periodo en el doctores.****
-    ¡¡¡¡Imagen de los cráneos en los formularios.!!!!
+    ****Imagen de los cráneos en los formularios.****
     !!!!Modificar el formulario que se descarga cuando sacas la orden o la receta.!!!!
     ****Carga de documentos para resultados, el unico que carga documentos es el admin.****
     ****admin La agenda del admin ve las citas que estan generadas****
