@@ -879,6 +879,13 @@
             cursor: pointer;
         }
 
+        .option-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #6b3fa0;
+            cursor: pointer;
+        }
+
         .option-item label {
             flex: 1;
             font-size: 15px;
@@ -1874,6 +1881,7 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN RECETA VIRTUAL - VERSIÓN CORREGIDA (SIN DUPLICACIÓN) -->
             <div id="receta-virtual-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h1>Receta Virtual / Formulario de Prescripción</h1>
@@ -1999,6 +2007,44 @@
                                 <i class="fas fa-info-circle" style="color: #6b3fa0;"></i> 
                                 Guía de referencia para selección de campo de visión
                             </p>
+                        </div>
+                    </div>
+
+                    <!-- ========== FORMATO DE ENTREGA ========= -->
+                    <div class="form-divider">
+                        <i class="fas fa-usb" style="font-size: 28px;"></i>
+                        <span>FORMATO DE ENTREGA</span>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <div class="studies-section">
+                        <div class="section-header">
+                            <i class="fas fa-usb"></i>
+                            <h2>SELECCIONE EL FORMATO DE ENTREGA</h2>
+                        </div>
+                        <div class="options-grid" style="grid-template-columns: repeat(4, 1fr);">
+                            <div class="option-item">
+                                <input type="radio" name="formatoEntrega" id="formatoDigital" value="Digital" checked>
+                                <label for="formatoDigital">Digital <span class="price-tag">Sin costo</span></label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" name="formatoEntrega" id="formatoUSB" value="USB">
+                                <label for="formatoUSB">USB <span class="price-tag">Sin costo</span></label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" name="formatoEntrega" id="formatoDICOM" value="DICOM">
+                                <label for="formatoDICOM">DICOM <span class="price-tag">Sin costo</span></label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" name="formatoEntrega" id="formatoImpreso" value="Impreso">
+                                <label for="formatoImpreso">Impreso <span class="price-tag">Sin costo</span></label>
+                            </div>
+                        </div>
+                        <div class="text-field-group">
+                            <div class="text-field" style="flex: 1;">
+                                <label><i class="fas fa-info-circle"></i> Nota:</label>
+                                <span style="color: #6b3fa0; font-size: 13px;">El formato seleccionado se aplicará a todos los estudios de esta receta</span>
+                            </div>
                         </div>
                     </div>
 
@@ -2182,11 +2228,11 @@
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-notes-medical"></i>
-                            <h2>OBSERVACIONES</h2>
+                            <h2>OBSERVACIONES ADICIONALES</h2>
                         </div>
                         <div class="text-field-group">
                             <div class="text-field" style="flex: 1;">
-                                <textarea placeholder="Escriba observaciones adicionales aquí..." id="observacionesAdicionales" rows="4"></textarea>
+                                <textarea placeholder="Escriba observaciones adicionales aquí (estas NO se duplicarán)..." id="observacionesAdicionales" rows="4"></textarea>
                             </div>
                         </div>
                     </div>
@@ -4308,14 +4354,19 @@
             }
         }
 
-        // FUNCIÓN PARA ACTUALIZAR CITA (FORMULARIO COMPLETO)
+        // FUNCIÓN PARA ACTUALIZAR CITA (FORMULARIO COMPLETO) - VERSIÓN CORREGIDA
         async function actualizarCitaAdmin() {
             const messageEl = document.getElementById('recetaMessage');
             const citaId = document.getElementById('citaEditandoId').value;
             const paciente = document.getElementById('pacienteNombre').value.trim();
+            const pacienteTel = document.getElementById('pacienteTel').value.trim();
             const fechaCita = document.getElementById('fechaCita').value;
             const horaCita = document.getElementById('horaCita').value;
+            const fechaNacimiento = document.getElementById('pacienteFN').value;
             const doctorId = document.getElementById('doctorSeleccionadoId').value;
+            
+            // Obtener formato de entrega seleccionado
+            const formatoEntrega = document.querySelector('input[name="formatoEntrega"]:checked')?.value || 'Digital';
             
             if (!citaId) {
                 messageEl.className = 'message error';
@@ -4358,27 +4409,22 @@
             
             checkboxes.forEach(cb => {
                 if (cb.dataset.name && cb.dataset.price) {
-                    estudiosSeleccionados.push(`${cb.dataset.name} - $${parseFloat(cb.dataset.price).toFixed(2)}`);
+                    const precio = parseFloat(cb.dataset.price);
+                    estudiosSeleccionados.push({
+                        nombre: cb.dataset.name,
+                        precio: precio
+                    });
                 }
             });
             
-            const observaciones = [];
+            // SOLO enviar observaciones adicionales, NO los datos estructurados
+            const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value.trim();
             
-            if (estudiosSeleccionados.length > 0) {
-                observaciones.push('ESTUDIOS SELECCIONADOS:');
-                estudiosSeleccionados.forEach(estudio => observaciones.push(`- ${estudio}`));
-            }
-            
-            const formatoFotografia = document.getElementById('formatoFotografia')?.value;
-            if (formatoFotografia) observaciones.push(`Formato de fotografías: ${formatoFotografia}`);
-            
-            const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value;
-            if (observacionesAdicionales) observaciones.push(observacionesAdicionales);
-            
-            const fechaNacimiento = document.getElementById('pacienteFN').value;
-            if (fechaNacimiento) {
+            // Opcional: agregar fecha de nacimiento a observaciones si se proporciona
+            let observaciones = observacionesAdicionales || '';
+            if (fechaNacimiento && !observaciones.includes('Fecha de nacimiento')) {
                 const fechaNacimientoFormateada = new Date(fechaNacimiento).toLocaleDateString('es-MX');
-                observaciones.push(`Fecha de nacimiento: ${fechaNacimientoFormateada}`);
+                observaciones = `Fecha de nacimiento: ${fechaNacimientoFormateada}\n` + observaciones;
             }
             
             const totalEstudio = calcularTotalReceta();
@@ -4395,11 +4441,14 @@
                     body: JSON.stringify({
                         cita_id: citaId,
                         paciente: paciente,
+                        pacienteTel: pacienteTel,
                         doctor_id: doctorId,
                         fecha_cita: fechaCita,
                         hora_cita: horaCita,
                         total_estudio: totalEstudio,
-                        observaciones: observaciones.join('\n')
+                        observaciones: observaciones,
+                        formato_entrega: formatoEntrega,
+                        formato_fotografia: document.getElementById('formatoFotografia')?.value || 'USB'
                     })
                 });
                 
@@ -4472,6 +4521,12 @@
             checkboxes.forEach(cb => {
                 cb.removeEventListener('change', calcularTotalReceta);
                 cb.addEventListener('change', calcularTotalReceta);
+            });
+            
+            // Agregar event listeners para los radios de formato de entrega
+            const radios = document.querySelectorAll('input[name="formatoEntrega"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', calcularTotalReceta);
             });
             
             calcularTotalReceta();
@@ -4576,6 +4631,8 @@
                 }
             });
             
+            // Los formatos de entrega NO tienen costo adicional
+            
             const totalFormateado = total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             const totalElement = document.getElementById('totalAmount');
             if (totalElement) {
@@ -4585,21 +4642,18 @@
             return total;
         }
 
+        // FUNCIÓN GENERAR CITA ADMIN CORREGIDA (SIN DUPLICACIÓN)
         async function generarCitaAdmin() {
-            if (document.getElementById('citaEditandoId').value) {
-                if (confirm('Ya hay una cita en edición. ¿Desea cancelar la edición y crear una nueva?')) {
-                    cancelarEdicionReceta();
-                } else {
-                    return;
-                }
-            }
-            
             const messageEl = document.getElementById('recetaMessage');
             const paciente = document.getElementById('pacienteNombre').value.trim();
+            const pacienteTel = document.getElementById('pacienteTel').value.trim();
             const fechaCita = document.getElementById('fechaCita').value;
             const horaCita = document.getElementById('horaCita').value;
             const fechaNacimiento = document.getElementById('pacienteFN').value;
             const doctorId = document.getElementById('doctorSeleccionadoId').value;
+            
+            // Obtener formato de entrega seleccionado
+            const formatoEntrega = document.querySelector('input[name="formatoEntrega"]:checked')?.value || 'Digital';
             
             if (!paciente) {
                 messageEl.className = 'message error';
@@ -4637,26 +4691,21 @@
             checkboxes.forEach(cb => {
                 if (cb.dataset.name && cb.dataset.price) {
                     const precio = parseFloat(cb.dataset.price);
-                    if (precio > 0) {
-                        estudios.push({
-                            nombre: cb.dataset.name,
-                            precio: `$${precio.toFixed(2)}`
-                        });
-                    }
+                    estudios.push({
+                        nombre: cb.dataset.name,
+                        precio: precio
+                    });
                 }
             });
             
-            const observaciones = [];
+            // SOLO enviar observaciones adicionales, NO los datos estructurados
+            const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value.trim();
             
-            const formatoFotografia = document.getElementById('formatoFotografia')?.value;
-            if (formatoFotografia) observaciones.push(`Formato de fotografías: ${formatoFotografia}`);
-            
-            const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value;
-            if (observacionesAdicionales) observaciones.push(observacionesAdicionales);
-            
-            if (fechaNacimiento) {
+            // Opcional: agregar fecha de nacimiento a observaciones si se proporciona
+            let observaciones = observacionesAdicionales || '';
+            if (fechaNacimiento && !observaciones.includes('Fecha de nacimiento')) {
                 const fechaNacimientoFormateada = new Date(fechaNacimiento).toLocaleDateString('es-MX');
-                observaciones.push(`Fecha de nacimiento: ${fechaNacimientoFormateada}`);
+                observaciones = `Fecha de nacimiento: ${fechaNacimientoFormateada}\n` + observaciones;
             }
             
             const totalEstudio = calcularTotalReceta();
@@ -4672,12 +4721,15 @@
                     },
                     body: JSON.stringify({
                         paciente: paciente,
+                        pacienteTel: pacienteTel,
                         doctor_id: doctorId,
                         estudios: estudios,
-                        observaciones: observaciones.join('\n'),
+                        observaciones: observaciones,
                         fecha_cita: fechaCita,
                         hora_cita: horaCita,
-                        total_estudio: totalEstudio
+                        total_estudio: totalEstudio,
+                        formato_entrega: formatoEntrega,
+                        formato_fotografia: document.getElementById('formatoFotografia')?.value || 'USB'
                     })
                 });
                 
@@ -4699,12 +4751,12 @@
                         <i class="fas fa-check-circle"></i> 
                         Cita generada exitosamente<br>
                         <strong>Folio:</strong> ${result.numero_folio}<br>
-                        <strong>Doctor:</strong> ${doctorNombre}<br>
                         <strong>Fecha de registro:</strong> ${result.fecha}<br>
                         <strong>Hora de registro:</strong> ${result.hora}<br>
                         <strong>Fecha de cita:</strong> ${fechaCitaFormateada}<br>
                         <strong>Hora de cita:</strong> ${horaDisplay}<br>
-                        <strong>Total estudios:</strong> $${totalEstudio.toFixed(2)}
+                        <strong>Total estudios:</strong> $${totalEstudio.toFixed(2)}<br>
+                        <strong>Formato de entrega:</strong> ${formatoEntrega}
                     `;
                     
                     if (result.pdf_base64) {
@@ -4733,6 +4785,7 @@
             document.getElementById('pacienteFN').value = '';
             document.getElementById('pacienteTel').value = '';
             document.getElementById('fechaCita').value = '';
+            document.getElementById('observacionesAdicionales').value = '';
             
             const horaSelect = document.getElementById('horaCita');
             if (horaSelect) {
@@ -4747,7 +4800,7 @@
             document.querySelectorAll('#receta-virtual-section input[type="text"], #receta-virtual-section input[type="number"], #receta-virtual-section textarea, #receta-virtual-section select').forEach(input => {
                 if (input.id !== 'pacienteNombre' && input.id !== 'pacienteEdad' && 
                     input.id !== 'pacienteFN' && input.id !== 'pacienteTel' &&
-                    input.id !== 'fechaCita' && input.id !== 'doctorSeleccionadoDisplay') {
+                    input.id !== 'fechaCita' && input.id !== 'observacionesAdicionales') {
                     if (input.id === 'formatoFotografia') {
                         input.value = 'USB';
                     } else {
@@ -4755,6 +4808,9 @@
                     }
                 }
             });
+            
+            // Resetear formato de entrega a Digital
+            document.getElementById('formatoDigital').checked = true;
             
             document.getElementById('doctorSeleccionadoDisplay').value = '';
             document.getElementById('doctorSeleccionadoId').value = '';

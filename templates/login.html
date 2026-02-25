@@ -44,12 +44,13 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            position: relative;
         }
         
         /* Logo y marca */
         .login-brand {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
         
         .logo {
@@ -65,6 +66,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
+            overflow: hidden;
         }
         
         .logo:hover {
@@ -72,9 +74,10 @@
             box-shadow: 0 15px 35px rgba(107, 63, 160, 0.4);
         }
         
-        .logo i {
-            font-size: 60px;
-            color: #2d1b4a;
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         .login-brand h1 {
@@ -98,6 +101,223 @@
             font-style: italic;
             margin-top: 10px;
             font-weight: 300;
+        }
+
+        /* Botón de descarga de resultados */
+        .download-btn-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .btn-download-results {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: auto;
+            min-width: 250px;
+        }
+        
+        .btn-download-results i {
+            font-size: 20px;
+        }
+        
+        .btn-download-results:hover {
+            background: white;
+            color: #6b3fa0;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+            border-color: #6b3fa0;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(107, 63, 160, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #d9c9f0;
+        }
+        
+        .modal-header h2 {
+            color: #2d1b4a;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .modal-header i {
+            color: #6b3fa0;
+            font-size: 28px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6b3fa0;
+            transition: color 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: #2d1b4a;
+        }
+        
+        .modal-body {
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d1b4a;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-group label i {
+            margin-right: 8px;
+            color: #6b3fa0;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #d9c9f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: #6b3fa0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.2);
+        }
+        
+        .btn-consultar {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-consultar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.3);
+        }
+        
+        .btn-consultar:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message-container {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .message-container.show {
+            display: block;
+        }
+        
+        .message-container.success {
+            background-color: #e8f5e8;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+        }
+        
+        .message-container.error {
+            background-color: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+        
+        .message-container.info {
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+            color: #0d47a1;
+        }
+        
+        .message-container.warning {
+            background-color: #fff3e0;
+            border: 1px solid #ff9800;
+            color: #e65100;
+        }
+        
+        .modal-footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #6b3fa0;
+            font-size: 13px;
         }
         
         /* Lado derecho - Formulario de login */
@@ -290,7 +510,7 @@
         
         /* Ofertas */
         .login-offers {
-            margin-top: 40px;
+            margin-top: 30px;
             padding: 25px;
             background: #f5f0fa;
             border-radius: 12px;
@@ -429,6 +649,13 @@
             .login-box h2 {
                 font-size: 28px;
             }
+            
+            .btn-download-results {
+                width: 100%;
+                min-width: auto;
+                font-size: 16px;
+                padding: 12px 20px;
+            }
         }
     </style>
 </head>
@@ -437,11 +664,19 @@
         <div class="login-left">
             <div class="login-brand">
                 <div class="logo">
-                    <i class="fas fa-x-ray"></i>
+                    <img src="LOGO4Digital.jpg" alt="4Digital Logo">
                 </div>
                 <h1>4Digital - Radiología Médica</h1>
                 <p>Sistema de Gestión Integral</p>
                 <p class="slogan">Tecnología de vanguardia para diagnósticos precisos</p>
+            </div>
+            
+            <!-- Botón de descarga de resultados -->
+            <div class="download-btn-container">
+                <button class="btn-download-results" id="openDownloadModal">
+                    <i class="fas fa-download"></i>
+                    Descargar resultados
+                </button>
             </div>
         </div>
         
@@ -525,6 +760,36 @@
         </div>
     </footer>
 
+    <!-- Modal para descargar resultados -->
+    <div id="downloadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-download"></i> Descargar resultados</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="folio">
+                        <i class="fas fa-qrcode"></i> Número de folio
+                    </label>
+                    <input type="text" id="folio" class="form-control" placeholder="Ingrese el folio del estudio" autocomplete="off">
+                </div>
+                
+                <button class="btn-consultar" id="consultarBtn">
+                    <i class="fas fa-search"></i> Consultar
+                </button>
+                
+                <div id="messageContainer" class="message-container">
+                    <i id="messageIcon"></i>
+                    <span id="messageText"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <p>Ingrese el folio proporcionado en su receta</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Obtener elementos del DOM
         const loginForm = document.getElementById('loginForm');
@@ -532,6 +797,16 @@
         const errorText = document.getElementById('errorText');
         const loginBtn = document.getElementById('loginBtn');
         const forgotPasswordLink = document.getElementById('forgotPassword');
+        
+        // Elementos del modal
+        const modal = document.getElementById('downloadModal');
+        const openModalBtn = document.getElementById('openDownloadModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const consultarBtn = document.getElementById('consultarBtn');
+        const folioInput = document.getElementById('folio');
+        const messageContainer = document.getElementById('messageContainer');
+        const messageText = document.getElementById('messageText');
+        const messageIcon = document.getElementById('messageIcon');
 
         // Verificar si hay credenciales guardadas
         document.addEventListener('DOMContentLoaded', function() {
@@ -546,6 +821,140 @@
             
             console.log('4Digital - Sistema de Radiología');
         });
+
+        // Abrir modal
+        openModalBtn.addEventListener('click', function() {
+            modal.classList.add('show');
+            folioInput.value = '';
+            messageContainer.classList.remove('show', 'success', 'error', 'info', 'warning');
+            folioInput.focus();
+        });
+
+        // Cerrar modal
+        closeModalBtn.addEventListener('click', function() {
+            modal.classList.remove('show');
+        });
+
+        // Cerrar modal con tecla Escape
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('show')) {
+                modal.classList.remove('show');
+            }
+        });
+
+        // Cerrar modal haciendo clic fuera
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+
+        // Consultar folio
+        consultarBtn.addEventListener('click', async function() {
+            const folio = folioInput.value.trim();
+            
+            if (!folio) {
+                showMessage('Por favor ingrese un número de folio', 'warning');
+                return;
+            }
+            
+            // Deshabilitar botón durante la consulta
+            consultarBtn.disabled = true;
+            consultarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando...';
+            
+            try {
+                const response = await fetch(`/api/consultar-folio/${encodeURIComponent(folio)}`);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al consultar el folio');
+                }
+                
+                // Verificar el tipo de contenido
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    // Es una respuesta JSON (sin resultados o no disponible)
+                    const data = await response.json();
+                    
+                    if (data.disponible === false) {
+                        showMessage('Resultados aún no disponibles', 'info');
+                    } else {
+                        showMessage(data.message || 'Estado desconocido', 'info');
+                    }
+                } else {
+                    // Es un archivo para descargar
+                    const contentDisposition = response.headers.get('content-disposition');
+                    let filename = 'resultado';
+                    
+                    if (contentDisposition) {
+                        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                        if (match) {
+                            filename = match[1];
+                        }
+                    }
+                    
+                    // Obtener el blob y crear URL para descarga
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    // Mostrar mensaje de éxito
+                    showMessage('Descarga iniciada', 'success');
+                    
+                    // Cerrar modal después de 1.5 segundos
+                    setTimeout(() => {
+                        modal.classList.remove('show');
+                    }, 1500);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage(error.message || 'Error al consultar el folio', 'error');
+            } finally {
+                // Restaurar botón
+                consultarBtn.disabled = false;
+                consultarBtn.innerHTML = '<i class="fas fa-search"></i> Consultar';
+            }
+        });
+
+        // Permitir consultar con Enter
+        folioInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                consultarBtn.click();
+            }
+        });
+
+        // Mostrar mensajes en el modal
+        function showMessage(text, type) {
+            messageText.textContent = text;
+            messageContainer.className = 'message-container show ' + type;
+            
+            // Configurar icono según el tipo
+            const icon = messageIcon;
+            switch(type) {
+                case 'success':
+                    icon.className = 'fas fa-check-circle';
+                    break;
+                case 'error':
+                    icon.className = 'fas fa-exclamation-circle';
+                    break;
+                case 'warning':
+                    icon.className = 'fas fa-exclamation-triangle';
+                    break;
+                case 'info':
+                    icon.className = 'fas fa-info-circle';
+                    break;
+                default:
+                    icon.className = 'fas fa-info-circle';
+            }
+        }
 
         // Manejar el envío del formulario
         loginForm.addEventListener('submit', async function(event) {

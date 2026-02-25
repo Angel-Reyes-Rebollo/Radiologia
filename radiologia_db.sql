@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 25-02-2026 a las 01:42:31
+-- Tiempo de generación: 25-02-2026 a las 22:37:58
 -- Versión del servidor: 10.4.32-MariaDB-log
 -- Versión de PHP: 8.2.12
 
@@ -46,7 +46,10 @@ INSERT INTO `actividad_admin` (`id`, `usuario_id`, `accion`, `detalles`, `fecha`
 (4, 'ADMIN', 'ENTREGAR_RESULTADO', 'Resultado entregado para cita FOL-20260223-00002 - Paciente: Jesus - Puntos asignados: 13 - Tamaño: 21734.1KB', '2026-02-24 14:17:29'),
 (5, 'ADMIN', 'PROGRAMAR_ELIMINACION', 'Eliminación programada para cita FOL-20260223-00002 - Paciente: Jesus - Fecha: 2026-02-26', '2026-02-24 16:32:10'),
 (6, 'ADMIN', 'ENTREGAR_RESULTADO', 'Resultado entregado para cita FOL-20260223-00003 - Paciente: lucy - Puntos asignados: 14 - Tamaño: 21734.1KB', '2026-02-24 17:41:00'),
-(7, 'ADMIN', 'PROGRAMAR_ELIMINACION', 'Eliminación programada para cita FOL-20260223-00003 - Paciente: lucy - Fecha: 2026-03-18', '2026-02-24 17:41:35');
+(7, 'ADMIN', 'PROGRAMAR_ELIMINACION', 'Eliminación programada para cita FOL-20260223-00003 - Paciente: lucy - Fecha: 2026-03-18', '2026-02-24 17:41:35'),
+(8, 'ADMIN', 'CANCELAR_CITA', 'Cita cancelada: FOL-20260225-00001 - Paciente: prueba2', '2026-02-25 14:17:03'),
+(9, 'ADMIN', 'CANCELAR_CITA', 'Cita cancelada: FOL-20260225-00002 - Paciente: prueba2', '2026-02-25 14:17:16'),
+(10, 'ADMIN', 'ENTREGAR_RESULTADO', 'Resultado entregado para cita FOL-20260225-00001 - Paciente: Santo - Puntos asignados: 24 - Tamaño: 21734.1KB', '2026-02-25 15:35:35');
 
 -- --------------------------------------------------------
 
@@ -97,7 +100,7 @@ CREATE TABLE `citas` (
   `resultado_fecha_carga` timestamp NULL DEFAULT current_timestamp(),
   `fecha_eliminacion` date DEFAULT NULL,
   `total_estudio` decimal(10,2) NOT NULL DEFAULT 0.00
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -118,14 +121,14 @@ CREATE TABLE `doctores` (
   `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp(),
   `puntos` int(11) DEFAULT 0,
   `activo` tinyint(1) DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `doctores`
 --
 
 INSERT INTO `doctores` (`Diddoctor`, `nombre`, `usuario`, `contrasena`, `especialidad`, `email`, `telefono`, `direccion_consultorio`, `telefono_consultorio`, `fecha_registro`, `puntos`, `activo`) VALUES
-('D001', 'Dr. Alejandro Rodríguez', 'dr.rodriguez', 'doctor123', 'Radiología General', 'dr.rodriguez@radiologia.com', '5512345678', 'Av. Insurgentes Sur 1234, Col. Del Valle, Ciudad de México, CP 03100', '5555123456', '2026-02-04 20:11:56', 27, 1),
+('D001', 'Dr. Alejandro Rodríguez', 'dr.rodriguez', 'doctor123', 'Radiología General', 'dr.rodriguez@radiologia.com', '5512345678', 'Av. Insurgentes Sur 1234, Col. Del Valle, Ciudad de México, CP 03100', '5555123456', '2026-02-04 20:11:56', 51, 1),
 ('D002', 'Dra. María García', 'dr.garcia', 'doc12345', 'Tomografía Computarizada', 'dr.garcia@radiologia.com', '5523456789', 'Torre Médica Reforma, Piso 8, Av. Paseo de la Reforma 250, Col. Juárez, Ciudad de México, CP 06600', '5555234567', '2026-02-04 20:11:56', 0, 1),
 ('D003', 'Dr. Roberto Martínez', 'dr.martinez', 'doctor123', 'Resonancia Magnética', 'dr.martinez@radiologia.com', '5534567890', 'Centro Médico Santa Fe, Av. Santa Fe 150, Col. Santa Fe, Ciudad de México, CP 05348', '5555345678', '2026-02-04 20:11:56', 0, 1),
 ('D004', 'Angel Soriano', 'DR_ASoriano', 'Cosmic$21', 'Por definir', 'x@gmail.com', '1234567891', 'Consultorios Médicos Polanco, Av. Presidente Masaryk 311, Col. Polanco, Ciudad de México, CP 11560', '5555456789', '2026-02-04 20:13:35', 0, 1);
@@ -197,13 +200,13 @@ ALTER TABLE `notificaciones`
 -- AUTO_INCREMENT de la tabla `actividad_admin`
 --
 ALTER TABLE `actividad_admin`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `citas`
 --
 ALTER TABLE `citas`
-  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id_cita` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT de la tabla `notificaciones`

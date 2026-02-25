@@ -93,7 +93,7 @@ SOLO FALTA
     ****admin Boton para cancelar citas.****
     ****Arreglar el filtro de periodo en el doctores.****
     ****Imagen de los cráneos en los formularios.****
-    !!!!Modificar el formulario que se descarga cuando sacas la orden o la receta.!!!!
+    ****Modificar el formulario que se descarga cuando sacas la orden o la receta****
     ****Carga de documentos para resultados, el unico que carga documentos es el admin.****
     ****admin La agenda del admin ve las citas que estan generadas****
     ****Que el doctor pueda genear un pdf con su historial y mandarlo al admin.****
@@ -103,6 +103,7 @@ SOLO FALTA
     Cambiar los logos y colores.
     ****Promociones****
     ****Ver que hacer cuando una cita se entregue****
+    ****Funcion para que el paciente pueda descargar estudios con el puro folio en la pantalla de login****
 
 
 

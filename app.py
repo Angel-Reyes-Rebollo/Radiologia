@@ -1,4 +1,4 @@
-# app.py - VERSIÓN COMPLETA CON GESTIÓN DE RESULTADOS Y ELIMINACIÓN PROGRAMADA
+# app.py - VERSIÓN COMPLETA CON GESTIÓN DE RESULTADOS, ELIMINACIÓN PROGRAMADA, PDF MEJORADO Y CONSULTA PÚBLICA DE RESULTADOS
 import base64
 import io
 import json
@@ -16,7 +16,8 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import landscape, letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
-from reportlab.platypus import (PageBreak, Paragraph, SimpleDocTemplate,
+from reportlab.pdfgen import canvas
+from reportlab.platypus import (Image, PageBreak, Paragraph, SimpleDocTemplate,
                                 Spacer, Table, TableStyle)
 
 
@@ -55,6 +56,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
         elif path.endswith('.html'):
             filename = os.path.basename(path)
             return os.path.join(os.getcwd(), 'templates', filename)
+        elif path.endswith('.jpg') or path.endswith('.png') or path.endswith('.jpeg'):
+            return os.path.join(os.getcwd(), path.lstrip('/'))
         
         return os.path.join(os.getcwd(), path.lstrip('/'))
     
@@ -66,6 +69,14 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 return
         
             print(f"[API GET] {self.path}")
+        
+            # ==============================================
+            # NUEVA RUTA: CONSULTAR FOLIO PARA DESCARGAR RESULTADOS
+            # ==============================================
+            if self.path.startswith('/api/consultar-folio/'):
+                folio = self.path.split('/')[-1]
+                self.handle_consultar_folio(folio)
+                return
         
             # RUTA PARA OBTENER DOCTOR POR USUARIO
             if self.path.startswith('/api/doctor-by-user/'):
@@ -114,16 +125,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.handle_get_all_citas()
                 return
             
-            # ==============================================
-            # NUEVA RUTA: CITAS A ELIMINAR
-            # ==============================================
+            # RUTA: CITAS A ELIMINAR
             if self.path == '/api/citas-eliminar':
                 self.handle_get_citas_eliminar()
                 return
             
-            # ==============================================
-            # NUEVA RUTA: CITAS SIN RESULTADO PARA GESTIÓN DE RESULTADOS
-            # ==============================================
+            # RUTA: CITAS SIN RESULTADO PARA GESTIÓN DE RESULTADOS
             if self.path == '/api/citas-sin-resultado':
                 self.handle_get_citas_sin_resultado()
                 return
@@ -146,6 +153,20 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 cita_id = self.path.split('/')[-1]
                 self.handle_descargar_resultado(cita_id)
                 return
+            
+            # Servir archivos estáticos (imágenes, etc.)
+            if self.path.endswith('.jpg') or self.path.endswith('.png') or self.path.endswith('.jpeg'):
+                file_path = self.translate_path(self.path)
+                if os.path.exists(file_path):
+                    self.send_response(200)
+                    if self.path.endswith('.jpg') or self.path.endswith('.jpeg'):
+                        self.send_header('Content-type', 'image/jpeg')
+                    elif self.path.endswith('.png'):
+                        self.send_header('Content-type', 'image/png')
+                    self.end_headers()
+                    with open(file_path, 'rb') as f:
+                        self.wfile.write(f.read())
+                    return
             
             super().do_GET()
             
@@ -177,15 +198,10 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.handle_update_cita()
         elif self.path == '/api/update-cita-fecha-hora':
             self.handle_update_cita_fecha_hora()
-        # AGREGADO: Endpoint para cancelar cita
         elif self.path == '/api/cancelar-cita':
             self.handle_cancelar_cita()
-        # AGREGADO: Endpoint para entregar resultado (con cálculo de puntos)
         elif self.path == '/api/entregar-resultado':
             self.handle_entregar_resultado()
-        # ==============================================
-        # NUEVO: Endpoint para programar eliminación
-        # ==============================================
         elif self.path == '/api/programar-eliminacion':
             self.handle_programar_eliminacion()
         elif self.path == '/api/cancelar-eliminacion':
@@ -201,7 +217,98 @@ class CustomHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(data, cls=CustomJSONEncoder).encode())
     
     # ==============================================
-    # NUEVAS FUNCIONES: ELIMINACIÓN PROGRAMADA
+    # NUEVA FUNCIÓN: CONSULTAR Y DESCARGAR RESULTADOS POR FOLIO
+    # ==============================================
+    
+    def handle_consultar_folio(self, folio):
+        """Consultar y descargar resultados por número de folio (acceso público)"""
+        try:
+            print(f"[API] Consultando folio público: {folio}")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            # Buscar la cita por número de folio
+            cursor.execute("""
+                SELECT 
+                    id_cita,
+                    numero_folio,
+                    paciente,
+                    resultado,
+                    resultado_nombre,
+                    resultado_tipo,
+                    resultado_tamano,
+                    CASE WHEN resultado IS NOT NULL THEN 1 ELSE 0 END as tiene_resultado
+                FROM citas 
+                WHERE numero_folio = %s
+            """, (folio,))
+            
+            cita = cursor.fetchone()
+            
+            if not cita:
+                cursor.close()
+                db.close()
+                # Folio no encontrado
+                self.send_json_response({
+                    'disponible': False,
+                    'error': 'Folio no encontrado',
+                    'message': 'El folio ingresado no existe en el sistema'
+                }, 404)
+                return
+            
+            if not cita['tiene_resultado'] or not cita['resultado']:
+                cursor.close()
+                db.close()
+                # Folio encontrado pero sin resultados
+                self.send_json_response({
+                    'disponible': False,
+                    'error': 'resultados_no_disponibles',
+                    'message': 'Resultados aún no disponibles',
+                    'folio': folio,
+                    'paciente': cita['paciente']
+                }, 200)  # Usamos 200 para poder diferenciar del error 404
+                return
+            
+            # Tiene resultado - proceder con la descarga
+            resultado_content = cita['resultado']
+            filename = cita['resultado_nombre'] or f"resultado_{cita['numero_folio']}{self.get_file_extension(cita['resultado_tipo'])}"
+            content_type = cita['resultado_tipo'] or 'application/octet-stream'
+            
+            print(f"[API] Enviando resultado para folio {folio}: {filename}, tipo: {content_type}, tamaño: {len(resultado_content)} bytes")
+            
+            cursor.close()
+            db.close()
+            
+            # Enviar el archivo
+            self.send_response(200)
+            self.send_header('Content-Type', content_type)
+            self.send_header('Content-Disposition', f'attachment; filename="{filename}"')
+            self.send_header('Content-Length', str(len(resultado_content)))
+            self.send_header('Content-Transfer-Encoding', 'binary')
+            self.end_headers()
+            
+            # Enviar en chunks para archivos grandes
+            chunk_size = 8192
+            for i in range(0, len(resultado_content), chunk_size):
+                self.wfile.write(resultado_content[i:i+chunk_size])
+            
+        except mysql.connector.Error as e:
+            print(f"Error MySQL consultando folio: {str(e)}")
+            self.send_json_response({
+                'disponible': False,
+                'error': 'Error de base de datos',
+                'message': f'Error al consultar el folio: {str(e)}'
+            }, 500)
+        except Exception as e:
+            print(f"Error general consultando folio: {str(e)}")
+            self.send_json_response({
+                'disponible': False,
+                'error': 'Error del servidor',
+                'message': f'Error del servidor: {str(e)}'
+            }, 500)
+    
+    # ==============================================
+    # FUNCIONES: ELIMINACIÓN PROGRAMADA
     # ==============================================
     
     def handle_get_citas_eliminar(self):
@@ -459,7 +566,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_json_response({'error': str(e)}, 500)
     
     # ==============================================
-    # FUNCIÓN MEJORADA: ENTREGAR RESULTADO (CON MANEJO DE ARCHIVOS GRANDES)
+    # FUNCIÓN MEJORADA: ENTREGAR RESULTADO
     # ==============================================
 
     def handle_entregar_resultado(self):
@@ -571,8 +678,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_json_response(response, 400)
         except mysql.connector.Error as e:
             print(f"Error MySQL: {str(e)}")
-            if e.errno == 2013:  # Lost connection
-                response = {'success': False, 'message': 'Error: El archivo es demasiado grande para la base de datos. Reduzca el tamaño o contacte al administrador.'}
+            if e.errno == 2013:
+                response = {'success': False, 'message': 'Error: El archivo es demasiado grande para la base de datos.'}
             else:
                 response = {'success': False, 'message': f'Error de base de datos: {str(e)}'}
             self.send_json_response(response, 500)
@@ -630,16 +737,14 @@ class CustomHandler(SimpleHTTPRequestHandler):
             tiene_columna_estado = cursor.fetchone()
             
             if tiene_columna_estado:
-                # Si existe la columna estado, actualizar a 'cancelada'
                 cursor.execute("""
                     UPDATE citas 
                     SET estado = 'cancelada',
                         fecha_cancelacion = NOW()
                     WHERE id_cita = %s
                 """, (cita_id,))
-                print(f"[CANCELAR] Cita marcada como cancelada (soft delete)")
+                print(f"[CANCELAR] Cita marcada como cancelada")
             else:
-                # Si no existe la columna estado, eliminar permanentemente
                 cursor.execute("DELETE FROM citas WHERE id_cita = %s", (cita_id,))
                 print(f"[CANCELAR] Cita eliminada permanentemente")
             
@@ -706,7 +811,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
         except Exception as e:
             print(f"Error registrando actividad: {str(e)}")
-            # No lanzar error para no interrumpir la operación principal
     
     # ==============================================
     # FUNCIÓN PARA ACTUALIZAR SOLO FECHA Y HORA DE LA CITA
@@ -719,7 +823,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data.decode())
             
-            # Validar datos requeridos
             cita_id = data.get('cita_id')
             fecha_cita = data.get('fecha_cita')
             hora_cita = data.get('hora_cita')
@@ -735,11 +838,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 SET fecha_cita = %s,
                     hora_cita = %s
                 WHERE id_cita = %s
-            """, (
-                fecha_cita,
-                hora_cita,
-                cita_id
-            ))
+            """, (fecha_cita, hora_cita, cita_id))
             
             db.commit()
             print(f"[CITA] Fecha/hora de cita ID {cita_id} actualizada exitosamente")
@@ -772,7 +871,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            # Verificar que la cita existe
             cursor.execute("SELECT id_cita FROM citas WHERE id_cita = %s", (cita_id,))
             if not cursor.fetchone():
                 cursor.close()
@@ -780,7 +878,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.send_json_response({'error': 'Cita no encontrada'}, 404)
                 return
             
-            # Verificar si existe la columna observaciones
             cursor.execute("SHOW COLUMNS FROM citas LIKE 'observaciones'")
             tiene_observaciones = cursor.fetchone() is not None
             
@@ -833,24 +930,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.send_json_response({'error': 'Cita no encontrada'}, 404)
                 return
             
-            # Convertir campos especiales a formatos serializables
             if 'documento_pdf' in cita and cita['documento_pdf']:
-                # No enviar el PDF completo en la respuesta JSON para evitar problemas de tamaño
                 del cita['documento_pdf']
             
-            # Asegurar que total_estudio sea float
             if cita.get('total_estudio'):
                 cita['total_estudio'] = float(cita['total_estudio'])
-            
-            # Extraer posibles estudios de las observaciones
-            estudios_detectados = []
-            if cita.get('observaciones'):
-                lineas = cita['observaciones'].split('\n')
-                for linea in lineas:
-                    if any(palabra in linea.lower() for palabra in ['ortopantomografía', 'lateral', 'tomografía', 'fotografías', 'modelo', 'estudio', 'radiografía', 'atm', 'senos', 'periapical', 'oclusal']):
-                        estudios_detectados.append(linea)
-            
-            cita['estudios_detectados'] = estudios_detectados
             
             cursor.close()
             db.close()
@@ -875,14 +959,24 @@ class CustomHandler(SimpleHTTPRequestHandler):
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data.decode())
             
-            # Validar datos requeridos
             cita_id = data.get('cita_id')
             paciente = data.get('paciente')
+            paciente_tel = data.get('pacienteTel', '')
             doctor_id = data.get('doctor_id')
             fecha_cita = data.get('fecha_cita')
             hora_cita = data.get('hora_cita')
             total_estudio = float(data.get('total_estudio', 0))
             observaciones = data.get('observaciones', '')
+            formato_entrega = data.get('formato_entrega', 'Digital')
+            formato_fotografia = data.get('formato_fotografia', 'USB')
+            
+            # Agregar formatos a observaciones si no están ya
+            if f"Formato de entrega: {formato_entrega}" not in observaciones:
+                observaciones = f"Formato de entrega: {formato_entrega}\n" + observaciones
+            if f"Formato de fotografías: {formato_fotografia}" not in observaciones:
+                observaciones = f"Formato de fotografías: {formato_fotografia}\n" + observaciones
+            if paciente_tel and f"Teléfono: {paciente_tel}" not in observaciones:
+                observaciones = f"Teléfono: {paciente_tel}\n" + observaciones
             
             if not cita_id or not paciente or not doctor_id or not fecha_cita or not hora_cita:
                 raise ValueError("Faltan datos requeridos para actualizar la cita")
@@ -890,7 +984,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor()
             
-            # Verificar si existe la columna observaciones
             cursor.execute("SHOW COLUMNS FROM citas LIKE 'observaciones'")
             tiene_observaciones = cursor.fetchone() is not None
             
@@ -904,15 +997,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                         total_estudio = %s,
                         observaciones = %s
                     WHERE id_cita = %s
-                """, (
-                    paciente,
-                    doctor_id,
-                    fecha_cita,
-                    hora_cita,
-                    total_estudio,
-                    observaciones,
-                    cita_id
-                ))
+                """, (paciente, doctor_id, fecha_cita, hora_cita, total_estudio, observaciones, cita_id))
             else:
                 cursor.execute("""
                     UPDATE citas 
@@ -922,14 +1007,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                         hora_cita = %s,
                         total_estudio = %s
                     WHERE id_cita = %s
-                """, (
-                    paciente,
-                    doctor_id,
-                    fecha_cita,
-                    hora_cita,
-                    total_estudio,
-                    cita_id
-                ))
+                """, (paciente, doctor_id, fecha_cita, hora_cita, total_estudio, cita_id))
             
             db.commit()
             print(f"[CITA] Cita ID {cita_id} actualizada exitosamente")
@@ -969,7 +1047,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             if not all([cita_id, resultado_base64, resultado_nombre, resultado_tipo]):
                 raise ValueError("Faltan datos requeridos para subir el resultado")
             
-            # Decodificar el archivo base64
             resultado_pdf = base64.b64decode(resultado_base64)
             resultado_tamano = len(resultado_pdf)
             
@@ -988,7 +1065,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
             db.commit()
             
-            # Actualizar puntos del doctor (10 puntos por resultado subido)
             cursor.execute("""
                 UPDATE doctores d
                 JOIN citas c ON d.Diddoctor = c.doctor_id
@@ -1043,11 +1119,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 return
             
             resultado_content = cita['resultado']
-            
-            # Usar el nombre original del archivo
             filename = cita['resultado_nombre'] or f"resultado_{cita['numero_folio']}{self.get_file_extension(cita['resultado_tipo'])}"
-            
-            # Usar el tipo MIME original o detectarlo
             content_type = cita['resultado_tipo'] or 'application/octet-stream'
             
             print(f"[API] Enviando resultado: {filename}, tipo: {content_type}, tamaño: {len(resultado_content)} bytes")
@@ -1059,8 +1131,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_header('Content-Transfer-Encoding', 'binary')
             self.end_headers()
             
-            # Enviar el archivo en chunks para archivos grandes
-            chunk_size = 8192  # 8KB chunks
+            chunk_size = 8192
             for i in range(0, len(resultado_content), chunk_size):
                 self.wfile.write(resultado_content[i:i+chunk_size])
             
@@ -1099,7 +1170,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            # Verificar que el doctor existe
             cursor.execute("SELECT Diddoctor FROM doctores WHERE Diddoctor = %s", (doctor_id,))
             doctor = cursor.fetchone()
             
@@ -1110,7 +1180,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.send_json_response([], 200)
                 return
             
-            # Obtener resultados de este doctor - NO seleccionar el BLOB resultado
             cursor.execute("""
                 SELECT 
                     id_cita,
@@ -1219,265 +1288,335 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_json_response({'error': str(e)}, 500)
     
     # ==============================================
-    # FUNCIÓN PARA GENERAR PDF DE RECETA
+    # FUNCIÓN MEJORADA PARA GENERAR PDF DE RECETA
     # ==============================================
     
     def generate_pdf_cita(self, data):
-        """Generar PDF para la cita/receta - Página 1: Datos básicos, Página 2: Estudios y firma"""
+        """
+        Genera un PDF para la cita/receta mostrando SOLO los estudios seleccionados.
+        Incluye teléfono del paciente, teléfono de consultorio del doctor y formato de entrega.
+        """
         buffer = io.BytesIO()
         
-        # Configurar documento
         doc = SimpleDocTemplate(buffer, pagesize=letter,
-                               rightMargin=72, leftMargin=72,
-                               topMargin=72, bottomMargin=72)
+                               rightMargin=36, leftMargin=36,
+                               topMargin=36, bottomMargin=36)
         
         styles = getSampleStyleSheet()
         
-        # Estilos personalizados
         styles.add(ParagraphStyle(
-            name='CustomTitle',
-            parent=styles['Heading1'],
-            fontSize=20,
-            textColor=colors.HexColor('#1a2980'),
-            alignment=TA_CENTER,
-            spaceAfter=20
+            name='CustomTitle', parent=styles['Heading1'],
+            fontSize=16, textColor=colors.HexColor('#2d1b4a'),
+            alignment=TA_LEFT, spaceAfter=6, fontName='Helvetica-Bold'
+        ))
+        styles.add(ParagraphStyle(
+            name='SectionHeader', parent=styles['Heading2'],
+            fontSize=12, textColor=colors.HexColor('#6b3fa0'),
+            alignment=TA_LEFT, spaceBefore=12, spaceAfter=6, fontName='Helvetica-Bold',
+            borderPadding=(0, 0, 2, 0), borderWidth=1, borderColor=colors.HexColor('#d9c9f0')
+        ))
+        styles.add(ParagraphStyle(
+            name='SubSectionHeader', parent=styles['Heading3'],
+            fontSize=10, textColor=colors.HexColor('#2d1b4a'),
+            alignment=TA_LEFT, spaceBefore=8, spaceAfter=4, fontName='Helvetica-Bold'
+        ))
+        styles.add(ParagraphStyle(
+            name='InfoLabel', parent=styles['Normal'],
+            fontSize=9, textColor=colors.HexColor('#666666'),
+            alignment=TA_LEFT, spaceAfter=1, fontName='Helvetica'
+        ))
+        styles.add(ParagraphStyle(
+            name='InfoValue', parent=styles['Normal'],
+            fontSize=10, textColor=colors.HexColor('#000000'),
+            alignment=TA_LEFT, spaceAfter=2, fontName='Helvetica'
+        ))
+        styles.add(ParagraphStyle(
+            name='InfoRow', parent=styles['Normal'],
+            fontSize=10, textColor=colors.HexColor('#000000'),
+            alignment=TA_LEFT, spaceAfter=2, fontName='Helvetica'
+        ))
+        styles.add(ParagraphStyle(
+            name='StudyStyle', parent=styles['Normal'],
+            fontSize=9, alignment=TA_LEFT, leftIndent=10, fontName='Helvetica',
+            spaceAfter=2
+        ))
+        styles.add(ParagraphStyle(
+            name='FooterStyle', parent=styles['Normal'],
+            fontSize=8, textColor=colors.grey, alignment=TA_CENTER
         ))
         
-        styles.add(ParagraphStyle(
-            name='CustomHeading2',
-            parent=styles['Heading2'],
-            fontSize=14,
-            textColor=colors.HexColor('#26d0ce'),
-            alignment=TA_LEFT,
-            spaceAfter=12
-        ))
-        
-        styles.add(ParagraphStyle(
-            name='CustomNormal',
-            parent=styles['Normal'],
-            fontSize=11,
-            spaceAfter=6
-        ))
-        
-        styles.add(ParagraphStyle(
-            name='CustomBold',
-            parent=styles['Normal'],
-            fontSize=11,
-            fontName='Helvetica-Bold',
-            spaceAfter=6
-        ))
-        
-        styles.add(ParagraphStyle(
-            name='CustomRight',
-            parent=styles['Normal'],
-            fontSize=10,
-            alignment=TA_RIGHT,
-            textColor=colors.grey
-        ))
-        
-        styles.add(ParagraphStyle(
-            name='CustomCenter',
-            parent=styles['Normal'],
-            fontSize=10,
-            alignment=TA_CENTER,
-            textColor=colors.grey
-        ))
-        
-        # Contenido del PDF
         story = []
         
-        # ==============================================
-        # PÁGINA 1: DATOS BÁSICOS
-        # ==============================================
+        def get_checkbox_symbol():
+            return "◉"
         
-        # Título
-        story.append(Paragraph("Radiología Médica Avanzada", styles['CustomTitle']))
-        story.append(Paragraph("Formulario de Prescripción / Receta Virtual", styles['CustomCenter']))
-        story.append(Spacer(1, 30))
+        def load_image(image_path, width=1*inch, height=1*inch):
+            if os.path.exists(image_path):
+                return Image(image_path, width=width, height=height)
+            else:
+                return None
         
-        # Folio y fecha de registro
-        folio_data = [
-            [Paragraph(f"<b>Número de Folio:</b> {data['numero_folio']}", styles['CustomNormal']),
-             Paragraph(f"<b>Fecha de Registro:</b> {data['fecha_registro']}", styles['CustomNormal']),
-             Paragraph(f"<b>Hora de Registro:</b> {data['hora_registro']}", styles['CustomNormal'])]
-        ]
-        folio_table = Table(folio_data, colWidths=[doc.width/3.0]*3)
-        folio_table.setStyle(TableStyle([
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-            ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
-            ('FONTSIZE', (0,0), (-1,-1), 10),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 12),
-            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f8f9fa')),
-            ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#e1e5ee')),
-        ]))
-        story.append(folio_table)
-        story.append(Spacer(1, 25))
-        
-        # DATOS DE LA CITA
-        story.append(Paragraph("DATOS DE LA CITA", styles['CustomHeading2']))
-        
-        cita_data = [
-            [Paragraph(f"<b>Fecha de Cita:</b> {data['fecha_cita']}", styles['CustomNormal']),
-             Paragraph(f"<b>Hora de Cita:</b> {data['hora_cita']}", styles['CustomNormal'])]
-        ]
-        cita_table = Table(cita_data, colWidths=[doc.width/2.0]*2)
-        cita_table.setStyle(TableStyle([
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-            ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
-            ('FONTSIZE', (0,0), (-1,-1), 11),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f0f7ff')),
-        ]))
-        story.append(cita_table)
-        story.append(Spacer(1, 25))
-        
-        # DATOS DEL PACIENTE
-        story.append(Paragraph("DATOS DEL PACIENTE", styles['CustomHeading2']))
-        
-        paciente_data = [
-            [Paragraph(f"<b>Nombre:</b> {data['paciente']}", styles['CustomNormal'])]
-        ]
-        paciente_table = Table(paciente_data, colWidths=[doc.width])
-        paciente_table.setStyle(TableStyle([
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-            ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
-            ('FONTSIZE', (0,0), (-1,-1), 11),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f0f7ff')),
-        ]))
-        story.append(paciente_table)
-        story.append(Spacer(1, 25))
-        
-        # DATOS DEL MÉDICO
-        story.append(Paragraph("DATOS DEL MÉDICO", styles['CustomHeading2']))
-        
-        # Obtener datos del doctor
         db = self.connect_db()
         cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT nombre, especialidad, telefono_consultorio, email, puntos FROM doctores WHERE Diddoctor = %s", (data['doctor_id'],))
+        cursor.execute("SELECT nombre, especialidad, telefono_consultorio, email FROM doctores WHERE Diddoctor = %s", (data['doctor_id'],))
         doctor = cursor.fetchone()
         cursor.close()
         db.close()
         
-        # Si no se encuentra el doctor (caso administrador), usar datos del admin
         if not doctor and data['doctor_id'] == 'ADMIN':
-            doctor = {
-                'nombre': 'Administrador',
-                'especialidad': 'Administración',
-                'telefono_consultorio': 'N/A',
-                'email': 'admin@radiologia.com',
-                'puntos': 0
-            }
+            doctor = {'nombre': 'Administrador', 'especialidad': 'Administración', 'telefono_consultorio': 'N/A', 'email': 'admin@4digital.com'}
         
-        medico_data = [
-            [Paragraph(f"<b>Dr(a).</b> {doctor['nombre'] if doctor else 'Administrador'}", styles['CustomNormal'])],
-            [Paragraph(f"<b>Especialidad:</b> {doctor['especialidad'] if doctor else 'Administración'}", styles['CustomNormal'])],
-            [Paragraph(f"<b>Teléfono:</b> {doctor['telefono_consultorio'] if doctor else 'N/A'}", styles['CustomNormal'])]
-        ]
-        medico_table = Table(medico_data, colWidths=[doc.width])
-        medico_table.setStyle(TableStyle([
+        # ==============================================
+        # PÁGINA 1 - ENCABEZADO Y DATOS BÁSICOS
+        # ==============================================
+        
+        header_data = []
+        logo1 = load_image('LOGO4Digital.jpg', width=0.8*inch, height=0.8*inch)
+        if logo1:
+            header_data.append([logo1, Paragraph("614 6631185 / 614 5395488<br/><b>4DIGITAL</b><br/>Radiológica Dental Chihuahua", styles['InfoLabel'])])
+        else:
+            header_data.append([Paragraph("<b>4DIGITAL</b><br/>Radiológica Dental Chihuahua", styles['InfoLabel']), 
+                               Paragraph("614 6631185 / 614 5395488", styles['InfoLabel'])])
+        
+        header_table = Table(header_data, colWidths=[1*inch, doc.width-1*inch])
+        header_table.setStyle(TableStyle([
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-            ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
-            ('FONTSIZE', (0,0), (-1,-1), 11),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f0f7ff')),
+            ('ALIGN', (0,0), (0,0), 'LEFT'),
+            ('ALIGN', (1,0), (1,0), 'RIGHT'),
+            ('LEFTPADDING', (0,0), (-1,-1), 0),
+            ('RIGHTPADDING', (0,0), (-1,-1), 0),
         ]))
-        story.append(medico_table)
+        story.append(header_table)
+        story.append(Spacer(1, 12))
         
-        # Salto de página
+        info_data = [
+            [Paragraph("<b>Paciente:</b> " + data['paciente'], styles['InfoRow'])],
+        ]
+        
+        if data.get('pacienteTel'):
+            info_data.append([Paragraph("<b>Teléfono:</b> " + data['pacienteTel'], styles['InfoRow'])])
+        
+        info_data.append([Paragraph("<b>Doctor(a):</b> " + (doctor['nombre'] if doctor else 'Administrador'), styles['InfoRow'])])
+        info_data.append([Paragraph("<b>Especialidad:</b> " + (doctor['especialidad'] if doctor else 'Administración'), styles['InfoRow'])])
+        
+        if doctor and doctor.get('telefono_consultorio'):
+            info_data.append([Paragraph("<b>Tel. Consultorio:</b> " + doctor['telefono_consultorio'], styles['InfoRow'])])
+        
+        info_table = Table(info_data, colWidths=[doc.width])
+        info_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('FONTSIZE', (0,0), (-1,-1), 10),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 2),
+        ]))
+        story.append(info_table)
+        story.append(Spacer(1, 6))
+        
+        if data.get('observaciones') and data['observaciones'] != 'Ninguna':
+            story.append(Paragraph("<b>Observaciones:</b>", styles['InfoLabel']))
+            story.append(Paragraph(data.get('observaciones', 'Ninguna'), styles['InfoValue']))
+            story.append(Spacer(1, 6))
+        
+        # ==============================================
+        # FORMATO DE ENTREGA
+        # ==============================================
+        story.append(Paragraph("<b>Formato de Entrega:</b>", styles['SubSectionHeader']))
+        entrega = data.get('formato_entrega', 'Digital')
+        story.append(Paragraph(f"{get_checkbox_symbol()} {entrega}", styles['StudyStyle']))
+        story.append(Spacer(1, 6))
+        
+        story.append(Paragraph("_" * 100, styles['FooterStyle']))
+        story.append(Spacer(1, 6))
+        
+        craneos_img = load_image('Craneos.png', width=doc.width-20, height=1.5*inch)
+        if craneos_img:
+            story.append(craneos_img)
+            story.append(Spacer(1, 6))
+        
+        # ==============================================
+        # ESTUDIOS SELECCIONADOS
+        # ==============================================
+        
+        estudios_seleccionados = data.get('estudios', [])
+        
+        if estudios_seleccionados:
+            categorias = {
+                'RADIOGRAFÍAS 2D': [],
+                'TOMOGRAFÍAS 3D': [],
+                'ESTEREOLITOGRAFÍA': [],
+                'ANÁLISIS CEFALOMÉTRICO': [],
+                'FOTOGRAFÍA CLÍNICA': [],
+                'ESCANEO E IMPRESIÓN 3D': [],
+                'OTROS ESTUDIOS': []
+            }
+            
+            for estudio in estudios_seleccionados:
+                nombre = estudio['nombre']
+                precio = estudio['precio']
+                
+                if isinstance(precio, (int, float)):
+                    precio_formateado = f"${precio:,.2f}"
+                else:
+                    precio_formateado = str(precio)
+                    if '$' not in precio_formateado:
+                        precio_formateado = f"${precio_formateado}"
+                
+                texto_estudio = f"{get_checkbox_symbol()} {nombre} - {precio_formateado}"
+                
+                if any(p in nombre for p in ['Ortopantomografía', 'Panorámica', 'Lateral', 'P-A', 'A-P', 'Waters', 'ATM', 'Digito', 'Periapical', 'Oclusal', 'Senos paranasales']):
+                    categorias['RADIOGRAFÍAS 2D'].append(texto_estudio)
+                elif any(p in nombre for p in ['Tomografía', 'Endodoncia', 'Cirugía Ortognática', 'Ortodoncia 3D', 'Biblioteca de implantes']):
+                    categorias['TOMOGRAFÍAS 3D'].append(texto_estudio)
+                elif any(p in nombre for p in ['Maxilar', 'Mandibular', 'Hemimaxilar', 'Hemimandibular', 'Estereolitografía']):
+                    categorias['ESTEREOLITOGRAFÍA'].append(texto_estudio)
+                elif 'Cefalométrico' in nombre:
+                    categorias['ANÁLISIS CEFALOMÉTRICO'].append(texto_estudio)
+                elif any(p in nombre for p in ['Fotos', 'Fotografía']):
+                    categorias['FOTOGRAFÍA CLÍNICA'].append(texto_estudio)
+                elif any(p in nombre for p in ['Escaneo', 'Modelo', 'Guarda', 'Guía', 'iTero']):
+                    categorias['ESCANEO E IMPRESIÓN 3D'].append(texto_estudio)
+                else:
+                    categorias['OTROS ESTUDIOS'].append(texto_estudio)
+            
+            for categoria, estudios_cat in categorias.items():
+                if estudios_cat:
+                    story.append(Paragraph(categoria, styles['SectionHeader']))
+                    
+                    if len(estudios_cat) > 8:
+                        mitad = len(estudios_cat) // 2
+                        col1 = estudios_cat[:mitad]
+                        col2 = estudios_cat[mitad:]
+                        
+                        col1_parrafos = [Paragraph(est, styles['StudyStyle']) for est in col1]
+                        col2_parrafos = [Paragraph(est, styles['StudyStyle']) for est in col2]
+                        
+                        while len(col1_parrafos) < len(col2_parrafos):
+                            col1_parrafos.append(Paragraph("", styles['StudyStyle']))
+                        while len(col2_parrafos) < len(col1_parrafos):
+                            col2_parrafos.append(Paragraph("", styles['StudyStyle']))
+                        
+                        col_table_data = []
+                        for i in range(len(col1_parrafos)):
+                            col_table_data.append([col1_parrafos[i], col2_parrafos[i]])
+                        
+                        col_table = Table(col_table_data, colWidths=[doc.width/2.2, doc.width/2.2])
+                        col_table.setStyle(TableStyle([
+                            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+                            ('LEFTPADDING', (0,0), (-1,-1), 5),
+                            ('RIGHTPADDING', (0,0), (-1,-1), 5),
+                            ('BOTTOMPADDING', (0,0), (-1,-1), 1),
+                        ]))
+                        story.append(col_table)
+                    else:
+                        for est in estudios_cat:
+                            story.append(Paragraph(est, styles['StudyStyle']))
+                    
+                    story.append(Spacer(1, 4))
+            
+            if data.get('formato_fotografia') and any('Fotos' in str(e) or 'Fotografía' in str(e) for e in estudios_seleccionados):
+                story.append(Paragraph(f"Formato de fotografías: {data['formato_fotografia']}", styles['StudyStyle']))
+                story.append(Spacer(1, 4))
+        
+        else:
+            story.append(Paragraph("No se seleccionaron estudios", styles['StudyStyle']))
+        
+        # ==============================================
+        # PÁGINA 2 - DESGLOSE DE PRECIOS Y FIRMAS
+        # ==============================================
         story.append(PageBreak())
         
-        # ==============================================
-        # PÁGINA 2: ESTUDIOS Y FIRMA
-        # ==============================================
+        story.append(Paragraph("4Digital - Radiología Médica", styles['CustomTitle']))
+        story.append(Paragraph(f"Folio: {data['numero_folio']} - Paciente: {data['paciente']}", styles['FooterStyle']))
+        story.append(Spacer(1, 12))
         
-        story.append(Paragraph("Radiología Médica Avanzada", styles['CustomTitle']))
-        story.append(Paragraph("Detalle de Estudios Solicitados", styles['CustomCenter']))
-        story.append(Spacer(1, 20))
+        story.append(Paragraph("DESGLOSE DE ESTUDIOS", styles['SectionHeader']))
         
-        # Información del folio en la segunda página
-        story.append(Paragraph(f"<b>Folio:</b> {data['numero_folio']} | <b>Paciente:</b> {data['paciente']}", styles['CustomCenter']))
-        story.append(Spacer(1, 20))
-        
-        # Estudios solicitados
-        story.append(Paragraph("ESTUDIOS SOLICITADOS", styles['CustomHeading2']))
-        
-        # Crear tabla de estudios
-        estudios = data.get('estudios', [])
-        total = data.get('total', 0)
-        
-        if estudios:
-            estudio_data = [['Estudio', 'Precio']]
-            for estudio in estudios:
-                estudio_data.append([estudio['nombre'], estudio['precio']])
+        if estudios_seleccionados:
+            table_data = [['Estudio Solicitado', 'Precio']]
+            total = 0
             
-            estudio_table = Table(estudio_data, colWidths=[doc.width - 100, 100])
-            estudio_table.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1a2980')),
+            for estudio in estudios_seleccionados:
+                nombre = estudio['nombre']
+                precio_str = estudio['precio']
+                
+                if isinstance(precio_str, str):
+                    precio_limpio = precio_str.replace('$', '').replace(',', '').strip()
+                    try:
+                        precio_valor = float(precio_limpio)
+                        total += precio_valor
+                        precio_mostrar = f"${precio_valor:,.2f}"
+                    except ValueError:
+                        precio_valor = 0
+                        precio_mostrar = precio_str
+                else:
+                    precio_valor = float(precio_str)
+                    total += precio_valor
+                    precio_mostrar = f"${precio_valor:,.2f}"
+                
+                table_data.append([nombre, precio_mostrar])
+            
+            # Agregar formato de entrega al desglose si tiene costo adicional
+            formato_entrega = data.get('formato_entrega', 'Digital')
+            if formato_entrega == 'USB':
+                total += 50
+                table_data.append(['Cargo por USB', '$50.00'])
+            elif formato_entrega == 'DICOM':
+                total += 100
+                table_data.append(['Cargo por DICOM', '$100.00'])
+            elif formato_entrega == 'Impreso':
+                total += 30
+                table_data.append(['Cargo por impresión', '$30.00'])
+            
+            price_table = Table(table_data, colWidths=[doc.width - 100, 100])
+            price_table.setStyle(TableStyle([
+                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#2d1b4a')),
                 ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+                ('ALIGN', (1,0), (1,-1), 'RIGHT'),
                 ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0,0), (-1,0), 12),
-                ('BOTTOMPADDING', (0,0), (-1,0), 12),
-                ('BACKGROUND', (0,1), (-1,-1), colors.beige),
-                ('GRID', (0,0), (-1,-1), 1, colors.black),
-                ('ALIGN', (1,1), (1,-1), 'RIGHT'),
+                ('FONTSIZE', (0,0), (-1,-1), 10),
+                ('BOTTOMPADDING', (0,0), (-1,0), 8),
+                ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#d9c9f0')),
+                ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#f5f0fa')),
             ]))
-            story.append(estudio_table)
+            story.append(price_table)
             story.append(Spacer(1, 15))
             
-            # Total
-            story.append(Paragraph(f"<b>TOTAL ESTUDIOS:</b> ${total:,.2f}", ParagraphStyle(
+            story.append(Paragraph(f"<b>TOTAL:</b> ${total:,.2f}", ParagraphStyle(
                 'Total',
                 parent=styles['Heading3'],
-                fontSize=16,
-                textColor=colors.HexColor('#1a2980'),
+                fontSize=14,
+                textColor=colors.HexColor('#2d1b4a'),
                 alignment=TA_RIGHT,
-                spaceBefore=10,
+                spaceBefore=5,
                 spaceAfter=20
             )))
         else:
-            story.append(Paragraph("No se especificaron estudios", styles['CustomNormal']))
-            story.append(Spacer(1, 30))
+            story.append(Paragraph("No se especificaron estudios.", styles['StudyStyle']))
+            story.append(Spacer(1, 20))
         
-        # Observaciones (si las hay)
-        if data.get('observaciones'):
-            observaciones_limpio = re.sub(r'Fecha de nacimiento: .+?\n?', '', data['observaciones']).strip()
-            if observaciones_limpio:
-                story.append(Paragraph("OBSERVACIONES", styles['CustomHeading2']))
-                story.append(Paragraph(observaciones_limpio, styles['CustomNormal']))
-                story.append(Spacer(1, 30))
-        
-        # Firma del doctor
-        story.append(Spacer(1, 40))
-        story.append(Paragraph("FIRMA DEL MÉDICO", styles['CustomHeading2']))
+        story.append(Spacer(1, 30))
+        story.append(Paragraph("FIRMAS", styles['SectionHeader']))
         
         signature_data = [
-            [Paragraph("____________________________", styles['CustomCenter']),
-             Paragraph("____________________________", styles['CustomCenter'])],
-            [Paragraph("Firma del Dr(a). " + (doctor['nombre'] if doctor else 'Administrador'), styles['CustomCenter']),
-             Paragraph("Nombre y Fecha", styles['CustomCenter'])]
+            [Paragraph("____________________________", styles['FooterStyle']),
+             Paragraph("____________________________", styles['FooterStyle'])],
+            [Paragraph("Firma del Paciente", styles['FooterStyle']),
+             Paragraph(f"Firma del Dr(a). {doctor['nombre'] if doctor else 'Administrador'}", styles['FooterStyle'])]
         ]
         signature_table = Table(signature_data, colWidths=[doc.width/2.0]*2)
         signature_table.setStyle(TableStyle([
             ('ALIGN', (0,0), (-1,-1), 'CENTER'),
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
-            ('FONTSIZE', (0,0), (-1,-1), 11),
+            ('FONTSIZE', (0,0), (-1,-1), 10),
             ('TOPPADDING', (0,1), (-1,1), 5),
         ]))
         story.append(signature_table)
+        story.append(Spacer(1, 20))
         
-        # Información de la recepcionista
-        story.append(Spacer(1, 30))
-        story.append(Paragraph(f"<i>Receta generada por: {data.get('recepcionista', 'Sistema')} el {data['fecha_registro']} a las {data['hora_registro']}</i>", 
-                              ParagraphStyle('Footer', parent=styles['Normal'], fontSize=9, textColor=colors.grey, alignment=TA_CENTER)))
+        story.append(Paragraph(f"Receta generada por: Administrador el {data['fecha_registro']} a las {data['hora_registro']}", styles['FooterStyle']))
         
-        # Construir PDF
         doc.build(story)
         pdf = buffer.getvalue()
         buffer.close()
@@ -1495,14 +1634,22 @@ class CustomHandler(SimpleHTTPRequestHandler):
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data.decode())
             
-            # Validar datos requeridos
             paciente = data.get('paciente')
+            paciente_tel = data.get('pacienteTel', '')
             doctor_id = data.get('doctor_id')
             estudios = data.get('estudios', [])
             observaciones = data.get('observaciones', '')
             fecha_cita = data.get('fecha_cita')
             hora_cita = data.get('hora_cita')
             total_estudio = float(data.get('total_estudio', 0))
+            formato_entrega = data.get('formato_entrega', 'Digital')
+            formato_fotografia = data.get('formato_fotografia', 'USB')
+            
+            # Agregar formatos a observaciones
+            if paciente_tel:
+                observaciones = f"Teléfono: {paciente_tel}\n" + observaciones
+            observaciones = f"Formato de entrega: {formato_entrega}\n" + observaciones
+            observaciones = f"Formato de fotografías: {formato_fotografia}\n" + observaciones
             
             if not paciente or not doctor_id:
                 raise ValueError("Faltan datos requeridos: paciente o doctor_id")
@@ -1513,7 +1660,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            # Verificar que el doctor existe (excepto ADMIN)
             doctor_nombre = "Administrador"
             if doctor_id != 'ADMIN':
                 cursor.execute("SELECT Diddoctor, nombre FROM doctores WHERE Diddoctor = %s", (doctor_id,))
@@ -1523,21 +1669,17 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     raise ValueError(f"El doctor con ID {doctor_id} no existe en la base de datos")
                 doctor_nombre = doctor['nombre']
             
-            # Generar número de folio único
             cursor.execute("SELECT COUNT(*) as total FROM citas")
             result = cursor.fetchone()
             total_citas = result['total'] + 1
             numero_folio = f"FOL-{datetime.now().strftime('%Y%m%d')}-{str(total_citas).zfill(5)}"
             
-            # Fecha y hora actual de registro
             fecha_registro = datetime.now().strftime('%Y-%m-%d')
             hora_registro = datetime.now().strftime('%H:%M:%S')
             
-            # Formatear fecha y hora de cita para mostrar
             fecha_cita_formateada = datetime.strptime(fecha_cita, '%Y-%m-%d').strftime('%d/%m/%Y')
             hora_cita_formateada = hora_cita
             
-            # Generar PDF
             pdf_data = {
                 'numero_folio': numero_folio,
                 'fecha_registro': fecha_registro,
@@ -1545,22 +1687,23 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'fecha_cita': fecha_cita_formateada,
                 'hora_cita': hora_cita_formateada,
                 'paciente': paciente,
+                'pacienteTel': paciente_tel,
                 'doctor_id': doctor_id,
                 'doctor_nombre': doctor_nombre,
                 'estudios': estudios,
                 'observaciones': observaciones,
                 'total': total_estudio,
-                'recepcionista': 'Administrador' if doctor_id == 'ADMIN' else 'Sistema'
+                'recepcionista': 'Administrador' if doctor_id == 'ADMIN' else 'Sistema',
+                'formato_entrega': formato_entrega,
+                'formato_fotografia': formato_fotografia
             }
             
             pdf_content = self.generate_pdf_cita(pdf_data)
             pdf_size = len(pdf_content)
             
-            # Verificar si existe la columna observaciones
             cursor.execute("SHOW COLUMNS FROM citas LIKE 'observaciones'")
             tiene_observaciones = cursor.fetchone() is not None
             
-            # Verificar si existe la columna fecha_eliminacion
             cursor.execute("SHOW COLUMNS FROM citas LIKE 'fecha_eliminacion'")
             tiene_fecha_eliminacion = cursor.fetchone() is not None
             
@@ -1636,14 +1779,12 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db.commit()
             print(f"[CITA] Cita generada exitosamente - Folio: {numero_folio}, Doctor: {doctor_id}, Total: ${total_estudio}")
             
-            # Obtener el ID de la cita insertada
             cursor.execute("SELECT LAST_INSERT_ID() as id")
             cita_id = cursor.fetchone()['id']
             
             cursor.close()
             db.close()
             
-            # Convertir PDF a Base64 para descarga automática
             pdf_base64 = base64.b64encode(pdf_content).decode('utf-8')
             
             response = {
@@ -1675,7 +1816,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            # Verificar que el doctor existe
             cursor.execute("SELECT Diddoctor FROM doctores WHERE Diddoctor = %s", (doctor_id,))
             doctor = cursor.fetchone()
             
@@ -1686,7 +1826,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.send_json_response([], 200)
                 return
             
-            # Incluir todos los campos necesarios
             cursor.execute("""
                 SELECT 
                     id_cita,
@@ -1708,7 +1847,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             citas = cursor.fetchall()
             print(f"[API] Se encontraron {len(citas)} citas para el doctor {doctor_id}")
             
-            # Asegurar que total_estudio sea un número
             for cita in citas:
                 if cita['total_estudio'] is None:
                     cita['total_estudio'] = 0.00
@@ -1725,7 +1863,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_json_response({'error': str(e), 'citas': []}, 500)
 
     # ==============================================
-    # FUNCIÓN PARA OBTENER TODAS LAS CITAS (ADMIN) - MODIFICADA
+    # FUNCIÓN PARA OBTENER TODAS LAS CITAS (ADMIN)
     # ==============================================
     
     def handle_get_all_citas(self):
@@ -1736,16 +1874,13 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            # Verificar si existe la columna estado
             cursor.execute("SHOW COLUMNS FROM citas LIKE 'estado'")
             tiene_estado = cursor.fetchone()
             
-            # Verificar si existe la columna fecha_eliminacion
             cursor.execute("SHOW COLUMNS FROM citas LIKE 'fecha_eliminacion'")
             tiene_fecha_eliminacion = cursor.fetchone() is not None
             
             if tiene_estado:
-                # Solo mostrar citas activas (no canceladas)
                 cursor.execute("""
                     SELECT 
                         c.id_cita,
@@ -1770,7 +1905,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     ORDER BY c.fecha_cita DESC, c.hora_cita DESC
                 """)
             else:
-                # Si no hay columna estado, mostrar todas
                 cursor.execute("""
                     SELECT 
                         c.id_cita,
@@ -1796,7 +1930,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             citas = cursor.fetchall()
             print(f"[API] Se encontraron {len(citas)} citas activas")
             
-            # Convertir total_estudio a float
             for cita in citas:
                 if cita['total_estudio'] is None:
                     cita['total_estudio'] = 0.00
@@ -1822,23 +1955,18 @@ class CustomHandler(SimpleHTTPRequestHandler):
             db = self.connect_db()
             cursor = db.cursor(dictionary=True)
             
-            # Total de doctores activos
             cursor.execute("SELECT COUNT(*) as total FROM doctores WHERE activo = 1")
             total_doctores = cursor.fetchone()['total']
             
-            # Verificar si existe columna estado
             cursor.execute("SHOW COLUMNS FROM citas LIKE 'estado'")
             tiene_estado = cursor.fetchone()
             
             if tiene_estado:
-                # Total de citas activas
                 cursor.execute("SELECT COUNT(*) as total FROM citas WHERE estado = 'activa' OR estado IS NULL")
             else:
-                # Total de citas
                 cursor.execute("SELECT COUNT(*) as total FROM citas")
             total_citas = cursor.fetchone()['total']
             
-            # Nuevos doctores en los últimos 7 días
             cursor.execute("""
                 SELECT COUNT(*) as total 
                 FROM doctores 
@@ -1846,19 +1974,15 @@ class CustomHandler(SimpleHTTPRequestHandler):
             """)
             nuevos_doctores = cursor.fetchone()['total']
             
-            # Citas completadas (con resultado cargado)
             cursor.execute("SELECT COUNT(*) as total FROM citas WHERE resultado IS NOT NULL")
             citas_completadas = cursor.fetchone()['total']
             
-            # Estudios pendientes (citas sin resultado)
             cursor.execute("SELECT COUNT(*) as total FROM citas WHERE resultado IS NULL")
             estudios_pendientes = cursor.fetchone()['total']
             
-            # Citas programadas para eliminar
             cursor.execute("SELECT COUNT(*) as total FROM citas WHERE fecha_eliminacion IS NOT NULL")
             citas_eliminar = cursor.fetchone()['total']
             
-            # Próxima fecha de eliminación
             cursor.execute("""
                 SELECT DATE_FORMAT(MIN(fecha_eliminacion), '%d/%m/%Y') as proxima 
                 FROM citas 
@@ -1866,7 +1990,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             """)
             proxima_eliminacion = cursor.fetchone()['proxima']
             
-            # Total de puntos acumulados por todos los doctores
             cursor.execute("SELECT SUM(puntos) as total_puntos FROM doctores")
             total_puntos = cursor.fetchone()['total_puntos'] or 0
             
@@ -2078,7 +2201,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 self.send_json_response({'error': 'Doctor no encontrado'}, 404)
                 return
             
-            # Total de citas del doctor
             cursor.execute("""
                 SELECT COUNT(*) as total_citas
                 FROM citas
@@ -2087,7 +2209,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             citas_result = cursor.fetchone()
             doctor['total_citas'] = citas_result['total_citas'] if citas_result else 0
             
-            # Pacientes únicos
             cursor.execute("""
                 SELECT COUNT(DISTINCT paciente) as total_pacientes
                 FROM citas
@@ -2096,7 +2217,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             pacientes_result = cursor.fetchone()
             doctor['total_pacientes'] = pacientes_result['total_pacientes'] if pacientes_result else 0
             
-            # Estudios pendientes (citas sin resultado)
             cursor.execute("""
                 SELECT COUNT(*) as estudios_pendientes
                 FROM citas
@@ -2142,7 +2262,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
             doctores = cursor.fetchall()
             
-            # Agregar doctor ADMIN virtual
             doctores_admin = [{
                 'id': 'ADMIN',
                 'nombre': 'Administrador',
@@ -2161,7 +2280,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'estudios_pendientes': 0
             }]
             
-            # Agregar conteo de citas para cada doctor real
             for doctor in doctores:
                 cursor.execute("""
                     SELECT COUNT(*) as total_citas
@@ -2189,7 +2307,6 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 
                 doctor['activo'] = bool(doctor['activo'])
             
-            # Combinar listas
             doctores_combinados = doctores_admin + doctores
             
             cursor.close()
@@ -2633,16 +2750,19 @@ print("   • Doctor:    dr.rodriguez / doctor123")
 print("   • Admin:     admin / admin123")
 print("\n📝 Registro disponible en: /registro")
 print("👑 Panel de administración: /admin")
-print("✅ NUEVO: Gestión de Resultados con puntos automáticos")
-print("✅ NUEVO: 1 punto por cada $100 en resultados entregados")
-print("✅ NUEVO: Eliminación programada de citas")
+print("✅ Gestión de Resultados con puntos automáticos")
+print("✅ 1 punto por cada $100 en resultados entregados")
+print("✅ Eliminación programada de citas")
+print("✅ PDF mejorado con checkboxes y formato profesional")
+print("✅ Teléfono de paciente y teléfono de consultorio incluidos")
+print("✅ Formato de entrega: Digital, USB, DICOM, Impreso")
+print("✅ NUEVO: Consulta pública de resultados por folio")
 print("=" * 60)
 
 if not os.path.exists('templates'):
     os.makedirs('templates')
     print("📁 Carpeta 'templates' creada")
 
-# Verificar si reportlab está instalado
 try:
     from reportlab.lib import colors
     print("✅ ReportLab instalado correctamente")
@@ -2651,6 +2771,11 @@ except ImportError:
     import subprocess
     subprocess.check_call(['pip', 'install', 'reportlab'])
     print("✅ ReportLab instalado correctamente")
+
+if not os.path.exists('LOGO4Digital.jpg'):
+    print("⚠️ Logo no encontrado: LOGO4Digital.jpg (el PDF se generará sin logo)")
+if not os.path.exists('Craneos.png'):
+    print("⚠️ Imagen no encontrada: Craneos.png (el PDF se generará sin la imagen de referencia)")
 
 try:
     server = HTTPServer(('', PORT), CustomHandler)
