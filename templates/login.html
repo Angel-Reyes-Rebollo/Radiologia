@@ -15,7 +15,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f0fa 0%, #d9c9f0 100%);
+            background: linear-gradient(135deg, #1C1C26 0%, #2A2A38 50%, #3A3A4F 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -32,13 +32,13 @@
             background: white;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(107, 63, 160, 0.2), 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(28, 28, 38, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2);
         }
         
         /* Lado izquierdo - Información de la empresa */
         .login-left {
             flex: 1;
-            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 50%, #9f7aea 100%);
+            background: linear-gradient(135deg, #1C1C26 0%, #2A2A38 50%, #3A3A4F 100%);
             color: white;
             padding: 40px;
             display: flex;
@@ -71,7 +71,7 @@
         
         .logo:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(107, 63, 160, 0.4);
+            box-shadow: 0 15px 35px rgba(28, 28, 38, 0.4);
         }
         
         .logo img {
@@ -97,7 +97,7 @@
         
         .login-brand .slogan {
             font-size: 14px;
-            color: #9f7aea;
+            color: #8A8AA6;
             font-style: italic;
             margin-top: 10px;
             font-weight: 300;
@@ -110,7 +110,7 @@
         }
         
         .btn-download-results {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
             border: 2px solid white;
             color: white;
             padding: 15px 30px;
@@ -135,10 +135,10 @@
         
         .btn-download-results:hover {
             background: white;
-            color: #6b3fa0;
+            color: #1C1C26;
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
-            border-color: #6b3fa0;
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+            border-color: #1C1C26;
         }
         
         /* Modal */
@@ -150,7 +150,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(28, 28, 38, 0.7);
             backdrop-filter: blur(5px);
             align-items: center;
             justify-content: center;
@@ -166,7 +166,7 @@
             padding: 30px;
             max-width: 450px;
             width: 90%;
-            box-shadow: 0 20px 40px rgba(107, 63, 160, 0.3);
+            box-shadow: 0 20px 40px rgba(28, 28, 38, 0.3);
             animation: modalSlideIn 0.3s ease;
         }
         
@@ -187,17 +187,17 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #d9c9f0;
+            border-bottom: 2px solid #3A3A4F;
         }
         
         .modal-header h2 {
-            color: #2d1b4a;
+            color: #1C1C26;
             font-size: 24px;
             font-weight: 600;
         }
         
         .modal-header i {
-            color: #6b3fa0;
+            color: #3A3A4F;
             font-size: 28px;
         }
         
@@ -206,12 +206,12 @@
             border: none;
             font-size: 28px;
             cursor: pointer;
-            color: #6b3fa0;
+            color: #3A3A4F;
             transition: color 0.3s;
         }
         
         .close-modal:hover {
-            color: #2d1b4a;
+            color: #1C1C26;
         }
         
         .modal-body {
@@ -225,35 +225,35 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #2d1b4a;
+            color: #1C1C26;
             font-weight: 600;
             font-size: 14px;
         }
         
         .form-group label i {
             margin-right: 8px;
-            color: #6b3fa0;
+            color: #3A3A4F;
         }
         
         .form-control {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid #d9c9f0;
+            border: 2px solid #3A3A4F;
             border-radius: 10px;
             font-size: 16px;
             transition: all 0.3s;
         }
         
         .form-control:focus {
-            border-color: #6b3fa0;
+            border-color: #1C1C26;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.2);
+            box-shadow: 0 0 0 3px rgba(28, 28, 38, 0.2);
         }
         
         .btn-consultar {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
+            background: linear-gradient(135deg, #1C1C26 0%, #2A2A38 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -269,7 +269,7 @@
         
         .btn-consultar:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(107, 63, 160, 0.3);
+            box-shadow: 0 5px 15px rgba(28, 28, 38, 0.3);
         }
         
         .btn-consultar:disabled {
@@ -316,7 +316,7 @@
         .modal-footer {
             margin-top: 20px;
             text-align: center;
-            color: #6b3fa0;
+            color: #3A3A4F;
             font-size: 13px;
         }
         
@@ -338,13 +338,13 @@
         
         .login-box h2 {
             font-size: 32px;
-            color: #2d1b4a;
+            color: #1C1C26;
             margin-bottom: 10px;
             font-weight: 700;
         }
         
         .login-subtitle {
-            color: #6b3fa0;
+            color: #3A3A4F;
             margin-bottom: 30px;
             font-size: 16px;
         }
@@ -359,19 +359,19 @@
             align-items: center;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #2d1b4a;
+            color: #1C1C26;
             font-size: 14px;
         }
         
         .form-group label i {
             margin-right: 8px;
-            color: #6b3fa0;
+            color: #3A3A4F;
         }
         
         .form-control {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid #d9c9f0;
+            border: 2px solid #3A3A4F;
             border-radius: 10px;
             font-size: 16px;
             transition: all 0.3s;
@@ -379,9 +379,9 @@
         }
         
         .form-control:focus {
-            border-color: #6b3fa0;
+            border-color: #1C1C26;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.2);
+            box-shadow: 0 0 0 3px rgba(28, 28, 38, 0.2);
         }
         
         .form-options {
@@ -396,18 +396,18 @@
             align-items: center;
             cursor: pointer;
             font-size: 14px;
-            color: #4a3b6e;
+            color: #1C1C26;
         }
         
         .checkbox-container input {
             margin-right: 8px;
             width: 16px;
             height: 16px;
-            accent-color: #6b3fa0;
+            accent-color: #1C1C26;
         }
         
         .forgot-password {
-            color: #6b3fa0;
+            color: #3A3A4F;
             text-decoration: none;
             font-size: 14px;
             font-weight: 500;
@@ -415,14 +415,14 @@
         }
         
         .forgot-password:hover {
-            color: #2d1b4a;
+            color: #1C1C26;
             text-decoration: underline;
         }
         
         .login-btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 50%, #9f7aea 100%);
+            background: linear-gradient(135deg, #1C1C26 0%, #2A2A38 50%, #3A3A4F 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -442,7 +442,7 @@
         
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 7px 14px rgba(107, 63, 160, 0.3);
+            box-shadow: 0 7px 14px rgba(28, 28, 38, 0.3);
         }
         
         .login-divider {
@@ -454,7 +454,7 @@
         .login-divider span {
             background: white;
             padding: 0 15px;
-            color: #6b3fa0;
+            color: #3A3A4F;
             position: relative;
             z-index: 1;
             font-size: 14px;
@@ -467,25 +467,25 @@
             left: 0;
             right: 0;
             height: 1px;
-            background: #d9c9f0;
+            background: #3A3A4F;
         }
         
         .login-footer {
             margin-top: 30px;
             text-align: center;
-            color: #6b3fa0;
+            color: #3A3A4F;
             font-size: 14px;
         }
         
         .login-footer a {
-            color: #2d1b4a;
+            color: #1C1C26;
             text-decoration: none;
             font-weight: 500;
         }
         
         .login-footer a:hover {
             text-decoration: underline;
-            color: #9f7aea;
+            color: #3A3A4F;
         }
         
         /* Mensaje de error */
@@ -512,14 +512,14 @@
         .login-offers {
             margin-top: 30px;
             padding: 25px;
-            background: #f5f0fa;
+            background: #f5f5f8;
             border-radius: 12px;
-            border-left: 4px solid #9f7aea;
+            border-left: 4px solid #3A3A4F;
         }
         
         .login-offers h3 {
             margin-top: 0;
-            color: #2d1b4a;
+            color: #1C1C26;
             font-size: 18px;
             margin-bottom: 15px;
             font-weight: 600;
@@ -529,7 +529,7 @@
         
         .login-offers h3 i {
             margin-right: 10px;
-            color: #9f7aea;
+            color: #3A3A4F;
         }
         
         .offer-mini {
@@ -537,19 +537,19 @@
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(107, 63, 160, 0.1);
+            box-shadow: 0 2px 5px rgba(28, 28, 38, 0.1);
             transition: transform 0.3s;
-            border-left: 3px solid #6b3fa0;
+            border-left: 3px solid #1C1C26;
         }
         
         .offer-mini:hover {
             transform: translateX(5px);
-            box-shadow: 0 4px 10px rgba(107, 63, 160, 0.2);
+            box-shadow: 0 4px 10px rgba(28, 28, 38, 0.2);
         }
         
         .offer-mini-badge {
             display: inline-block;
-            background: linear-gradient(135deg, #2d1b4a 0%, #6b3fa0 100%);
+            background: linear-gradient(135deg, #1C1C26 0%, #2A2A38 100%);
             color: white;
             padding: 4px 12px;
             border-radius: 4px;
@@ -560,7 +560,7 @@
         
         .offer-mini p {
             margin: 0;
-            color: #2d1b4a;
+            color: #1C1C26;
             font-size: 14px;
         }
         
@@ -568,9 +568,9 @@
         .contact-info {
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px solid #d9c9f0;
+            border-top: 1px solid #3A3A4F;
             font-size: 13px;
-            color: #6b3fa0;
+            color: #3A3A4F;
             text-align: center;
         }
         
@@ -579,7 +579,7 @@
         }
         
         .contact-info i {
-            color: #2d1b4a;
+            color: #1C1C26;
             margin-right: 8px;
         }
         
@@ -587,7 +587,7 @@
         .login-page-footer {
             text-align: center;
             padding: 20px;
-            color: #6b3fa0;
+            color: rgba(255, 255, 255, 0.8);
             font-size: 14px;
             background: transparent;
         }
@@ -597,7 +597,7 @@
         }
         
         .footer-links a {
-            color: #2d1b4a;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
             margin: 0 10px;
             font-size: 13px;
@@ -605,7 +605,7 @@
         
         .footer-links a:hover {
             text-decoration: underline;
-            color: #9f7aea;
+            color: white;
         }
         
         /* Responsive */
