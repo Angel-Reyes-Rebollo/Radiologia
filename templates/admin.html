@@ -1663,7 +1663,7 @@
         <aside class="admin-sidebar">
             <nav class="admin-nav">
                 <div class="nav-title">Navegación</div>
-                <a href="#" class="nav-item" onclick="showSection('dashboard', event)">
+                <a href="#" class="nav-item active" onclick="showSection('dashboard', event)">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -1683,7 +1683,7 @@
                     <i class="fas fa-file-medical"></i>
                     <span>Gestión de Resultados</span>
                 </a>
-                <a href="#" class="nav-item active" onclick="showSection('reportes', event)">
+                <a href="#" class="nav-item" onclick="showSection('reportes', event)">
                     <i class="fas fa-chart-bar"></i>
                     <span>Reportes</span>
                 </a>
@@ -1705,7 +1705,8 @@
         </aside>
 
         <main class="admin-content">
-            <div id="dashboard-section" class="content-section" style="display: none;">
+            <!-- SECCIÓN DASHBOARD - VISIBLE POR DEFECTO -->
+            <div id="dashboard-section" class="content-section" style="display: block;">
                 <div class="content-header">
                     <h2><i class="fas fa-tachometer-alt"></i> Dashboard 4Digital</h2>
                     <div class="search-box">
@@ -1772,6 +1773,7 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN GESTIÓN DE DOCTORES -->
             <div id="doctores-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-user-md"></i> Gestión de Doctores</h2>
@@ -1820,8 +1822,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN: AGENDA CON CALENDARIO -->
-            
+            <!-- SECCIÓN AGENDA -->
             <div id="agenda-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-calendar-alt"></i> Agenda de Citas 4Digital</h2>
@@ -1878,6 +1879,7 @@
                 </div>
             </div>
 
+            <!-- SECCIÓN GESTIÓN DE CITAS -->
             <div id="citas-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-calendar-check"></i> Gestión de Citas</h2>
@@ -1916,10 +1918,7 @@
                 </div>
             </div>
 
-            <!-- ============================================== -->
-            <!-- NUEVA SECCIÓN: CITAS A ELIMINAR -->
-            <!-- ============================================== -->
-            
+            <!-- SECCIÓN CITAS A ELIMINAR -->
             <div id="citas-eliminar-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-clock"></i> Citas Programadas para Eliminar</h2>
@@ -1967,10 +1966,7 @@
                 </div>
             </div>
 
-            <!-- ============================================== -->
-            <!-- NUEVA SECCIÓN: GESTIÓN DE RESULTADOS -->
-            <!-- ============================================== -->
-            
+            <!-- SECCIÓN GESTIÓN DE RESULTADOS -->
             <div id="resultados-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-file-medical"></i> Gestión de Resultados</h2>
@@ -2017,8 +2013,8 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN REPORTES - VERSIÓN CORREGIDA CON TODOS LOS DATOS -->
-            <div id="reportes-section" class="content-section" style="display: block;">
+            <!-- SECCIÓN REPORTES - OCULTA POR DEFECTO -->
+            <div id="reportes-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fas fa-chart-bar"></i> Reportes por Doctor</h2>
                 </div>
@@ -2091,7 +2087,7 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN RECETA VIRTUAL - VERSIÓN CORREGIDA (SIN DUPLICACIÓN) -->
+            <!-- SECCIÓN RECETA VIRTUAL -->
             <div id="receta-virtual-section" class="content-section" style="display: none;">
                 <div class="content-header">
                     <h1>Receta Virtual / Formulario de Prescripción</h1>
@@ -2478,6 +2474,7 @@
         <p>Última actualización: <span id="lastUpdate">Cargando...</span></p>
     </footer>
 
+    <!-- MODAL: Detalles del Doctor -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -2492,6 +2489,7 @@
         </div>
     </div>
 
+    <!-- MODAL: Editar Doctor -->
     <div id="editUserModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -2564,6 +2562,7 @@
         </div>
     </div>
 
+    <!-- MODAL: Crear Doctor -->
     <div id="createDoctorModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -2621,6 +2620,7 @@
         </div>
     </div>
 
+    <!-- MODAL: Confirmar Eliminación -->
     <div id="deleteModal" class="modal">
         <div class="modal-content">
             <div class="modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
@@ -2637,6 +2637,7 @@
         </div>
     </div>
 
+    <!-- MODAL: Detalles de la Cita -->
     <div id="citaDetailModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -2651,6 +2652,7 @@
         </div>
     </div>
 
+    <!-- MODAL: Selector de Doctores -->
     <div id="doctorSelectorModal" class="modal">
         <div class="modal-content doctor-list-modal">
             <div class="modal-header">
@@ -2675,6 +2677,7 @@
         </div>
     </div>
 
+    <!-- MODAL: Cancelar Cita -->
     <div id="cancelarCitaModal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
@@ -2703,6 +2706,7 @@
         </div>
     </div>
 
+    <!-- MODAL: Detalles del Evento (Calendario) -->
     <div id="eventoDetailModal" class="modal">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #1C1C26 0%, #2A2A38 100%);">
@@ -2717,10 +2721,7 @@
         </div>
     </div>
 
-    <!-- ============================================== -->
-    <!-- NUEVO MODAL: PROGRAMAR ELIMINACIÓN -->
-    <!-- ============================================== -->
-    
+    <!-- MODAL: Programar Eliminación -->
     <div id="programarEliminacionModal" class="modal">
         <div class="modal-content" style="max-width: 550px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);">
@@ -2771,10 +2772,7 @@
         </div>
     </div>
 
-    <!-- ============================================== -->
-    <!-- NUEVO MODAL: CANCELAR ELIMINACIÓN -->
-    <!-- ============================================== -->
-    
+    <!-- MODAL: Cancelar Eliminación -->
     <div id="cancelarEliminacionModal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
@@ -2804,10 +2802,7 @@
         </div>
     </div>
 
-    <!-- ============================================== -->
-    <!-- NUEVO MODAL: ENTREGAR RESULTADO -->
-    <!-- ============================================== -->
-    
+    <!-- MODAL: Entregar Resultado -->
     <div id="entregarResultadoModal" class="modal">
         <div class="modal-content" style="max-width: 550px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
@@ -2860,7 +2855,7 @@
         let currentUserToDelete = null;
         let currentUserToDeleteType = null;
         let currentUserToEdit = null;
-        let currentSection = 'reportes';
+        let currentSection = 'dashboard';
         let allDoctores = [];
         let allCitas = [];
         let citasAEliminar = [];
@@ -2898,14 +2893,12 @@
             actualizarFechaHora();
             setInterval(actualizarFechaHora, 1000);
             
-            // Inicializar calendario
             setTimeout(() => {
                 if (document.getElementById('calendar')) {
                     initCalendar();
                 }
             }, 500);
 
-            // Configurar fecha mínima para eliminación (mañana)
             const fechaEliminacion = document.getElementById('fechaEliminacion');
             if (fechaEliminacion) {
                 const hoy = new Date();
@@ -2917,8 +2910,7 @@
                 fechaEliminacion.min = `${year}-${month}-${day}`;
             }
             
-            // Mostrar la sección de reportes por defecto
-            showSection('reportes', null);
+            showSection('dashboard', null);
         });
 
         function actualizarFechaHora() {
@@ -2954,7 +2946,6 @@
             if (event && event.currentTarget) {
                 event.currentTarget.classList.add('active');
             } else {
-                // Si no hay evento, buscar el nav-item correspondiente y activarlo
                 document.querySelectorAll('.nav-item').forEach(item => {
                     if (item.getAttribute('onclick')?.includes(sectionId)) {
                         item.classList.add('active');
@@ -2984,10 +2975,6 @@
             }
         }
 
-        // ==============================================
-        // FUNCIONES PARA REPORTES - VERSIÓN CORREGIDA
-        // ==============================================
-
         function handleDoctorSearchKey(event) {
             if (event.key === 'Enter') {
                 buscarHistorialDoctor();
@@ -3002,7 +2989,6 @@
                 return;
             }
             
-            // Mostrar loading en la tabla
             const historialTable = document.getElementById('historialDoctorTable');
             historialTable.innerHTML = `
                 <tr>
@@ -3013,14 +2999,14 @@
                 </tr>
             `;
             
-            // Ocultar contenedores de información
             document.getElementById('doctorInfoContainer').style.display = 'none';
             document.getElementById('doctorStatsContainer').style.display = 'none';
             
             try {
-                // PASO 1: Buscar información del doctor
                 console.log(`Buscando información del doctor ID: ${doctorId}`);
-                const doctorResponse = await fetch(`/api/doctor/${doctorId}`);
+                
+                // CORRECCIÓN: Usar la ruta correcta para obtener info del doctor
+                const doctorResponse = await fetch(`/api/doctor-info/${doctorId}`);
                 
                 if (!doctorResponse.ok) {
                     throw new Error('Doctor no encontrado');
@@ -3029,14 +3015,11 @@
                 const doctor = await doctorResponse.json();
                 console.log('Doctor encontrado:', doctor);
                 
-                // PASO 2: Mostrar información del doctor
                 mostrarInfoDoctor(doctor);
-                
-                // PASO 3: Mostrar estadísticas del doctor
                 mostrarStatsDoctor(doctor);
                 
-                // PASO 4: Buscar citas completadas del doctor
                 console.log(`Buscando citas completadas del doctor ID: ${doctorId}`);
+                // CORRECCIÓN: Usar la ruta correcta para citas completadas
                 const citasResponse = await fetch(`/api/doctor/${doctorId}/citas-completadas`);
                 
                 if (!citasResponse.ok) {
@@ -3046,7 +3029,6 @@
                 const citas = await citasResponse.json();
                 console.log(`Se encontraron ${citas.length} citas completadas:`, citas);
                 
-                // PASO 5: Mostrar el historial de citas
                 if (citas && citas.length > 0) {
                     mostrarHistorialDoctor(citas);
                 } else {
@@ -3063,7 +3045,6 @@
             } catch (error) {
                 console.error('Error buscando historial:', error);
                 
-                // Ocultar información del doctor si había
                 document.getElementById('doctorInfoContainer').style.display = 'none';
                 document.getElementById('doctorStatsContainer').style.display = 'none';
                 
@@ -3082,7 +3063,6 @@
         function mostrarInfoDoctor(doctor) {
             const container = document.getElementById('doctorInfoContainer');
             
-            // Determinar nombre y especialidad
             let nombre = doctor.nombre || 'Doctor';
             let especialidad = doctor.especialidad || 'No especificada';
             let email = doctor.email || 'No especificado';
@@ -3124,7 +3104,6 @@
         function mostrarStatsDoctor(doctor) {
             const statsContainer = document.getElementById('doctorStatsContainer');
             
-            // Obtener valores con defaults
             const puntos = doctor.puntos || 0;
             const totalEstudios = doctor.total_citas_completadas || 0;
             const totalFacturado = doctor.total_facturado || 0;
@@ -3141,10 +3120,8 @@
             let html = '';
             
             citas.forEach(cita => {
-                // Formatear fecha de cita
                 let fechaCitaDisplay = cita.fecha_cita || 'N/A';
                 
-                // Formatear hora
                 let horaDisplay = cita.hora_cita || 'N/A';
                 if (horaDisplay && horaDisplay.match(/^\d{2}:\d{2}$/)) {
                     const [hora, minuto] = horaDisplay.split(':');
@@ -3153,23 +3130,17 @@
                     horaDisplay = `${hora12}:${minuto} ${ampm}`;
                 }
                 
-                // Formatear fecha de registro
                 let fechaRegistro = cita.fecha_registro || 'N/A';
-                
-                // Formatear fecha de carga de resultado
                 let fechaResultado = cita.fecha_carga_resultado || 'N/A';
                 
-                // Formatear total
                 const total = parseFloat(cita.total_estudio) || 0;
                 const totalFormateado = `$${total.toFixed(2)}`;
                 
-                // Verificar si tiene PDF
                 const tienePDF = cita.tiene_pdf === 1 || cita.tiene_pdf === true;
                 const pdfIcon = tienePDF ? 
                     '<i class="fas fa-file-pdf" style="color: #d32f2f;"></i> Sí' : 
                     '<i class="fas fa-file-pdf" style="color: #999;"></i> No';
                 
-                // Crear fila
                 html += `
                     <tr>
                         <td><strong>${cita.numero_folio || 'N/A'}</strong></td>
@@ -3199,7 +3170,6 @@
             historialTable.innerHTML = html;
         }
 
-        // Función auxiliar para descargar resultado (si no existe ya)
         async function descargarResultado(citaId, folio, paciente) {
             try {
                 console.log(`📥 Descargando Resultado - Cita ID: ${citaId}, Folio: ${folio}`);
@@ -3267,10 +3237,6 @@
             }
         }
 
-        // ==============================================
-        // FUNCIONES PARA GESTIÓN DE RESULTADOS
-        // ==============================================
-        
         async function loadCitasSinResultado() {
             try {
                 console.log('Cargando citas sin resultado...');
@@ -3345,12 +3311,10 @@
             const puntosGanar = Math.floor(total / 100);
             document.getElementById('resultadoPuntos').textContent = `${puntosGanar} puntos`;
             
-            // Limpiar mensaje anterior
             const messageEl = document.getElementById('entregarResultadoMessage');
             messageEl.className = 'message';
             messageEl.style.display = 'none';
             
-            // Limpiar input file
             document.getElementById('resultadoFile').value = '';
             
             document.getElementById('entregarResultadoModal').classList.add('active');
@@ -3376,7 +3340,7 @@
             
             const file = fileInput.files[0];
             const fileSize = file.size;
-            const maxSize = 50 * 1024 * 1024; // 50MB
+            const maxSize = 50 * 1024 * 1024;
             
             if (fileSize > maxSize) {
                 const messageEl = document.getElementById('entregarResultadoMessage');
@@ -3461,10 +3425,6 @@
             });
         }
 
-        // ==============================================
-        // FUNCIONES PARA ELIMINACIÓN PROGRAMADA
-        // ==============================================
-        
         function mostrarModalProgramarEliminacion(citaId, folio, paciente, doctor, total) {
             console.log('Mostrando modal programar eliminación:', citaId);
             
@@ -3474,7 +3434,6 @@
             document.getElementById('eliminarDoctor').textContent = doctor;
             document.getElementById('eliminarTotal').textContent = `$${total.toFixed(2)}`;
             
-            // Configurar fecha mínima (mañana)
             const fechaInput = document.getElementById('fechaEliminacion');
             const hoy = new Date();
             const manana = new Date(hoy);
@@ -3484,9 +3443,8 @@
             const month = String(manana.getMonth() + 1).padStart(2, '0');
             const day = String(manana.getDate()).padStart(2, '0');
             fechaInput.min = `${year}-${month}-${day}`;
-            fechaInput.value = ''; // Limpiar valor anterior
+            fechaInput.value = '';
             
-            // Limpiar mensaje anterior
             const messageEl = document.getElementById('programarEliminacionMessage');
             messageEl.className = 'message';
             messageEl.style.display = 'none';
@@ -3710,10 +3668,6 @@
             });
         }
 
-        // ==============================================
-        // FUNCIONES PARA CALENDARIO
-        // ==============================================
-        
         function initCalendar() {
             const calendarEl = document.getElementById('calendar');
             if (!calendarEl) return;
@@ -3763,7 +3717,6 @@
                 allCitas = await response.json();
                 console.log('Citas cargadas para calendario:', allCitas.length);
                 
-                // También cargar citas a eliminar
                 try {
                     const responseEliminar = await fetch('/api/citas-eliminar');
                     if (responseEliminar.ok) {
@@ -3774,10 +3727,7 @@
                     console.log('No se pudieron cargar citas a eliminar para el calendario');
                 }
                 
-                // Actualizar filtro de doctores
                 actualizarFiltroDoctores();
-                
-                // Aplicar filtros actuales
                 filtrarCalendario();
                 
             } catch (error) {
@@ -3825,7 +3775,6 @@
             const doctorSeleccionado = document.getElementById('doctorFilter')?.value || 'todos';
             const estadoSeleccionado = document.getElementById('estadoFilter')?.value || 'todos';
             
-            // Filtrar citas
             let citasFiltradas = allCitas;
             
             if (doctorSeleccionado !== 'todos') {
@@ -3850,7 +3799,6 @@
                 }
             }
             
-            // Convertir a eventos de FullCalendar
             const eventos = citasFiltradas.map(cita => {
                 let fechaStr = cita.fecha_cita;
                 if (fechaStr && fechaStr.includes('/')) {
@@ -3863,7 +3811,6 @@
                 
                 let fechaHora = `${fecha}T${hora}:00`;
                 
-                // Determinar clase del evento
                 let className = 'event-pendiente';
                 let estado = '⏳';
                 
@@ -4273,7 +4220,6 @@
             }
         }
 
-        // FUNCIÓN CORREGIDA: loadAllCitas - Ahora permite programar eliminación en citas completadas
         async function loadAllCitas() {
             try {
                 console.log('Cargando todas las citas...');
@@ -4356,7 +4302,6 @@
                                     <button class="btn-action btn-delete" onclick="mostrarModalCancelarCita('${citaId}', '${folio}', '${paciente.replace(/'/g, "\\'")}', '${doctorNombre.replace(/'/g, "\\'")}')" title="Cancelar Cita">
                                         <i class="fas fa-times-circle"></i>
                                     </button>
-                                    <!-- Botón de programar eliminación disponible para TODAS las citas no canceladas (incluyendo completadas) -->
                                     <button class="btn-action btn-calendar" onclick="mostrarModalProgramarEliminacion('${citaId}', '${folio}', '${paciente.replace(/'/g, "\\'")}', '${doctorNombre.replace(/'/g, "\\'")}', ${parseFloat(cita.total_estudio || 0)})" title="Programar Eliminación">
                                         <i class="fas fa-clock"></i>
                                     </button>
@@ -4364,7 +4309,7 @@
                                 ${cita.fecha_eliminacion ? `
                                     <button class="btn-action btn-edit" style="background: #28a745; color: white;" onclick="mostrarModalCancelarEliminacion('${citaId}', '${folio}', '${paciente.replace(/'/g, "\\'")}', '${doctorNombre.replace(/'/g, "\\'")}')" title="Cancelar Eliminación">
                                         <i class="fas fa-undo-alt"></i>
-                                                                   </button>
+                                    </button>
                                 ` : ''}
                             </div>
                         </td>
@@ -4384,7 +4329,6 @@
             }
         }
 
-        // FUNCIONES PARA CANCELAR CITA
         function mostrarModalCancelarCita(citaId, folio, paciente, doctor) {
             console.log('Mostrando modal cancelar cita:', citaId);
             currentCitaIdToCancel = citaId;
@@ -4450,7 +4394,6 @@
             }
         }
 
-        // FUNCIÓN: mostrarOpcionesEdicion
         function mostrarOpcionesEdicion(citaId) {
             console.log('Mostrando opciones de edición para cita:', citaId);
             
@@ -4521,7 +4464,6 @@
             opcionesModal.classList.add('active');
         }
 
-        // FUNCIÓN: mostrarModalEditarFechaHora
         function mostrarModalEditarFechaHora(citaId) {
             console.log('Mostrando modal editar fecha/hora para cita:', citaId);
             
@@ -4616,7 +4558,6 @@
                 });
         }
 
-        // FUNCIÓN: generarHorasDisponiblesModal
         function generarHorasDisponiblesModal(fecha, horaSeleccionada) {
             const horaSelect = document.getElementById('editHoraCita');
             if (!horaSelect) return;
@@ -4665,7 +4606,6 @@
             }
         }
 
-        // FUNCIÓN: guardarEdicionFechaHora
         async function guardarEdicionFechaHora(citaId) {
             const messageEl = document.getElementById('editFechaHoraMessage');
             const fechaCita = document.getElementById('editFechaCita').value;
@@ -4793,7 +4733,6 @@
             }
         }
 
-        // FUNCIÓN PARA CARGAR CITA EN MODO EDICIÓN (FORMULARIO COMPLETO)
         async function cargarCitaParaEdicion(citaId) {
             try {
                 console.log(`Cargando cita ID: ${citaId} para edición`);
@@ -4857,7 +4796,6 @@
             }
         }
 
-        // FUNCIÓN PARA ACTUALIZAR CITA (FORMULARIO COMPLETO) - VERSIÓN CORREGIDA
         async function actualizarCitaAdmin() {
             const messageEl = document.getElementById('recetaMessage');
             const citaId = document.getElementById('citaEditandoId').value;
@@ -4868,7 +4806,6 @@
             const fechaNacimiento = document.getElementById('pacienteFN').value;
             const doctorId = document.getElementById('doctorSeleccionadoId').value;
             
-            // Obtener formato de entrega seleccionado
             const formatoEntrega = document.querySelector('input[name="formatoEntrega"]:checked')?.value || 'Digital';
             
             if (!citaId) {
@@ -4920,10 +4857,8 @@
                 }
             });
             
-            // SOLO enviar observaciones adicionales, NO los datos estructurados
             const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value.trim();
             
-            // Opcional: agregar fecha de nacimiento a observaciones si se proporciona
             let observaciones = observacionesAdicionales || '';
             if (fechaNacimiento && !observaciones.includes('Fecha de nacimiento')) {
                 const fechaNacimientoFormateada = new Date(fechaNacimiento).toLocaleDateString('es-MX');
@@ -4997,7 +4932,6 @@
             }
         }
 
-        // FUNCIÓN PARA CANCELAR EDICIÓN
         function cancelarEdicionReceta() {
             document.getElementById('citaEditandoId').value = '';
             citaEditando = null;
@@ -5026,7 +4960,6 @@
                 cb.addEventListener('change', calcularTotalReceta);
             });
             
-            // Agregar event listeners para los radios de formato de entrega
             const radios = document.querySelectorAll('input[name="formatoEntrega"]');
             radios.forEach(radio => {
                 radio.addEventListener('change', calcularTotalReceta);
@@ -5134,8 +5067,6 @@
                 }
             });
             
-            // Los formatos de entrega NO tienen costo adicional
-            
             const totalFormateado = total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             const totalElement = document.getElementById('totalAmount');
             if (totalElement) {
@@ -5145,7 +5076,6 @@
             return total;
         }
 
-        // FUNCIÓN GENERAR CITA ADMIN CORREGIDA (SIN DUPLICACIÓN)
         async function generarCitaAdmin() {
             const messageEl = document.getElementById('recetaMessage');
             const paciente = document.getElementById('pacienteNombre').value.trim();
@@ -5155,7 +5085,6 @@
             const fechaNacimiento = document.getElementById('pacienteFN').value;
             const doctorId = document.getElementById('doctorSeleccionadoId').value;
             
-            // Obtener formato de entrega seleccionado
             const formatoEntrega = document.querySelector('input[name="formatoEntrega"]:checked')?.value || 'Digital';
             
             if (!paciente) {
@@ -5201,10 +5130,8 @@
                 }
             });
             
-            // SOLO enviar observaciones adicionales, NO los datos estructurados
             const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value.trim();
             
-            // Opcional: agregar fecha de nacimiento a observaciones si se proporciona
             let observaciones = observacionesAdicionales || '';
             if (fechaNacimiento && !observaciones.includes('Fecha de nacimiento')) {
                 const fechaNacimientoFormateada = new Date(fechaNacimiento).toLocaleDateString('es-MX');
@@ -5312,7 +5239,6 @@
                 }
             });
             
-            // Resetear formato de entrega a Digital
             document.getElementById('formatoDigital').checked = true;
             
             document.getElementById('doctorSeleccionadoDisplay').value = '';
@@ -5699,7 +5625,6 @@
             }
         }
 
-        // Exponer funciones globalmente
         window.showSection = showSection;
         window.showRecetaVirtual = showRecetaVirtual;
         window.abrirSelectorDoctores = abrirSelectorDoctores;
