@@ -1485,6 +1485,153 @@
                 font-size: 16px !important;
             }
         }
+
+        /* Estilos para la sección de reportes */
+        .report-search-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid #3A3A4F;
+            box-shadow: 0 4px 12px rgba(28, 28, 38, 0.1);
+        }
+
+        .search-doctor-container {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .search-doctor-field {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-doctor-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1C1C26;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .search-doctor-field input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #3A3A4F;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .search-doctor-field input:focus {
+            outline: none;
+            border-color: #1C1C26;
+            box-shadow: 0 0 0 3px rgba(28, 28, 38, 0.2);
+        }
+
+        .btn-search-doctor {
+            background: linear-gradient(135deg, #1C1C26 0%, #2A2A38 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(28, 28, 38, 0.2);
+        }
+
+        .btn-search-doctor:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(28, 28, 38, 0.3);
+        }
+
+        .doctor-info-card {
+            background: linear-gradient(135deg, #f5f5f8 0%, #e8e8f0 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #3A3A4F;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .doctor-avatar-large {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #1C1C26 0%, #2A2A38 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(28, 28, 38, 0.2);
+        }
+
+        .doctor-details {
+            flex: 1;
+        }
+
+        .doctor-details h3 {
+            font-size: 24px;
+            color: #1C1C26;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .doctor-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #3A3A4F;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1C1C26;
+        }
+
+        .puntos-total {
+            background: #1C1C26;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .puntos-total i {
+            color: #FFD700;
+        }
     </style>
 </head>
 <body>
@@ -1536,7 +1683,7 @@
                     <i class="fas fa-file-medical"></i>
                     <span>Gestión de Resultados</span>
                 </a>
-                <a href="#" class="nav-item" onclick="showSection('reportes', event)">
+                <a href="#" class="nav-item active" onclick="showSection('reportes', event)">
                     <i class="fas fa-chart-bar"></i>
                     <span>Reportes</span>
                 </a>
@@ -1870,14 +2017,77 @@
                 </div>
             </div>
 
-            <div id="reportes-section" class="content-section" style="display: none;">
+            <!-- SECCIÓN REPORTES - VERSIÓN CORREGIDA CON TODOS LOS DATOS -->
+            <div id="reportes-section" class="content-section" style="display: block;">
                 <div class="content-header">
-                    <h2><i class="fas fa-chart-bar"></i> Reportes</h2>
+                    <h2><i class="fas fa-chart-bar"></i> Reportes por Doctor</h2>
                 </div>
-                <div style="padding: 40px; text-align: center; color: #3A3A4F;">
-                    <i class="fas fa-chart-pie" style="font-size: 48px; margin-bottom: 20px; color: #1C1C26;"></i>
-                    <h3>Módulo de Reportes en Desarrollo</h3>
-                    <p style="margin-top: 15px;">Próximamente podrá generar reportes detallados.</p>
+
+                <!-- Buscador de Doctor -->
+                <div class="report-search-section">
+                    <div class="search-doctor-container">
+                        <div class="search-doctor-field">
+                            <label><i class="fas fa-user-md"></i> ID del Doctor</label>
+                            <input type="text" id="doctorIdSearch" placeholder="Ingrese el ID del doctor (ej: D001, ADMIN)" onkeypress="handleDoctorSearchKey(event)">
+                            <small style="color: #3A3A4F; display: block; margin-top: 5px;">
+                                <i class="fas fa-info-circle"></i> IDs disponibles: D001, D002, D003, D004, ADMIN
+                            </small>
+                        </div>
+                        <button class="btn-search-doctor" onclick="buscarHistorialDoctor()">
+                            <i class="fas fa-search"></i> Buscar Historial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Información del Doctor (se muestra cuando se encuentra) -->
+                <div id="doctorInfoContainer" style="display: none;"></div>
+
+                <!-- Resumen de Estadísticas del Doctor -->
+                <div id="doctorStatsContainer" style="display: none; margin-bottom: 25px;">
+                    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="stat-card">
+                            <h4><i class="fas fa-star"></i> Puntos Acumulados</h4>
+                            <div class="value" id="doctorPuntosStats">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h4><i class="fas fa-file-medical"></i> Estudios Completados</h4>
+                            <div class="value" id="doctorEstudiosStats">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h4><i class="fas fa-dollar-sign"></i> Total Facturado</h4>
+                            <div class="value" id="doctorFacturadoStats">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Historial de Estudios Completados -->
+                <div class="section">
+                    <h2 class="section-title">Historial de Estudios Completados por el Doctor</h2>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Folio</th>
+                                    <th>Paciente</th>
+                                    <th>Fecha de Cita</th>
+                                    <th>Hora</th>
+                                    <th>Total del Estudio</th>
+                                    <th>Fecha de Registro</th>
+                                    <th>Fecha de Resultado</th>
+                                    <th>PDF</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historialDoctorTable">
+                                <tr>
+                                    <td colspan="9" style="text-align: center; padding: 40px; color: #3A3A4F;">
+                                        <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; display: block; color: #3A3A4F;"></i>
+                                        Ingrese un ID de doctor para ver su historial de estudios completados
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -2650,7 +2860,7 @@
         let currentUserToDelete = null;
         let currentUserToDeleteType = null;
         let currentUserToEdit = null;
-        let currentSection = 'agenda';
+        let currentSection = 'reportes';
         let allDoctores = [];
         let allCitas = [];
         let citasAEliminar = [];
@@ -2706,6 +2916,9 @@
                 const day = String(manana.getDate()).padStart(2, '0');
                 fechaEliminacion.min = `${year}-${month}-${day}`;
             }
+            
+            // Mostrar la sección de reportes por defecto
+            showSection('reportes', null);
         });
 
         function actualizarFechaHora() {
@@ -2740,6 +2953,13 @@
             
             if (event && event.currentTarget) {
                 event.currentTarget.classList.add('active');
+            } else {
+                // Si no hay evento, buscar el nav-item correspondiente y activarlo
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    if (item.getAttribute('onclick')?.includes(sectionId)) {
+                        item.classList.add('active');
+                    }
+                });
             }
             
             currentSection = sectionId;
@@ -2761,6 +2981,289 @@
                     }
                     cargarEventosCalendario();
                 }, 100);
+            }
+        }
+
+        // ==============================================
+        // FUNCIONES PARA REPORTES - VERSIÓN CORREGIDA
+        // ==============================================
+
+        function handleDoctorSearchKey(event) {
+            if (event.key === 'Enter') {
+                buscarHistorialDoctor();
+            }
+        }
+
+        async function buscarHistorialDoctor() {
+            const doctorId = document.getElementById('doctorIdSearch').value.trim();
+            
+            if (!doctorId) {
+                alert('Por favor ingrese un ID de doctor');
+                return;
+            }
+            
+            // Mostrar loading en la tabla
+            const historialTable = document.getElementById('historialDoctorTable');
+            historialTable.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 30px;">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 15px;">Buscando historial del doctor...</p>
+                    </td>
+                </tr>
+            `;
+            
+            // Ocultar contenedores de información
+            document.getElementById('doctorInfoContainer').style.display = 'none';
+            document.getElementById('doctorStatsContainer').style.display = 'none';
+            
+            try {
+                // PASO 1: Buscar información del doctor
+                console.log(`Buscando información del doctor ID: ${doctorId}`);
+                const doctorResponse = await fetch(`/api/doctor/${doctorId}`);
+                
+                if (!doctorResponse.ok) {
+                    throw new Error('Doctor no encontrado');
+                }
+                
+                const doctor = await doctorResponse.json();
+                console.log('Doctor encontrado:', doctor);
+                
+                // PASO 2: Mostrar información del doctor
+                mostrarInfoDoctor(doctor);
+                
+                // PASO 3: Mostrar estadísticas del doctor
+                mostrarStatsDoctor(doctor);
+                
+                // PASO 4: Buscar citas completadas del doctor
+                console.log(`Buscando citas completadas del doctor ID: ${doctorId}`);
+                const citasResponse = await fetch(`/api/doctor/${doctorId}/citas-completadas`);
+                
+                if (!citasResponse.ok) {
+                    throw new Error('Error al cargar el historial de citas');
+                }
+                
+                const citas = await citasResponse.json();
+                console.log(`Se encontraron ${citas.length} citas completadas:`, citas);
+                
+                // PASO 5: Mostrar el historial de citas
+                if (citas && citas.length > 0) {
+                    mostrarHistorialDoctor(citas);
+                } else {
+                    historialTable.innerHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 40px; color: #3A3A4F;">
+                                <i class="fas fa-calendar-times" style="font-size: 48px; margin-bottom: 20px; display: block; color: #3A3A4F;"></i>
+                                El doctor no tiene estudios completados
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error buscando historial:', error);
+                
+                // Ocultar información del doctor si había
+                document.getElementById('doctorInfoContainer').style.display = 'none';
+                document.getElementById('doctorStatsContainer').style.display = 'none';
+                
+                historialTable.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #dc3545;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px; display: block;"></i>
+                            Doctor no encontrado. Verifique el ID ingresado.<br>
+                            <small style="color: #666;">IDs válidos: D001, D002, D003, D004, ADMIN</small>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function mostrarInfoDoctor(doctor) {
+            const container = document.getElementById('doctorInfoContainer');
+            
+            // Determinar nombre y especialidad
+            let nombre = doctor.nombre || 'Doctor';
+            let especialidad = doctor.especialidad || 'No especificada';
+            let email = doctor.email || 'No especificado';
+            let telefono = doctor.telefono || 'No especificado';
+            let id = doctor.id || 'N/A';
+            
+            container.innerHTML = `
+                <div class="doctor-info-card">
+                    <div class="doctor-avatar-large">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="doctor-details">
+                        <h3>${nombre}</h3>
+                        <div class="doctor-details-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">ID</span>
+                                <span class="detail-value">${id}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Especialidad</span>
+                                <span class="detail-value">${especialidad}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Email</span>
+                                <span class="detail-value">${email}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Teléfono</span>
+                                <span class="detail-value">${telefono}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.style.display = 'block';
+        }
+
+        function mostrarStatsDoctor(doctor) {
+            const statsContainer = document.getElementById('doctorStatsContainer');
+            
+            // Obtener valores con defaults
+            const puntos = doctor.puntos || 0;
+            const totalEstudios = doctor.total_citas_completadas || 0;
+            const totalFacturado = doctor.total_facturado || 0;
+            
+            document.getElementById('doctorPuntosStats').textContent = puntos;
+            document.getElementById('doctorEstudiosStats').textContent = totalEstudios;
+            document.getElementById('doctorFacturadoStats').textContent = `$${totalFacturado.toFixed(2)}`;
+            
+            statsContainer.style.display = 'block';
+        }
+
+        function mostrarHistorialDoctor(citas) {
+            const historialTable = document.getElementById('historialDoctorTable');
+            let html = '';
+            
+            citas.forEach(cita => {
+                // Formatear fecha de cita
+                let fechaCitaDisplay = cita.fecha_cita || 'N/A';
+                
+                // Formatear hora
+                let horaDisplay = cita.hora_cita || 'N/A';
+                if (horaDisplay && horaDisplay.match(/^\d{2}:\d{2}$/)) {
+                    const [hora, minuto] = horaDisplay.split(':');
+                    const hora12 = parseInt(hora) > 12 ? parseInt(hora) - 12 : parseInt(hora);
+                    const ampm = parseInt(hora) >= 12 ? 'PM' : 'AM';
+                    horaDisplay = `${hora12}:${minuto} ${ampm}`;
+                }
+                
+                // Formatear fecha de registro
+                let fechaRegistro = cita.fecha_registro || 'N/A';
+                
+                // Formatear fecha de carga de resultado
+                let fechaResultado = cita.fecha_carga_resultado || 'N/A';
+                
+                // Formatear total
+                const total = parseFloat(cita.total_estudio) || 0;
+                const totalFormateado = `$${total.toFixed(2)}`;
+                
+                // Verificar si tiene PDF
+                const tienePDF = cita.tiene_pdf === 1 || cita.tiene_pdf === true;
+                const pdfIcon = tienePDF ? 
+                    '<i class="fas fa-file-pdf" style="color: #d32f2f;"></i> Sí' : 
+                    '<i class="fas fa-file-pdf" style="color: #999;"></i> No';
+                
+                // Crear fila
+                html += `
+                    <tr>
+                        <td><strong>${cita.numero_folio || 'N/A'}</strong></td>
+                        <td>${cita.paciente || 'N/A'}</td>
+                        <td>${fechaCitaDisplay}</td>
+                        <td>${horaDisplay}</td>
+                        <td>${totalFormateado}</td>
+                        <td>${fechaRegistro}</td>
+                        <td>${fechaResultado}</td>
+                        <td>${pdfIcon}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action btn-download" onclick="descargarPDFCita('${cita.id_cita}')" title="Descargar PDF de la receta">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                                ${cita.tiene_resultado ? `
+                                    <button class="btn-action btn-download" style="background: #28a745; color: white;" onclick="descargarResultado('${cita.id_cita}', '${cita.numero_folio}', '${cita.paciente.replace(/'/g, "\\'")}')" title="Descargar resultado">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            historialTable.innerHTML = html;
+        }
+
+        // Función auxiliar para descargar resultado (si no existe ya)
+        async function descargarResultado(citaId, folio, paciente) {
+            try {
+                console.log(`📥 Descargando Resultado - Cita ID: ${citaId}, Folio: ${folio}`);
+                
+                if (!citaId) {
+                    console.error('❌ ID de cita no válido');
+                    alert('Error: ID de cita no válido');
+                    return;
+                }
+                
+                const response = await fetch(`/api/descargar-resultado/${citaId}`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('Resultado no encontrado');
+                    } else {
+                        throw new Error(`Error del servidor: ${response.status}`);
+                    }
+                }
+                
+                const contentDisposition = response.headers.get('content-disposition');
+                let filename = `Resultado_${folio || 'sin_folio'}_${(paciente || 'Paciente').replace(/\s+/g, '_')}`;
+                
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (filenameMatch && filenameMatch[1]) {
+                        filename = filenameMatch[1].replace(/['"]/g, '');
+                    }
+                } else {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType) {
+                        if (contentType.includes('zip')) filename += '.zip';
+                        else if (contentType.includes('pdf')) filename += '.pdf';
+                        else if (contentType.includes('jpeg') || contentType.includes('jpg')) filename += '.jpg';
+                        else if (contentType.includes('png')) filename += '.png';
+                        else filename += '.bin';
+                    } else {
+                        filename += '.bin';
+                    }
+                }
+                
+                const blob = await response.blob();
+                
+                if (blob.size === 0) {
+                    throw new Error('El archivo está vacío');
+                }
+                
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }, 100);
+                
+                console.log('✅ Resultado descargado correctamente');
+                
+            } catch (error) {
+                console.error('❌ Error descargando resultado:', error);
+                alert(`Error al descargar el resultado: ${error.message}.`);
             }
         }
 
@@ -5242,6 +5745,9 @@
         window.mostrarModalCancelarEliminacion = mostrarModalCancelarEliminacion;
         window.confirmarCancelarEliminacion = confirmarCancelarEliminacion;
         window.loadCitasAEliminar = loadCitasAEliminar;
+        window.buscarHistorialDoctor = buscarHistorialDoctor;
+        window.handleDoctorSearchKey = handleDoctorSearchKey;
+        window.descargarResultado = descargarResultado;
     </script>
 </body>
 </html>
