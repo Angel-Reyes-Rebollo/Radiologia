@@ -1,4 +1,4 @@
-# app.py - VERSIÓN COMPLETA CORREGIDA (SIN DUPLICACIÓN DE CÓDIGO)
+# app.py - VERSIÓN COMPLETA CORREGIDA (CON CAMPO EMAIL Y AJUSTE DE PUNTOS)
 import base64
 import io
 import json
@@ -235,6 +235,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.handle_programar_eliminacion()
         elif self.path == '/api/cancelar-eliminacion':
             self.handle_cancelar_eliminacion()
+        elif self.path == '/api/ajustar-puntos':
+            self.handle_ajustar_puntos()
         else:
             self.send_error(404)
     
@@ -991,6 +993,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cita_id = data.get('cita_id')
             paciente = data.get('paciente')
             paciente_tel = data.get('pacienteTel', '')
+            paciente_email = data.get('pacienteEmail', '')  # NUEVO CAMPO EMAIL
             doctor_id = data.get('doctor_id')
             fecha_cita = data.get('fecha_cita')
             hora_cita = data.get('hora_cita')
@@ -1006,6 +1009,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 observaciones = f"Formato de fotografías: {formato_fotografia}\n" + observaciones
             if paciente_tel and f"Teléfono: {paciente_tel}" not in observaciones:
                 observaciones = f"Teléfono: {paciente_tel}\n" + observaciones
+            if paciente_email and f"Email: {paciente_email}" not in observaciones:  # NUEVO
+                observaciones = f"Email: {paciente_email}\n" + observaciones
             
             if not cita_id or not paciente or not doctor_id or not fecha_cita or not hora_cita:
                 raise ValueError("Faltan datos requeridos para actualizar la cita")
@@ -1323,7 +1328,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
     def generate_pdf_cita(self, data):
         """
         Genera un PDF para la cita/receta mostrando SOLO los estudios seleccionados.
-        Incluye teléfono del paciente, teléfono de consultorio del doctor y formato de entrega.
+        Incluye teléfono del paciente, email del paciente, teléfono de consultorio del doctor y formato de entrega.
         """
         buffer = io.BytesIO()
         
@@ -1424,6 +1429,9 @@ class CustomHandler(SimpleHTTPRequestHandler):
         
         if data.get('pacienteTel'):
             info_data.append([Paragraph("<b>Teléfono:</b> " + data['pacienteTel'], styles['InfoRow'])])
+        
+        if data.get('pacienteEmail'):  # NUEVO - Mostrar email en PDF
+            info_data.append([Paragraph("<b>Email:</b> " + data['pacienteEmail'], styles['InfoRow'])])
         
         info_data.append([Paragraph("<b>Doctor(a):</b> " + (doctor['nombre'] if doctor else 'Administrador'), styles['InfoRow'])])
         info_data.append([Paragraph("<b>Especialidad:</b> " + (doctor['especialidad'] if doctor else 'Administración'), styles['InfoRow'])])
@@ -1665,6 +1673,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
             
             paciente = data.get('paciente')
             paciente_tel = data.get('pacienteTel', '')
+            paciente_email = data.get('pacienteEmail', '')  # NUEVO CAMPO EMAIL
             doctor_id = data.get('doctor_id')
             estudios = data.get('estudios', [])
             observaciones = data.get('observaciones', '')
@@ -1677,6 +1686,8 @@ class CustomHandler(SimpleHTTPRequestHandler):
             # Agregar formatos a observaciones
             if paciente_tel:
                 observaciones = f"Teléfono: {paciente_tel}\n" + observaciones
+            if paciente_email:  # NUEVO
+                observaciones = f"Email: {paciente_email}\n" + observaciones
             observaciones = f"Formato de entrega: {formato_entrega}\n" + observaciones
             observaciones = f"Formato de fotografías: {formato_fotografia}\n" + observaciones
             
@@ -1717,6 +1728,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'hora_cita': hora_cita_formateada,
                 'paciente': paciente,
                 'pacienteTel': paciente_tel,
+                'pacienteEmail': paciente_email,  # NUEVO
                 'doctor_id': doctor_id,
                 'doctor_nombre': doctor_nombre,
                 'estudios': estudios,
@@ -2942,6 +2954,84 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_json_response(response, 500)
     
     # ==============================================
+    # FUNCIÓN PARA AJUSTAR PUNTOS DE DOCTORES (ADMIN)
+    # ==============================================
+    
+    def handle_ajustar_puntos(self):
+        """Ajustar (sumar, restar o establecer) los puntos de un doctor"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = json.loads(post_data.decode())
+            
+            doctor_id = data.get('doctor_id')
+            puntos_nuevos = data.get('puntos_nuevos')
+            tipo_ajuste = data.get('tipo_ajuste')
+            cantidad = data.get('cantidad')
+            motivo = data.get('motivo', 'Ajuste manual')
+            
+            if not doctor_id or puntos_nuevos is None:
+                raise ValueError("Faltan datos requeridos")
+            
+            print(f"[PUNTOS] Ajustando puntos para doctor {doctor_id}: {tipo_ajuste} {cantidad} -> {puntos_nuevos}")
+            
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            # Verificar que el doctor existe
+            cursor.execute("SELECT Diddoctor, nombre, puntos FROM doctores WHERE Diddoctor = %s", (doctor_id,))
+            doctor = cursor.fetchone()
+            
+            if not doctor:
+                cursor.close()
+                db.close()
+                response = {
+                    'success': False,
+                    'message': 'Doctor no encontrado'
+                }
+                self.send_json_response(response, 404)
+                return
+            
+            puntos_anteriores = doctor['puntos']
+            
+            # Actualizar los puntos
+            cursor.execute("""
+                UPDATE doctores 
+                SET puntos = %s 
+                WHERE Diddoctor = %s
+            """, (puntos_nuevos, doctor_id))
+            
+            db.commit()
+            
+            # Registrar en log de actividad
+            self.registrar_actividad_admin(
+                usuario_id='ADMIN',
+                accion='AJUSTAR_PUNTOS',
+                detalles=f'Puntos ajustados para Dr. {doctor["nombre"]} (ID: {doctor_id}): {puntos_anteriores} → {puntos_nuevos} ({tipo_ajuste} {cantidad}). Motivo: {motivo}'
+            )
+            
+            cursor.close()
+            db.close()
+            
+            response = {
+                'success': True,
+                'message': f'Puntos ajustados exitosamente: {puntos_anteriores} → {puntos_nuevos}',
+                'doctor_id': doctor_id,
+                'puntos_anteriores': puntos_anteriores,
+                'puntos_nuevos': puntos_nuevos
+            }
+            
+            self.send_json_response(response, 200)
+            
+        except Exception as e:
+            print(f"Error ajustando puntos: {str(e)}")
+            response = {
+                'success': False,
+                'message': f'Error del servidor: {str(e)}'
+            }
+            self.send_json_response(response, 500)
+    
+    # ==============================================
     # CONEXIÓN A BASE DE DATOS
     # ==============================================
     
@@ -2977,9 +3067,11 @@ print("✅ 1 punto por cada $100 en resultados entregados")
 print("✅ Eliminación programada de citas")
 print("✅ PDF mejorado con checkboxes y formato profesional")
 print("✅ Teléfono de paciente y teléfono de consultorio incluidos")
+print("✅ Email del paciente incluido")
 print("✅ Formato de entrega: Digital, USB, DICOM, Impreso")
 print("✅ NUEVO: Consulta pública de resultados por folio")
 print("✅ NUEVO: Reportes por doctor con historial de estudios completados")
+print("✅ NUEVO: Ajuste manual de puntos por administrador")
 print("=" * 60)
 
 if not os.path.exists('templates'):

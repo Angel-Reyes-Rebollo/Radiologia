@@ -2128,6 +2128,7 @@
                         </div>
                     </div>
 
+                    <!-- ========== SECCIÓN PACIENTE CON EMAIL ========= -->
                     <div class="info-card">
                         <div class="info-header">
                             <i class="fas fa-user-injured"></i>
@@ -2153,6 +2154,11 @@
                             <div class="form-group">
                                 <label>Teléfono</label>
                                 <input type="tel" class="form-control" placeholder="Teléfono" id="pacienteTel">
+                            </div>
+                            <!-- NUEVO CAMPO DE EMAIL -->
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" class="form-control" placeholder="correo@ejemplo.com" id="pacienteEmail">
                             </div>
                         </div>
                         
@@ -2847,6 +2853,90 @@
         </div>
     </div>
 
+    <!-- MODAL: Ajustar Puntos del Doctor -->
+    <div id="ajustarPuntosModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);">
+                <h3><i class="fas fa-coins"></i> Ajustar Puntos del Doctor</h3>
+                <button class="close-modal" onclick="closeModal('ajustarPuntosModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="ajustarPuntosMessage" class="message" style="display: none;"></div>
+                
+                <div class="info-card" style="margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <i class="fas fa-user-md" style="color: #28a745;"></i>
+                        <strong>Información del doctor:</strong>
+                    </div>
+                    <p><strong>Doctor:</strong> <span id="ajustarDoctorNombre"></span></p>
+                    <p><strong>ID:</strong> <span id="ajustarDoctorId"></span></p>
+                    <p><strong>Puntos actuales:</strong> <span id="ajustarPuntosActuales" class="puntos-highlight" style="font-size: 18px;">0</span></p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #1C1C26;">
+                        <i class="fas fa-sliders-h"></i> Ajuste de puntos:
+                    </label>
+                    
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                        <button class="btn-action" style="background: #dc3545; color: white; padding: 10px 15px; font-size: 16px;" onclick="ajustarPuntosRapido(-10)">
+                            <i class="fas fa-minus-circle"></i> -10
+                        </button>
+                        <button class="btn-action" style="background: #dc3545; color: white; padding: 10px 15px; font-size: 16px;" onclick="ajustarPuntosRapido(-5)">
+                            <i class="fas fa-minus-circle"></i> -5
+                        </button>
+                        <button class="btn-action" style="background: #dc3545; color: white; padding: 10px 15px; font-size: 16px;" onclick="ajustarPuntosRapido(-1)">
+                            <i class="fas fa-minus-circle"></i> -1
+                        </button>
+                        <button class="btn-action" style="background: #28a745; color: white; padding: 10px 15px; font-size: 16px;" onclick="ajustarPuntosRapido(1)">
+                            <i class="fas fa-plus-circle"></i> +1
+                        </button>
+                        <button class="btn-action" style="background: #28a745; color: white; padding: 10px 15px; font-size: 16px;" onclick="ajustarPuntosRapido(5)">
+                            <i class="fas fa-plus-circle"></i> +5
+                        </button>
+                        <button class="btn-action" style="background: #28a745; color: white; padding: 10px 15px; font-size: 16px;" onclick="ajustarPuntosRapido(10)">
+                            <i class="fas fa-plus-circle"></i> +10
+                        </button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="number" id="ajustePuntosValor" class="form-control" placeholder="Cantidad" min="-1000" max="1000" value="0" style="flex: 1;">
+                        <select id="ajustePuntosTipo" class="form-control" style="width: 120px;">
+                            <option value="sumar">Sumar</option>
+                            <option value="restar">Restar</option>
+                            <option value="establecer">Establecer</option>
+                        </select>
+                    </div>
+                    <small style="color: #3A3A4F; font-size: 11px; display: block; margin-top: 5px;">
+                        <i class="fas fa-info-circle"></i> Puedes sumar, restar o establecer un valor exacto
+                    </small>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #1C1C26;">
+                        <i class="fas fa-comment"></i> Motivo del ajuste:
+                    </label>
+                    <input type="text" id="ajustePuntosMotivo" class="form-control" placeholder="Ej: Corrección manual, Bono, Ajuste administrativo...">
+                </div>
+                
+                <div style="background: #f5f5f8; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <p><strong>Vista previa:</strong></p>
+                    <p>Puntos actuales: <span id="previewPuntosActuales">0</span></p>
+                    <p>Operación: <span id="previewOperacion">-</span></p>
+                    <p><strong>Resultado: <span id="previewResultado" style="font-size: 18px; color: #28a745;">0</span></strong></p>
+                </div>
+                
+                <input type="hidden" id="ajustarDoctorId">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('ajustarPuntosModal')">Cancelar</button>
+                <button class="btn-save" style="background: linear-gradient(135deg, #28a745 0%, #218838 100%);" onclick="confirmarAjustePuntos()">
+                    <i class="fas fa-check-circle"></i> Aplicar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -2870,6 +2960,11 @@
         let citaEditando = null;
         let calendar = null;
         let citasSinResultado = [];
+        
+        // Variables para el modal de ajuste de puntos
+        let currentDoctorIdForPuntos = null;
+        let currentDoctorPuntos = 0;
+        let currentDoctorNombre = '';
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('4Digital - Admin panel cargado');
@@ -2908,6 +3003,17 @@
                 const month = String(manana.getMonth() + 1).padStart(2, '0');
                 const day = String(manana.getDate()).padStart(2, '0');
                 fechaEliminacion.min = `${year}-${month}-${day}`;
+            }
+            
+            // Agregar event listeners para el modal de puntos
+            const valorInput = document.getElementById('ajustePuntosValor');
+            const tipoSelect = document.getElementById('ajustePuntosTipo');
+            
+            if (valorInput) {
+                valorInput.addEventListener('input', actualizarPreviewPuntos);
+            }
+            if (tipoSelect) {
+                tipoSelect.addEventListener('change', actualizarPreviewPuntos);
             }
             
             showSection('dashboard', null);
@@ -4188,7 +4294,7 @@
                         <td>${doctor.telefono_consultorio || '-'}</td>
                         <td>${direccion}</td>
                         <td>${fechaReg}</td>
-                        <td class="puntos-highlight">${puntos}</td>
+                        <td class="puntos-highlight" id="puntos-${doctor.id}">${puntos}</td>
                         <td>${doctor.total_citas || '0'}</td>
                         <td>${doctor.pacientes || '0'}</td>
                         <td><span class="status-badge ${doctor.activo ? 'status-active' : 'status-inactive'}">${doctor.activo ? 'Activo' : 'Inactivo'}</span></td>
@@ -4200,6 +4306,9 @@
                                     </button>
                                     <button class="btn-action btn-edit" onclick="editUser('${doctor.id}')" title="Editar">
                                         <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-action" style="background: #28a745; color: white;" onclick="mostrarModalAjustarPuntos('${doctor.id}', '${doctor.nombre ? doctor.nombre.replace(/'/g, "\\'") : ''}', ${puntos})" title="Ajustar puntos">
+                                        <i class="fas fa-coins"></i> Puntos
                                     </button>
                                     <button class="btn-action btn-delete" onclick="confirmDeleteUser('${doctor.id}', 'doctor', '${doctor.nombre ? doctor.nombre.replace(/'/g, "\\'") : ''}')" title="Eliminar">
                                         <i class="fas fa-trash"></i>
@@ -4796,11 +4905,15 @@
             }
         }
 
+        // ==============================================
+        // FUNCIÓN ACTUALIZADA: actualizarCitaAdmin con EMAIL
+        // ==============================================
         async function actualizarCitaAdmin() {
             const messageEl = document.getElementById('recetaMessage');
             const citaId = document.getElementById('citaEditandoId').value;
             const paciente = document.getElementById('pacienteNombre').value.trim();
             const pacienteTel = document.getElementById('pacienteTel').value.trim();
+            const pacienteEmail = document.getElementById('pacienteEmail').value.trim(); // NUEVO
             const fechaCita = document.getElementById('fechaCita').value;
             const horaCita = document.getElementById('horaCita').value;
             const fechaNacimiento = document.getElementById('pacienteFN').value;
@@ -4880,6 +4993,7 @@
                         cita_id: citaId,
                         paciente: paciente,
                         pacienteTel: pacienteTel,
+                        pacienteEmail: pacienteEmail, // NUEVO
                         doctor_id: doctorId,
                         fecha_cita: fechaCita,
                         hora_cita: horaCita,
@@ -5076,10 +5190,14 @@
             return total;
         }
 
+        // ==============================================
+        // FUNCIÓN ACTUALIZADA: generarCitaAdmin con EMAIL
+        // ==============================================
         async function generarCitaAdmin() {
             const messageEl = document.getElementById('recetaMessage');
             const paciente = document.getElementById('pacienteNombre').value.trim();
             const pacienteTel = document.getElementById('pacienteTel').value.trim();
+            const pacienteEmail = document.getElementById('pacienteEmail').value.trim(); // NUEVO
             const fechaCita = document.getElementById('fechaCita').value;
             const horaCita = document.getElementById('horaCita').value;
             const fechaNacimiento = document.getElementById('pacienteFN').value;
@@ -5152,6 +5270,7 @@
                     body: JSON.stringify({
                         paciente: paciente,
                         pacienteTel: pacienteTel,
+                        pacienteEmail: pacienteEmail, // NUEVO
                         doctor_id: doctorId,
                         estudios: estudios,
                         observaciones: observaciones,
@@ -5209,11 +5328,15 @@
             }
         }
 
+        // ==============================================
+        // FUNCIÓN ACTUALIZADA: limpiarFormularioReceta con EMAIL
+        // ==============================================
         function limpiarFormularioReceta() {
             document.getElementById('pacienteNombre').value = '';
             document.getElementById('pacienteEdad').value = '';
             document.getElementById('pacienteFN').value = '';
             document.getElementById('pacienteTel').value = '';
+            document.getElementById('pacienteEmail').value = ''; // NUEVO
             document.getElementById('fechaCita').value = '';
             document.getElementById('observacionesAdicionales').value = '';
             
@@ -5230,7 +5353,8 @@
             document.querySelectorAll('#receta-virtual-section input[type="text"], #receta-virtual-section input[type="number"], #receta-virtual-section textarea, #receta-virtual-section select').forEach(input => {
                 if (input.id !== 'pacienteNombre' && input.id !== 'pacienteEdad' && 
                     input.id !== 'pacienteFN' && input.id !== 'pacienteTel' &&
-                    input.id !== 'fechaCita' && input.id !== 'observacionesAdicionales') {
+                    input.id !== 'pacienteEmail' && input.id !== 'fechaCita' && 
+                    input.id !== 'observacionesAdicionales') {
                     if (input.id === 'formatoFotografia') {
                         input.value = 'USB';
                     } else {
@@ -5625,6 +5749,168 @@
             }
         }
 
+        // ==============================================
+        // FUNCIONES PARA AJUSTE DE PUNTOS
+        // ==============================================
+
+        function mostrarModalAjustarPuntos(doctorId, doctorNombre, puntosActuales) {
+            console.log('Mostrando modal ajustar puntos:', doctorId, doctorNombre, puntosActuales);
+            
+            currentDoctorIdForPuntos = doctorId;
+            currentDoctorPuntos = puntosActuales;
+            currentDoctorNombre = doctorNombre;
+            
+            document.getElementById('ajustarDoctorId').value = doctorId;
+            document.getElementById('ajustarDoctorNombre').textContent = doctorNombre;
+            document.getElementById('ajustarDoctorId').textContent = doctorId;
+            document.getElementById('ajustarPuntosActuales').textContent = puntosActuales;
+            
+            document.getElementById('ajustePuntosValor').value = '0';
+            document.getElementById('ajustePuntosTipo').value = 'sumar';
+            document.getElementById('ajustePuntosMotivo').value = '';
+            
+            actualizarPreviewPuntos();
+            
+            const messageEl = document.getElementById('ajustarPuntosMessage');
+            messageEl.className = 'message';
+            messageEl.style.display = 'none';
+            
+            document.getElementById('ajustarPuntosModal').classList.add('active');
+        }
+
+        function actualizarPreviewPuntos() {
+            const puntosActuales = currentDoctorPuntos;
+            const valor = parseInt(document.getElementById('ajustePuntosValor').value) || 0;
+            const tipo = document.getElementById('ajustePuntosTipo').value;
+            
+            let resultado = puntosActuales;
+            let operacion = '';
+            
+            if (tipo === 'sumar') {
+                resultado = puntosActuales + valor;
+                operacion = `${puntosActuales} + ${valor} = ${resultado}`;
+            } else if (tipo === 'restar') {
+                resultado = puntosActuales - valor;
+                operacion = `${puntosActuales} - ${valor} = ${resultado}`;
+            } else if (tipo === 'establecer') {
+                resultado = valor;
+                operacion = `Establecer a ${valor}`;
+            }
+            
+            document.getElementById('previewPuntosActuales').textContent = puntosActuales;
+            document.getElementById('previewOperacion').textContent = operacion;
+            document.getElementById('previewResultado').textContent = resultado;
+        }
+
+        function ajustarPuntosRapido(cantidad) {
+            const tipoSelect = document.getElementById('ajustePuntosTipo');
+            const valorInput = document.getElementById('ajustePuntosValor');
+            
+            if (cantidad > 0) {
+                tipoSelect.value = 'sumar';
+                valorInput.value = Math.abs(cantidad);
+            } else {
+                tipoSelect.value = 'restar';
+                valorInput.value = Math.abs(cantidad);
+            }
+            
+            actualizarPreviewPuntos();
+        }
+
+        async function confirmarAjustePuntos() {
+            const doctorId = document.getElementById('ajustarDoctorId').value;
+            const valor = parseInt(document.getElementById('ajustePuntosValor').value) || 0;
+            const tipo = document.getElementById('ajustePuntosTipo').value;
+            const motivo = document.getElementById('ajustePuntosMotivo').value.trim();
+            
+            if (!doctorId) {
+                alert('Error: No se identificó el doctor');
+                closeModal('ajustarPuntosModal');
+                return;
+            }
+            
+            if (valor === 0) {
+                const messageEl = document.getElementById('ajustarPuntosMessage');
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor ingrese una cantidad diferente de cero';
+                messageEl.style.display = 'block';
+                return;
+            }
+            
+            let puntosNuevos = currentDoctorPuntos;
+            let operacionDesc = '';
+            
+            if (tipo === 'sumar') {
+                puntosNuevos = currentDoctorPuntos + valor;
+                operacionDesc = `Sumar ${valor}`;
+            } else if (tipo === 'restar') {
+                puntosNuevos = currentDoctorPuntos - valor;
+                if (puntosNuevos < 0) {
+                    if (!confirm(`Los puntos resultantes serán negativos (${puntosNuevos}). ¿Desea continuar de todas formas?`)) {
+                        return;
+                    }
+                }
+                operacionDesc = `Restar ${valor}`;
+            } else if (tipo === 'establecer') {
+                puntosNuevos = valor;
+                operacionDesc = `Establecer a ${valor}`;
+            }
+            
+            try {
+                const messageEl = document.getElementById('ajustarPuntosMessage');
+                messageEl.className = 'message';
+                messageEl.innerHTML = '<div class="spinner"></div> Ajustando puntos...';
+                messageEl.style.display = 'block';
+                
+                const response = await fetch('/api/ajustar-puntos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        doctor_id: doctorId,
+                        puntos_actuales: currentDoctorPuntos,
+                        puntos_nuevos: puntosNuevos,
+                        tipo_ajuste: tipo,
+                        cantidad: valor,
+                        motivo: motivo || 'Ajuste manual por administrador'
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Respuesta del servidor:', result);
+                
+                if (result.success) {
+                    messageEl.className = 'message success';
+                    messageEl.innerHTML = `<i class="fas fa-check-circle"></i> ${result.message}`;
+                    
+                    // Actualizar el valor en la tabla
+                    const puntosElement = document.getElementById(`puntos-${doctorId}`);
+                    if (puntosElement) {
+                        puntosElement.textContent = puntosNuevos;
+                    }
+                    
+                    // Actualizar estadísticas globales
+                    loadAdminStats();
+                    
+                    // Cerrar modal después de 2 segundos
+                    setTimeout(() => {
+                        closeModal('ajustarPuntosModal');
+                        // Recargar la lista de doctores para asegurar consistencia
+                        loadDoctores();
+                    }, 2000);
+                } else {
+                    messageEl.className = 'message error';
+                    messageEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message || 'Error al ajustar puntos'}`;
+                }
+            } catch (error) {
+                console.error('Error ajustando puntos:', error);
+                const messageEl = document.getElementById('ajustarPuntosMessage');
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error de conexión con el servidor';
+            }
+        }
+
         window.showSection = showSection;
         window.showRecetaVirtual = showRecetaVirtual;
         window.abrirSelectorDoctores = abrirSelectorDoctores;
@@ -5673,6 +5959,10 @@
         window.buscarHistorialDoctor = buscarHistorialDoctor;
         window.handleDoctorSearchKey = handleDoctorSearchKey;
         window.descargarResultado = descargarResultado;
+        window.mostrarModalAjustarPuntos = mostrarModalAjustarPuntos;
+        window.ajustarPuntosRapido = ajustarPuntosRapido;
+        window.confirmarAjustePuntos = confirmarAjustePuntos;
+        window.actualizarPreviewPuntos = actualizarPreviewPuntos;
     </script>
 </body>
 </html>

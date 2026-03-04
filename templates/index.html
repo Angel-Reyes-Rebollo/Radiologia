@@ -2743,7 +2743,7 @@
     }
 
     // ==============================================
-    // CONTENIDO RECETA VIRTUAL - VERSIÓN CORREGIDA (SIN DUPLICACIÓN)
+    // CONTENIDO RECETA VIRTUAL - VERSIÓN CORREGIDA (CON CAMPO EMAIL)
     // ==============================================
     
     function loadRecetaContent(container) {
@@ -2787,7 +2787,7 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN PACIENTE -->
+                <!-- SECCIÓN PACIENTE CON CAMPO EMAIL -->
                 <div class="info-card">
                     <div class="info-header">
                         <i class="fas fa-user-injured"></i>
@@ -2813,6 +2813,11 @@
                         <div class="form-group">
                             <label>Teléfono</label>
                             <input type="tel" class="form-control" placeholder="Teléfono" id="pacienteTel">
+                        </div>
+                        <!-- NUEVO CAMPO DE EMAIL -->
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control" placeholder="correo@ejemplo.com" id="pacienteEmail">
                         </div>
                     </div>
                     
@@ -3248,13 +3253,14 @@
     }
 
     // ==============================================
-    // FUNCIÓN GENERAR CITA CORREGIDA (SIN DUPLICACIÓN)
+    // FUNCIÓN GENERAR CITA CORREGIDA (CON CAMPO EMAIL)
     // ==============================================
 
     async function generarCita() {
         const messageEl = document.getElementById('recetaMessage');
         const paciente = document.getElementById('pacienteNombre').value.trim();
         const pacienteTel = document.getElementById('pacienteTel').value.trim();
+        const pacienteEmail = document.getElementById('pacienteEmail').value.trim(); // NUEVO
         const fechaCita = document.getElementById('fechaCita').value;
         const horaCita = document.getElementById('horaCita').value;
         const fechaNacimiento = document.getElementById('pacienteFN').value;
@@ -3329,6 +3335,7 @@
                 body: JSON.stringify({
                     paciente: paciente,
                     pacienteTel: pacienteTel,
+                    pacienteEmail: pacienteEmail, // NUEVO
                     doctor_id: currentDoctorId,
                     estudios: estudios,
                     observaciones: observaciones, // Solo observaciones adicionales + fecha nacimiento
@@ -3374,6 +3381,7 @@
                 document.getElementById('pacienteEdad').value = '';
                 document.getElementById('pacienteFN').value = '';
                 document.getElementById('pacienteTel').value = '';
+                document.getElementById('pacienteEmail').value = ''; // NUEVO
                 document.getElementById('fechaCita').value = '';
                 document.getElementById('horaCita').innerHTML = '<option value="">Seleccione una hora</option>';
                 document.getElementById('horaCita').disabled = true;
@@ -3389,7 +3397,8 @@
                 document.querySelectorAll('input[type="text"], input[type="number"], textarea, select').forEach(input => {
                     if (input.id !== 'pacienteNombre' && input.id !== 'pacienteEdad' && 
                         input.id !== 'pacienteFN' && input.id !== 'pacienteTel' &&
-                        input.id !== 'fechaCita' && input.id !== 'observacionesAdicionales') {
+                        input.id !== 'pacienteEmail' && input.id !== 'fechaCita' && 
+                        input.id !== 'observacionesAdicionales') {
                         if (input.tagName === 'SELECT') {
                             input.value = 'USB';
                         } else {
