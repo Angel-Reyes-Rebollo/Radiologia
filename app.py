@@ -1322,74 +1322,110 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.send_json_response({'error': str(e)}, 500)
     
     # ==============================================
-    # FUNCIÓN MEJORADA PARA GENERAR PDF DE RECETA
+    # FUNCIÓN MEJORADA PARA GENERAR PDF DE RECETA - VERSIÓN PROFESIONAL
     # ==============================================
     
     def generate_pdf_cita(self, data):
         """
-        Genera un PDF para la cita/receta mostrando SOLO los estudios seleccionados.
-        Incluye teléfono del paciente, email del paciente, teléfono de consultorio del doctor y formato de entrega.
+        Genera un PDF para la cita/receta con diseño profesional y colores corporativos.
+        Color principal: #1C1C26 (fondo oscuro) y blanco para contraste.
         """
         buffer = io.BytesIO()
         
+        # Configurar el documento con márgenes generosos
         doc = SimpleDocTemplate(buffer, pagesize=letter,
                                rightMargin=36, leftMargin=36,
                                topMargin=36, bottomMargin=36)
         
         styles = getSampleStyleSheet()
         
+        # Colores corporativos
+        color_primario = colors.HexColor('#1C1C26')  # Fondo oscuro
+        color_secundario = colors.HexColor('#2A2A35')  # Versión más clara para fondos
+        color_acento = colors.HexColor('#3A3A4A')  # Para bordes y detalles
+        color_texto_oscuro = colors.HexColor('#333333')  # Para texto sobre fondo blanco
+        color_texto_claro = colors.white  # Para texto sobre fondo oscuro
+        color_destacado = colors.HexColor('#4A4A5A')  # Para elementos destacados
+        
+        # Estilos personalizados
         styles.add(ParagraphStyle(
-            name='CustomTitle', parent=styles['Heading1'],
-            fontSize=16, textColor=colors.HexColor('#2d1b4a'),
-            alignment=TA_LEFT, spaceAfter=6, fontName='Helvetica-Bold'
+            name='TituloPrincipal',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=color_primario,
+            alignment=TA_CENTER,
+            spaceAfter=12,
+            fontName='Helvetica-Bold',
+            backColor=None
         ))
+        
         styles.add(ParagraphStyle(
-            name='SectionHeader', parent=styles['Heading2'],
-            fontSize=12, textColor=colors.HexColor('#6b3fa0'),
-            alignment=TA_LEFT, spaceBefore=12, spaceAfter=6, fontName='Helvetica-Bold',
-            borderPadding=(0, 0, 2, 0), borderWidth=1, borderColor=colors.HexColor('#d9c9f0')
+            name='Subtitulo',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=color_primario,
+            alignment=TA_LEFT,
+            spaceBefore=15,
+            spaceAfter=8,
+            fontName='Helvetica-Bold',
+            borderWidth=1,
+            borderColor=color_acento,
+            borderPadding=(5, 0, 5, 0)
         ))
+        
         styles.add(ParagraphStyle(
-            name='SubSectionHeader', parent=styles['Heading3'],
-            fontSize=10, textColor=colors.HexColor('#2d1b4a'),
-            alignment=TA_LEFT, spaceBefore=8, spaceAfter=4, fontName='Helvetica-Bold'
+            name='EtiquetaCampo',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.HexColor('#666666'),
+            alignment=TA_LEFT,
+            spaceAfter=1,
+            fontName='Helvetica-Oblique'
         ))
+        
         styles.add(ParagraphStyle(
-            name='InfoLabel', parent=styles['Normal'],
-            fontSize=9, textColor=colors.HexColor('#666666'),
-            alignment=TA_LEFT, spaceAfter=1, fontName='Helvetica'
+            name='ValorCampo',
+            parent=styles['Normal'],
+            fontSize=11,
+            textColor=color_texto_oscuro,
+            alignment=TA_LEFT,
+            spaceAfter=4,
+            fontName='Helvetica',
+            leading=14
         ))
+        
         styles.add(ParagraphStyle(
-            name='InfoValue', parent=styles['Normal'],
-            fontSize=10, textColor=colors.HexColor('#000000'),
-            alignment=TA_LEFT, spaceAfter=2, fontName='Helvetica'
+            name='EstudioItem',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=color_texto_oscuro,
+            alignment=TA_LEFT,
+            leftIndent=20,
+            fontName='Helvetica',
+            spaceAfter=3,
+            leading=14
         ))
+        
         styles.add(ParagraphStyle(
-            name='InfoRow', parent=styles['Normal'],
-            fontSize=10, textColor=colors.HexColor('#000000'),
-            alignment=TA_LEFT, spaceAfter=2, fontName='Helvetica'
-        ))
-        styles.add(ParagraphStyle(
-            name='StudyStyle', parent=styles['Normal'],
-            fontSize=9, alignment=TA_LEFT, leftIndent=10, fontName='Helvetica',
-            spaceAfter=2
-        ))
-        styles.add(ParagraphStyle(
-            name='FooterStyle', parent=styles['Normal'],
-            fontSize=8, textColor=colors.grey, alignment=TA_CENTER
+            name='PiePagina',
+            parent=styles['Normal'],
+            fontSize=8,
+            textColor=colors.HexColor('#888888'),
+            alignment=TA_CENTER,
+            spaceBefore=20
         ))
         
         story = []
         
         def get_checkbox_symbol():
-            return "◉"
+            return "✓"  # Símbolo de check más profesional
         
         def load_image(image_path, width=1*inch, height=1*inch):
             if os.path.exists(image_path):
                 return Image(image_path, width=width, height=height)
-            else:
-                return None
+            return None
         
+        # Obtener información del doctor
         db = self.connect_db()
         cursor = db.cursor(dictionary=True)
         cursor.execute("SELECT nombre, especialidad, telefono_consultorio, email FROM doctores WHERE Diddoctor = %s", (data['doctor_id'],))
@@ -1398,21 +1434,35 @@ class CustomHandler(SimpleHTTPRequestHandler):
         db.close()
         
         if not doctor and data['doctor_id'] == 'ADMIN':
-            doctor = {'nombre': 'Administrador', 'especialidad': 'Administración', 'telefono_consultorio': 'N/A', 'email': 'admin@4digital.com'}
+            doctor = {'nombre': 'Administrador', 'especialidad': 'Administración', 
+                     'telefono_consultorio': 'N/A', 'email': 'admin@4digital.com'}
         
         # ==============================================
-        # PÁGINA 1 - ENCABEZADO Y DATOS BÁSICOS
+        # ENCABEZADO CON LOGO Y TÍTULO
         # ==============================================
         
+        # Barra superior de color corporativo
+        header_bar = Table([['']], colWidths=[doc.width])
+        header_bar.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), color_primario),
+            ('HEIGHT', (0,0), (-1,-1), 0.2*inch),
+        ]))
+        story.append(header_bar)
+        story.append(Spacer(1, 15))
+        
+        # Logo y título
         header_data = []
-        logo1 = load_image('LOGO4Digital.jpg', width=0.8*inch, height=0.8*inch)
+        logo1 = load_image('LOGO4Digital.jpg', width=1.2*inch, height=1.2*inch)
         if logo1:
-            header_data.append([logo1, Paragraph("614 6631185 / 614 5395488<br/><b>4DIGITAL</b><br/>Radiológica Dental Chihuahua", styles['InfoLabel'])])
+            header_data.append([logo1, 
+                               Paragraph("<font size=20><b>4DIGITAL</b></font><br/><font size=10>Radiológica Dental Chihuahua</font>", 
+                                        ParagraphStyle('HeaderTitle', parent=styles['Normal'], textColor=color_primario, alignment=TA_RIGHT))])
         else:
-            header_data.append([Paragraph("<b>4DIGITAL</b><br/>Radiológica Dental Chihuahua", styles['InfoLabel']), 
-                               Paragraph("614 6631185 / 614 5395488", styles['InfoLabel'])])
+            header_data.append([Paragraph("<font size=24><b>4DIGITAL</b></font><br/><font size=12>Radiológica Dental</font>", 
+                                         ParagraphStyle('HeaderTitle', parent=styles['Normal'], textColor=color_primario, alignment=TA_LEFT)),
+                               Paragraph("614 6631185<br/>614 5395488", styles['EtiquetaCampo'])])
         
-        header_table = Table(header_data, colWidths=[1*inch, doc.width-1*inch])
+        header_table = Table(header_data, colWidths=[1.5*inch, doc.width-1.5*inch])
         header_table.setStyle(TableStyle([
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
             ('ALIGN', (0,0), (0,0), 'LEFT'),
@@ -1421,62 +1471,126 @@ class CustomHandler(SimpleHTTPRequestHandler):
             ('RIGHTPADDING', (0,0), (-1,-1), 0),
         ]))
         story.append(header_table)
-        story.append(Spacer(1, 12))
+        story.append(Spacer(1, 20))
         
-        info_data = [
-            [Paragraph("<b>Paciente:</b> " + data['paciente'], styles['InfoRow'])],
+        # Número de folio destacado
+        folio_text = f"<font size=12>FOLIO:</font> <font size=16 color='#1C1C26'><b>{data['numero_folio']}</b></font>"
+        story.append(Paragraph(folio_text, ParagraphStyle('Folio', parent=styles['Normal'], alignment=TA_RIGHT)))
+        story.append(Spacer(1, 10))
+        
+        # ==============================================
+        # SECCIÓN: DATOS DEL PACIENTE (TARJETA)
+        # ==============================================
+        
+        story.append(Paragraph("DATOS DEL PACIENTE", styles['Subtitulo']))
+        
+        # Crear una tabla con bordes suaves para los datos del paciente
+        paciente_data = [
+            [Paragraph("<b>Nombre completo:</b>", styles['EtiquetaCampo']), 
+             Paragraph(data['paciente'], styles['ValorCampo'])],
         ]
         
         if data.get('pacienteTel'):
-            info_data.append([Paragraph("<b>Teléfono:</b> " + data['pacienteTel'], styles['InfoRow'])])
+            paciente_data.append([Paragraph("<b>Teléfono:</b>", styles['EtiquetaCampo']), 
+                                 Paragraph(data['pacienteTel'], styles['ValorCampo'])])
         
-        if data.get('pacienteEmail'):  # NUEVO - Mostrar email en PDF
-            info_data.append([Paragraph("<b>Email:</b> " + data['pacienteEmail'], styles['InfoRow'])])
+        if data.get('pacienteEmail'):
+            paciente_data.append([Paragraph("<b>Email:</b>", styles['EtiquetaCampo']), 
+                                 Paragraph(data['pacienteEmail'], styles['ValorCampo'])])
         
-        info_data.append([Paragraph("<b>Doctor(a):</b> " + (doctor['nombre'] if doctor else 'Administrador'), styles['InfoRow'])])
-        info_data.append([Paragraph("<b>Especialidad:</b> " + (doctor['especialidad'] if doctor else 'Administración'), styles['InfoRow'])])
+        paciente_data.append([Paragraph("<b>Fecha de registro:</b>", styles['EtiquetaCampo']), 
+                             Paragraph(f"{data['fecha_registro']} {data['hora_registro']}", styles['ValorCampo'])])
+        
+        paciente_table = Table(paciente_data, colWidths=[1.5*inch, doc.width-1.5*inch])
+        paciente_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ('ALIGN', (0,0), (0,-1), 'LEFT'),
+            ('ALIGN', (1,0), (1,-1), 'LEFT'),
+            ('FONTSIZE', (0,0), (-1,-1), 10),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('TOPPADDING', (0,0), (-1,-1), 2),
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8F8FA')),
+            ('BOX', (0,0), (-1,-1), 1, color_acento),
+            ('LEFTPADDING', (0,0), (-1,-1), 10),
+            ('RIGHTPADDING', (0,0), (-1,-1), 10),
+        ]))
+        story.append(paciente_table)
+        story.append(Spacer(1, 20))
+        
+        # ==============================================
+        # SECCIÓN: DATOS DEL DOCTOR (TARJETA)
+        # ==============================================
+        
+        story.append(Paragraph("DATOS DEL MÉDICO", styles['Subtitulo']))
+        
+        doctor_data = [
+            [Paragraph("<b>Nombre:</b>", styles['EtiquetaCampo']), 
+             Paragraph(doctor['nombre'] if doctor else 'Administrador', styles['ValorCampo'])],
+            [Paragraph("<b>Especialidad:</b>", styles['EtiquetaCampo']), 
+             Paragraph(doctor['especialidad'] if doctor else 'Administración', styles['ValorCampo'])],
+        ]
         
         if doctor and doctor.get('telefono_consultorio'):
-            info_data.append([Paragraph("<b>Tel. Consultorio:</b> " + doctor['telefono_consultorio'], styles['InfoRow'])])
+            doctor_data.append([Paragraph("<b>Tel. Consultorio:</b>", styles['EtiquetaCampo']), 
+                               Paragraph(doctor['telefono_consultorio'], styles['ValorCampo'])])
         
-        info_table = Table(info_data, colWidths=[doc.width])
-        info_table.setStyle(TableStyle([
+        doctor_table = Table(doctor_data, colWidths=[1.5*inch, doc.width-1.5*inch])
+        doctor_table.setStyle(TableStyle([
             ('VALIGN', (0,0), (-1,-1), 'TOP'),
-            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('ALIGN', (0,0), (0,-1), 'LEFT'),
+            ('ALIGN', (1,0), (1,-1), 'LEFT'),
             ('FONTSIZE', (0,0), (-1,-1), 10),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 2),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('TOPPADDING', (0,0), (-1,-1), 2),
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8F8FA')),
+            ('BOX', (0,0), (-1,-1), 1, color_acento),
+            ('LEFTPADDING', (0,0), (-1,-1), 10),
+            ('RIGHTPADDING', (0,0), (-1,-1), 10),
         ]))
-        story.append(info_table)
-        story.append(Spacer(1, 6))
-        
-        if data.get('observaciones') and data['observaciones'] != 'Ninguna':
-            story.append(Paragraph("<b>Observaciones:</b>", styles['InfoLabel']))
-            story.append(Paragraph(data.get('observaciones', 'Ninguna'), styles['InfoValue']))
-            story.append(Spacer(1, 6))
+        story.append(doctor_table)
+        story.append(Spacer(1, 20))
         
         # ==============================================
-        # FORMATO DE ENTREGA
+        # SECCIÓN: DETALLES DE LA CITA
         # ==============================================
-        story.append(Paragraph("<b>Formato de Entrega:</b>", styles['SubSectionHeader']))
-        entrega = data.get('formato_entrega', 'Digital')
-        story.append(Paragraph(f"{get_checkbox_symbol()} {entrega}", styles['StudyStyle']))
-        story.append(Spacer(1, 6))
         
-        story.append(Paragraph("_" * 100, styles['FooterStyle']))
-        story.append(Spacer(1, 6))
+        story.append(Paragraph("DETALLES DE LA CITA", styles['Subtitulo']))
         
-        craneos_img = load_image('Craneos.png', width=doc.width-20, height=1.5*inch)
-        if craneos_img:
-            story.append(craneos_img)
-            story.append(Spacer(1, 6))
+        cita_data = [
+            [Paragraph("<b>Fecha de cita:</b>", styles['EtiquetaCampo']), 
+             Paragraph(f"{data['fecha_cita']} - {data['hora_cita']}", styles['ValorCampo'])],
+            [Paragraph("<b>Formato de entrega:</b>", styles['EtiquetaCampo']), 
+             Paragraph(data.get('formato_entrega', 'Digital'), styles['ValorCampo'])],
+        ]
+        
+        if data.get('formato_fotografia') and any('Fotos' in str(e) or 'Fotografía' in str(e) for e in data.get('estudios', [])):
+            cita_data.append([Paragraph("<b>Formato fotos:</b>", styles['EtiquetaCampo']), 
+                             Paragraph(data['formato_fotografia'], styles['ValorCampo'])])
+        
+        cita_table = Table(cita_data, colWidths=[1.5*inch, doc.width-1.5*inch])
+        cita_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ('ALIGN', (0,0), (0,-1), 'LEFT'),
+            ('ALIGN', (1,0), (1,-1), 'LEFT'),
+            ('FONTSIZE', (0,0), (-1,-1), 10),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8F8FA')),
+            ('BOX', (0,0), (-1,-1), 1, color_acento),
+            ('LEFTPADDING', (0,0), (-1,-1), 10),
+        ]))
+        story.append(cita_table)
+        story.append(Spacer(1, 20))
         
         # ==============================================
-        # ESTUDIOS SELECCIONADOS
+        # SECCIÓN: ESTUDIOS SOLICITADOS
         # ==============================================
+        
+        story.append(Paragraph("ESTUDIOS SOLICITADOS", styles['Subtitulo']))
         
         estudios_seleccionados = data.get('estudios', [])
         
         if estudios_seleccionados:
+            # Agrupar por categoría
             categorias = {
                 'RADIOGRAFÍAS 2D': [],
                 'TOMOGRAFÍAS 3D': [],
@@ -1515,22 +1629,41 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 else:
                     categorias['OTROS ESTUDIOS'].append(texto_estudio)
             
+            # Crear tabla de estudios con diseño mejorado
             for categoria, estudios_cat in categorias.items():
                 if estudios_cat:
-                    story.append(Paragraph(categoria, styles['SectionHeader']))
+                    # Título de categoría con fondo de color corporativo suave
+                    cat_title = Paragraph(f"<b>{categoria}</b>", 
+                                        ParagraphStyle('Categoria', parent=styles['Normal'],
+                                                      textColor=color_texto_claro, alignment=TA_LEFT,
+                                                      backColor=color_primario, fontSize=11,
+                                                      leading=16))
                     
-                    if len(estudios_cat) > 8:
+                    cat_table = Table([[cat_title]], colWidths=[doc.width])
+                    cat_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0,0), (-1,-1), color_primario),
+                        ('TEXTCOLOR', (0,0), (-1,-1), color_texto_claro),
+                        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+                        ('LEFTPADDING', (0,0), (-1,-1), 10),
+                        ('RIGHTPADDING', (0,0), (-1,-1), 10),
+                        ('TOPPADDING', (0,0), (-1,-1), 5),
+                        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+                    ]))
+                    story.append(cat_table)
+                    
+                    # Lista de estudios en dos columnas si hay muchos
+                    if len(estudios_cat) > 6:
                         mitad = len(estudios_cat) // 2
                         col1 = estudios_cat[:mitad]
                         col2 = estudios_cat[mitad:]
                         
-                        col1_parrafos = [Paragraph(est, styles['StudyStyle']) for est in col1]
-                        col2_parrafos = [Paragraph(est, styles['StudyStyle']) for est in col2]
+                        col1_parrafos = [Paragraph(est, styles['EstudioItem']) for est in col1]
+                        col2_parrafos = [Paragraph(est, styles['EstudioItem']) for est in col2]
                         
                         while len(col1_parrafos) < len(col2_parrafos):
-                            col1_parrafos.append(Paragraph("", styles['StudyStyle']))
+                            col1_parrafos.append(Paragraph("", styles['EstudioItem']))
                         while len(col2_parrafos) < len(col1_parrafos):
-                            col2_parrafos.append(Paragraph("", styles['StudyStyle']))
+                            col2_parrafos.append(Paragraph("", styles['EstudioItem']))
                         
                         col_table_data = []
                         for i in range(len(col1_parrafos)):
@@ -1540,36 +1673,57 @@ class CustomHandler(SimpleHTTPRequestHandler):
                         col_table.setStyle(TableStyle([
                             ('VALIGN', (0,0), (-1,-1), 'TOP'),
                             ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-                            ('LEFTPADDING', (0,0), (-1,-1), 5),
+                            ('LEFTPADDING', (0,0), (-1,-1), 15),
                             ('RIGHTPADDING', (0,0), (-1,-1), 5),
-                            ('BOTTOMPADDING', (0,0), (-1,-1), 1),
+                            ('BOTTOMPADDING', (0,0), (-1,-1), 2),
                         ]))
                         story.append(col_table)
                     else:
                         for est in estudios_cat:
-                            story.append(Paragraph(est, styles['StudyStyle']))
+                            story.append(Paragraph(est, styles['EstudioItem']))
                     
-                    story.append(Spacer(1, 4))
-            
-            if data.get('formato_fotografia') and any('Fotos' in str(e) or 'Fotografía' in str(e) for e in estudios_seleccionados):
-                story.append(Paragraph(f"Formato de fotografías: {data['formato_fotografia']}", styles['StudyStyle']))
-                story.append(Spacer(1, 4))
+                    story.append(Spacer(1, 8))
         
         else:
-            story.append(Paragraph("No se seleccionaron estudios", styles['StudyStyle']))
+            story.append(Paragraph("No se seleccionaron estudios", styles['EstudioItem']))
         
         # ==============================================
-        # PÁGINA 2 - DESGLOSE DE PRECIOS Y FIRMAS
+        # OBSERVACIONES
+        # ==============================================
+        
+        if data.get('observaciones') and data['observaciones'] != 'Ninguna':
+            story.append(Spacer(1, 10))
+            story.append(Paragraph("OBSERVACIONES", styles['Subtitulo']))
+            
+            # Filtrar observaciones para quitar los datos que ya mostramos
+            obs_text = data['observaciones']
+            obs_text = re.sub(r'Teléfono:.*?\n', '', obs_text)
+            obs_text = re.sub(r'Email:.*?\n', '', obs_text)
+            obs_text = re.sub(r'Formato de entrega:.*?\n', '', obs_text)
+            obs_text = re.sub(r'Formato de fotografías:.*?\n', '', obs_text)
+            
+            if obs_text.strip():
+                story.append(Paragraph(obs_text.strip(), styles['ValorCampo']))
+        
+        # ==============================================
+        # PÁGINA 2 - DESGLOSE DE PRECIOS
         # ==============================================
         story.append(PageBreak())
         
-        story.append(Paragraph("4Digital - Radiología Médica", styles['CustomTitle']))
-        story.append(Paragraph(f"Folio: {data['numero_folio']} - Paciente: {data['paciente']}", styles['FooterStyle']))
-        story.append(Spacer(1, 12))
+        # Barra superior en página 2
+        story.append(Table([['']], colWidths=[doc.width], 
+                          style=TableStyle([('BACKGROUND', (0,0), (-1,-1), color_primario),
+                                           ('HEIGHT', (0,0), (-1,-1), 0.2*inch)])))
+        story.append(Spacer(1, 20))
         
-        story.append(Paragraph("DESGLOSE DE ESTUDIOS", styles['SectionHeader']))
+        # Título de la página
+        story.append(Paragraph("DETALLE DE COSTOS", 
+                              ParagraphStyle('PageTitle', parent=styles['Heading1'],
+                                           textColor=color_primario, fontSize=18,
+                                           alignment=TA_CENTER, spaceAfter=20)))
         
         if estudios_seleccionados:
+            # Tabla de desglose con diseño profesional
             table_data = [['Estudio Solicitado', 'Precio']]
             total = 0
             
@@ -1593,7 +1747,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 
                 table_data.append([nombre, precio_mostrar])
             
-            # Agregar formato de entrega al desglose si tiene costo adicional
+            # Agregar cargos adicionales por formato
             formato_entrega = data.get('formato_entrega', 'Digital')
             if formato_entrega == 'USB':
                 total += 50
@@ -1605,42 +1759,59 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 total += 30
                 table_data.append(['Cargo por impresión', '$30.00'])
             
-            price_table = Table(table_data, colWidths=[doc.width - 100, 100])
+            # Crear tabla de precios con diseño mejorado
+            price_table = Table(table_data, colWidths=[doc.width - 120, 100])
             price_table.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#2d1b4a')),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-                ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-                ('ALIGN', (1,0), (1,-1), 'RIGHT'),
+                # Encabezado
+                ('BACKGROUND', (0,0), (-1,0), color_primario),
+                ('TEXTCOLOR', (0,0), (-1,0), color_texto_claro),
                 ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0,0), (-1,-1), 10),
+                ('FONTSIZE', (0,0), (-1,0), 11),
+                ('ALIGN', (0,0), (-1,0), 'LEFT'),
+                ('ALIGN', (1,0), (1,0), 'RIGHT'),
                 ('BOTTOMPADDING', (0,0), (-1,0), 8),
-                ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#d9c9f0')),
-                ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#f5f0fa')),
+                ('TOPPADDING', (0,0), (-1,0), 8),
+                ('LEFTPADDING', (0,0), (-1,0), 10),
+                ('RIGHTPADDING', (0,0), (-1,0), 10),
+                
+                # Cuerpo de la tabla
+                ('BACKGROUND', (0,1), (-1,-2), colors.HexColor('#F8F8FA')),
+                ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor('#E8E8F0')),
+                ('TEXTCOLOR', (0,1), (-1,-2), color_texto_oscuro),
+                ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
+                ('FONTSIZE', (0,1), (-1,-1), 10),
+                ('ALIGN', (0,1), (0,-1), 'LEFT'),
+                ('ALIGN', (1,1), (1,-1), 'RIGHT'),
+                ('GRID', (0,0), (-1,-2), 1, color_acento),
+                ('LINEBELOW', (0,-2), (-1,-2), 1, color_acento),
+                ('LINEABOVE', (0,-1), (-1,-1), 2, color_primario),
+                ('LEFTPADDING', (0,1), (-1,-1), 10),
+                ('RIGHTPADDING', (0,1), (-1,-1), 10),
+                ('BOTTOMPADDING', (0,1), (-1,-1), 5),
+                ('TOPPADDING', (0,1), (-1,-1), 5),
             ]))
             story.append(price_table)
-            story.append(Spacer(1, 15))
-            
-            story.append(Paragraph(f"<b>TOTAL:</b> ${total:,.2f}", ParagraphStyle(
-                'Total',
-                parent=styles['Heading3'],
-                fontSize=14,
-                textColor=colors.HexColor('#2d1b4a'),
-                alignment=TA_RIGHT,
-                spaceBefore=5,
-                spaceAfter=20
-            )))
-        else:
-            story.append(Paragraph("No se especificaron estudios.", styles['StudyStyle']))
             story.append(Spacer(1, 20))
+            
+            # Total destacado
+            total_text = f"<font size=12>TOTAL A PAGAR:</font> <font size=18 color='#1C1C26'><b>${total:,.2f}</b></font>"
+            story.append(Paragraph(total_text, 
+                                  ParagraphStyle('Total', parent=styles['Normal'],
+                                               alignment=TA_RIGHT, spaceAfter=30)))
         
+        # ==============================================
+        # FIRMAS
+        # ==============================================
+        
+        story.append(Paragraph("FIRMAS DE CONFORMIDAD", styles['Subtitulo']))
         story.append(Spacer(1, 30))
-        story.append(Paragraph("FIRMAS", styles['SectionHeader']))
         
+        # Líneas de firma con diseño mejorado
         signature_data = [
-            [Paragraph("____________________________", styles['FooterStyle']),
-             Paragraph("____________________________", styles['FooterStyle'])],
-            [Paragraph("Firma del Paciente", styles['FooterStyle']),
-             Paragraph(f"Firma del Dr(a). {doctor['nombre'] if doctor else 'Administrador'}", styles['FooterStyle'])]
+            [Paragraph("____________________________", styles['PiePagina']),
+             Paragraph("____________________________", styles['PiePagina'])],
+            [Paragraph("<b>Firma del Paciente</b>", styles['PiePagina']),
+             Paragraph(f"<b>Firma del Dr(a). {doctor['nombre'] if doctor else 'Administrador'}</b>", styles['PiePagina'])]
         ]
         signature_table = Table(signature_data, colWidths=[doc.width/2.0]*2)
         signature_table.setStyle(TableStyle([
@@ -1652,8 +1823,20 @@ class CustomHandler(SimpleHTTPRequestHandler):
         story.append(signature_table)
         story.append(Spacer(1, 20))
         
-        story.append(Paragraph(f"Receta generada por: Administrador el {data['fecha_registro']} a las {data['hora_registro']}", styles['FooterStyle']))
+        # Información de generación
+        story.append(Paragraph(f"Documento generado el {data['fecha_registro']} a las {data['hora_registro']} por Administrador", 
+                              styles['PiePagina']))
         
+        # ==============================================
+        # PIE DE PÁGINA
+        # ==============================================
+        story.append(Spacer(1, 20))
+        footer_text = "4DIGITAL · Radiológica Dental Chihuahua · Tel. 614 6631185 / 614 5395488"
+        story.append(Paragraph(footer_text, 
+                              ParagraphStyle('Footer', parent=styles['PiePagina'],
+                                           textColor=colors.HexColor('#AAAAAA'))))
+        
+        # Generar PDF
         doc.build(story)
         pdf = buffer.getvalue()
         buffer.close()
@@ -3065,7 +3248,7 @@ print("👑 Panel de administración: /admin")
 print("✅ Gestión de Resultados con puntos automáticos")
 print("✅ 1 punto por cada $100 en resultados entregados")
 print("✅ Eliminación programada de citas")
-print("✅ PDF mejorado con checkboxes y formato profesional")
+print("✅ PDF mejorado con diseño profesional y colores corporativos #1C1C26")
 print("✅ Teléfono de paciente y teléfono de consultorio incluidos")
 print("✅ Email del paciente incluido")
 print("✅ Formato de entrega: Digital, USB, DICOM, Impreso")
