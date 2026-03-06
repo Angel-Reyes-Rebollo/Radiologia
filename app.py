@@ -1,4 +1,4 @@
-# app.py - VERSIÓN COMPLETA CORREGIDA (CON CAMPO EMAIL Y AJUSTE DE PUNTOS)
+# app.py - VERSIÓN COMPLETA CORREGIDA (CON EDAD DEL PACIENTE EN PDF)
 import base64
 import io
 import json
@@ -993,23 +993,23 @@ class CustomHandler(SimpleHTTPRequestHandler):
             cita_id = data.get('cita_id')
             paciente = data.get('paciente')
             paciente_tel = data.get('pacienteTel', '')
-            paciente_email = data.get('pacienteEmail', '')  # NUEVO CAMPO EMAIL
+            paciente_email = data.get('pacienteEmail', '')
             doctor_id = data.get('doctor_id')
             fecha_cita = data.get('fecha_cita')
             hora_cita = data.get('hora_cita')
             total_estudio = float(data.get('total_estudio', 0))
             observaciones = data.get('observaciones', '')
             formato_entrega = data.get('formato_entrega', 'Digital')
-            formato_fotografia = data.get('formato_fotografia', 'USB')
+            formato_entrega_fotografias = data.get('formato_entrega_fotografias')
             
             # Agregar formatos a observaciones si no están ya
-            if f"Formato de entrega: {formato_entrega}" not in observaciones:
-                observaciones = f"Formato de entrega: {formato_entrega}\n" + observaciones
-            if f"Formato de fotografías: {formato_fotografia}" not in observaciones:
-                observaciones = f"Formato de fotografías: {formato_fotografia}\n" + observaciones
+            if f"Formato de entrega general: {formato_entrega}" not in observaciones:
+                observaciones = f"Formato de entrega general: {formato_entrega}\n" + observaciones
+            if formato_entrega_fotografias and f"Formato de fotografías: {formato_entrega_fotografias}" not in observaciones:
+                observaciones = f"Formato de fotografías: {formato_entrega_fotografias}\n" + observaciones
             if paciente_tel and f"Teléfono: {paciente_tel}" not in observaciones:
                 observaciones = f"Teléfono: {paciente_tel}\n" + observaciones
-            if paciente_email and f"Email: {paciente_email}" not in observaciones:  # NUEVO
+            if paciente_email and f"Email: {paciente_email}" not in observaciones:
                 observaciones = f"Email: {paciente_email}\n" + observaciones
             
             if not cita_id or not paciente or not doctor_id or not fecha_cita or not hora_cita:
@@ -1193,6 +1193,38 @@ class CustomHandler(SimpleHTTPRequestHandler):
         return extension_map.get(mime_type, '')
 
     # ==============================================
+    # FUNCIÓN PARA OBTENER DOCTOR POR USUARIO
+    # ==============================================
+    
+    def handle_get_doctor_by_user(self, username):
+        """Obtener ID del doctor por nombre de usuario"""
+        print(f"[API] Buscando doctor por usuario: '{username}'")
+        try:
+            db = self.connect_db()
+            cursor = db.cursor(dictionary=True)
+            
+            cursor.execute("""
+                SELECT Diddoctor as id, nombre, usuario, puntos
+                FROM doctores 
+                WHERE usuario = %s AND activo = 1
+            """, (username,))
+            
+            doctor = cursor.fetchone()
+            cursor.close()
+            db.close()
+            
+            if doctor:
+                print(f"[API] Doctor encontrado: {doctor}")
+                self.send_json_response(doctor, 200)
+            else:
+                print(f"[API] No se encontró doctor con usuario: '{username}'")
+                self.send_json_response({'error': 'Doctor no encontrado'}, 404)
+                
+        except Exception as e:
+            print(f"Error obteniendo doctor por usuario: {str(e)}")
+            self.send_json_response({'error': str(e)}, 500)
+    
+    # ==============================================
     # FUNCIÓN PARA OBTENER RESULTADOS DEL DOCTOR
     # ==============================================
     
@@ -1290,137 +1322,89 @@ class CustomHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({'error': str(e)}).encode())
     
     # ==============================================
-    # FUNCIÓN PARA OBTENER DOCTOR POR USUARIO
+    # FUNCIÓN MEJORADA PARA GENERAR PDF DE RECETA - CON EDAD DEL PACIENTE
     # ==============================================
-    
-    def handle_get_doctor_by_user(self, username):
-        """Obtener ID del doctor por nombre de usuario"""
-        print(f"[API] Buscando doctor por usuario: '{username}'")
-        try:
-            db = self.connect_db()
-            cursor = db.cursor(dictionary=True)
-            
-            cursor.execute("""
-                SELECT Diddoctor as id, nombre, usuario, puntos
-                FROM doctores 
-                WHERE usuario = %s AND activo = 1
-            """, (username,))
-            
-            doctor = cursor.fetchone()
-            cursor.close()
-            db.close()
-            
-            if doctor:
-                print(f"[API] Doctor encontrado: {doctor}")
-                self.send_json_response(doctor, 200)
-            else:
-                print(f"[API] No se encontró doctor con usuario: '{username}'")
-                self.send_json_response({'error': 'Doctor no encontrado'}, 404)
-                
-        except Exception as e:
-            print(f"Error obteniendo doctor por usuario: {str(e)}")
-            self.send_json_response({'error': str(e)}, 500)
-    
-    # ==============================================
-    # FUNCIÓN MEJORADA PARA GENERAR PDF DE RECETA - VERSIÓN PROFESIONAL
-    # ==============================================
-    
+
     def generate_pdf_cita(self, data):
         """
-        Genera un PDF para la cita/receta con diseño profesional y colores corporativos.
-        Color principal: #1C1C26 (fondo oscuro) y blanco para contraste.
+        Genera un PDF para la cita/receta con diseño mejorado.
+        AHORA INCLUYE LA EDAD DEL PACIENTE.
         """
         buffer = io.BytesIO()
         
-        # Configurar el documento con márgenes generosos
+        # Configurar el documento con márgenes MÍNIMOS
         doc = SimpleDocTemplate(buffer, pagesize=letter,
-                               rightMargin=36, leftMargin=36,
-                               topMargin=36, bottomMargin=36)
+                            rightMargin=20, leftMargin=20,
+                            topMargin=15, bottomMargin=15)
         
         styles = getSampleStyleSheet()
         
         # Colores corporativos
-        color_primario = colors.HexColor('#1C1C26')  # Fondo oscuro
-        color_secundario = colors.HexColor('#2A2A35')  # Versión más clara para fondos
-        color_acento = colors.HexColor('#3A3A4A')  # Para bordes y detalles
-        color_texto_oscuro = colors.HexColor('#333333')  # Para texto sobre fondo blanco
-        color_texto_claro = colors.white  # Para texto sobre fondo oscuro
-        color_destacado = colors.HexColor('#4A4A5A')  # Para elementos destacados
+        color_primario = colors.HexColor('#1C1C26')
+        color_acento = colors.HexColor('#3A3A4F')
+        color_texto_oscuro = colors.HexColor('#333333')
+        color_texto_claro = colors.white
         
-        # Estilos personalizados
-        styles.add(ParagraphStyle(
-            name='TituloPrincipal',
-            parent=styles['Heading1'],
-            fontSize=24,
-            textColor=color_primario,
-            alignment=TA_CENTER,
-            spaceAfter=12,
-            fontName='Helvetica-Bold',
-            backColor=None
-        ))
-        
+        # Estilos personalizados - TAMAÑO AUMENTADO EN 1 PUNTO
         styles.add(ParagraphStyle(
             name='Subtitulo',
             parent=styles['Heading2'],
-            fontSize=14,
+            fontSize=10,
             textColor=color_primario,
             alignment=TA_LEFT,
-            spaceBefore=15,
-            spaceAfter=8,
-            fontName='Helvetica-Bold',
-            borderWidth=1,
-            borderColor=color_acento,
-            borderPadding=(5, 0, 5, 0)
+            spaceBefore=4,
+            spaceAfter=2,
+            fontName='Helvetica-Bold'
         ))
         
         styles.add(ParagraphStyle(
             name='EtiquetaCampo',
             parent=styles['Normal'],
-            fontSize=9,
+            fontSize=7,
             textColor=colors.HexColor('#666666'),
             alignment=TA_LEFT,
-            spaceAfter=1,
+            spaceAfter=0,
             fontName='Helvetica-Oblique'
         ))
         
         styles.add(ParagraphStyle(
             name='ValorCampo',
             parent=styles['Normal'],
-            fontSize=11,
+            fontSize=8,
             textColor=color_texto_oscuro,
             alignment=TA_LEFT,
-            spaceAfter=4,
+            spaceAfter=1,
             fontName='Helvetica',
-            leading=14
+            leading=10
         ))
         
         styles.add(ParagraphStyle(
             name='EstudioItem',
             parent=styles['Normal'],
-            fontSize=10,
+            fontSize=8,
             textColor=color_texto_oscuro,
             alignment=TA_LEFT,
-            leftIndent=20,
+            leftIndent=5,
             fontName='Helvetica',
-            spaceAfter=3,
-            leading=14
+            spaceAfter=1,
+            leading=10
         ))
         
         styles.add(ParagraphStyle(
             name='PiePagina',
             parent=styles['Normal'],
-            fontSize=8,
+            fontSize=6,
             textColor=colors.HexColor('#888888'),
             alignment=TA_CENTER,
-            spaceBefore=20
+            spaceBefore=5
         ))
         
         story = []
         
         def get_checkbox_symbol():
-            return "✓"  # Símbolo de check más profesional
+            return "✓"
         
-        def load_image(image_path, width=1*inch, height=1*inch):
+        def load_image(image_path, width=0.5*inch, height=0.5*inch):
             if os.path.exists(image_path):
                 return Image(image_path, width=width, height=height)
             return None
@@ -1435,34 +1419,45 @@ class CustomHandler(SimpleHTTPRequestHandler):
         
         if not doctor and data['doctor_id'] == 'ADMIN':
             doctor = {'nombre': 'Administrador', 'especialidad': 'Administración', 
-                     'telefono_consultorio': 'N/A', 'email': 'admin@4digital.com'}
+                    'telefono_consultorio': 'N/A', 'email': 'admin@4digital.com'}
+        
+        # Verificar si hay estudios de fotografía seleccionados
+        estudios_seleccionados = data.get('estudios', [])
+        tiene_estudios_fotografia = False
+        for estudio in estudios_seleccionados:
+            nombre = estudio['nombre']
+            if any(p in nombre for p in ['Fotos', 'Fotografía', 'Escaneo facial']):
+                tiene_estudios_fotografia = True
+                break
+        
+        formato_entrega_fotografias = data.get('formato_entrega_fotografias')
         
         # ==============================================
-        # ENCABEZADO CON LOGO Y TÍTULO
+        # ENCABEZADO
         # ==============================================
         
-        # Barra superior de color corporativo
+        # Barra superior
         header_bar = Table([['']], colWidths=[doc.width])
         header_bar.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,-1), color_primario),
-            ('HEIGHT', (0,0), (-1,-1), 0.2*inch),
+            ('HEIGHT', (0,0), (-1,-1), 0.08*inch),
         ]))
         story.append(header_bar)
-        story.append(Spacer(1, 15))
+        story.append(Spacer(1, 2))
         
         # Logo y título
         header_data = []
-        logo1 = load_image('LOGO4Digital.jpg', width=1.2*inch, height=1.2*inch)
+        logo1 = load_image('LOGO4Digital.jpg', width=0.5*inch, height=0.5*inch)
         if logo1:
             header_data.append([logo1, 
-                               Paragraph("<font size=20><b>4DIGITAL</b></font><br/><font size=10>Radiológica Dental Chihuahua</font>", 
+                            Paragraph("<font size=11><b>4DIGITAL</b></font> <font size=7>Rad.Dental Chih.</font>", 
                                         ParagraphStyle('HeaderTitle', parent=styles['Normal'], textColor=color_primario, alignment=TA_RIGHT))])
         else:
-            header_data.append([Paragraph("<font size=24><b>4DIGITAL</b></font><br/><font size=12>Radiológica Dental</font>", 
-                                         ParagraphStyle('HeaderTitle', parent=styles['Normal'], textColor=color_primario, alignment=TA_LEFT)),
-                               Paragraph("614 6631185<br/>614 5395488", styles['EtiquetaCampo'])])
+            header_data.append([Paragraph("<font size=13><b>4DIGITAL</b></font>", 
+                                        ParagraphStyle('HeaderTitle', parent=styles['Normal'], textColor=color_primario, alignment=TA_LEFT)),
+                            Paragraph("614 6631185", styles['EtiquetaCampo'])])
         
-        header_table = Table(header_data, colWidths=[1.5*inch, doc.width-1.5*inch])
+        header_table = Table(header_data, colWidths=[0.7*inch, doc.width-0.7*inch])
         header_table.setStyle(TableStyle([
             ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
             ('ALIGN', (0,0), (0,0), 'LEFT'),
@@ -1471,134 +1466,155 @@ class CustomHandler(SimpleHTTPRequestHandler):
             ('RIGHTPADDING', (0,0), (-1,-1), 0),
         ]))
         story.append(header_table)
-        story.append(Spacer(1, 20))
         
-        # Número de folio destacado
-        folio_text = f"<font size=12>FOLIO:</font> <font size=16 color='#1C1C26'><b>{data['numero_folio']}</b></font>"
+        # Número de folio
+        folio_text = f"<font size=7>FOLIO:</font> <font size=9 color='#1C1C26'><b>{data['numero_folio']}</b></font>"
         story.append(Paragraph(folio_text, ParagraphStyle('Folio', parent=styles['Normal'], alignment=TA_RIGHT)))
-        story.append(Spacer(1, 10))
+        story.append(Spacer(1, 2))
         
         # ==============================================
-        # SECCIÓN: DATOS DEL PACIENTE (TARJETA)
+        # SECCIÓN 1: PACIENTE CON EDAD
         # ==============================================
         
-        story.append(Paragraph("DATOS DEL PACIENTE", styles['Subtitulo']))
+        paciente_data = []
         
-        # Crear una tabla con bordes suaves para los datos del paciente
-        paciente_data = [
-            [Paragraph("<b>Nombre completo:</b>", styles['EtiquetaCampo']), 
-             Paragraph(data['paciente'], styles['ValorCampo'])],
-        ]
+        # Línea 1: Nombre del paciente
+        paciente_nombre = f"<b>Paciente:</b> {data['paciente']}"
+        paciente_data.append([Paragraph(paciente_nombre, styles['ValorCampo'])])
         
+        # Línea 2: Edad (si existe) y Fecha de nacimiento (si existe)
+        datos_edad = ""
+        if data.get('paciente_edad'):
+            datos_edad += f"<b>Edad:</b> {data['paciente_edad']} años"
+        if data.get('paciente_fecha_nacimiento'):
+            if datos_edad:
+                datos_edad += " | "
+            datos_edad += f"<b>F. Nac.:</b> {data['paciente_fecha_nacimiento']}"
+        
+        if datos_edad:
+            paciente_data.append([Paragraph(datos_edad, styles['ValorCampo'])])
+        
+        # Línea 3: Teléfono y Email (si existen)
+        contacto_line = ""
         if data.get('pacienteTel'):
-            paciente_data.append([Paragraph("<b>Teléfono:</b>", styles['EtiquetaCampo']), 
-                                 Paragraph(data['pacienteTel'], styles['ValorCampo'])])
-        
+            contacto_line += f"<b>Tel:</b> {data['pacienteTel']}"
         if data.get('pacienteEmail'):
-            paciente_data.append([Paragraph("<b>Email:</b>", styles['EtiquetaCampo']), 
-                                 Paragraph(data['pacienteEmail'], styles['ValorCampo'])])
+            if contacto_line:
+                contacto_line += " | "
+            contacto_line += f"<b>Email:</b> {data['pacienteEmail']}"
         
-        paciente_data.append([Paragraph("<b>Fecha de registro:</b>", styles['EtiquetaCampo']), 
-                             Paragraph(f"{data['fecha_registro']} {data['hora_registro']}", styles['ValorCampo'])])
+        if contacto_line:
+            paciente_data.append([Paragraph(contacto_line, styles['ValorCampo'])])
         
-        paciente_table = Table(paciente_data, colWidths=[1.5*inch, doc.width-1.5*inch])
+        paciente_table = Table(paciente_data, colWidths=[doc.width])
         paciente_table.setStyle(TableStyle([
             ('VALIGN', (0,0), (-1,-1), 'TOP'),
-            ('ALIGN', (0,0), (0,-1), 'LEFT'),
-            ('ALIGN', (1,0), (1,-1), 'LEFT'),
-            ('FONTSIZE', (0,0), (-1,-1), 10),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('FONTSIZE', (0,0), (-1,-1), 8),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 2),
             ('TOPPADDING', (0,0), (-1,-1), 2),
             ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8F8FA')),
-            ('BOX', (0,0), (-1,-1), 1, color_acento),
-            ('LEFTPADDING', (0,0), (-1,-1), 10),
-            ('RIGHTPADDING', (0,0), (-1,-1), 10),
+            ('BOX', (0,0), (-1,-1), 0.5, color_acento),
+            ('LEFTPADDING', (0,0), (-1,-1), 4),
+            ('RIGHTPADDING', (0,0), (-1,-1), 4),
         ]))
         story.append(paciente_table)
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 4))
         
         # ==============================================
-        # SECCIÓN: DATOS DEL DOCTOR (TARJETA)
+        # SECCIÓN 2: DOCTOR CON EMAIL Y TELÉFONO
         # ==============================================
         
-        story.append(Paragraph("DATOS DEL MÉDICO", styles['Subtitulo']))
+        doctor_data = []
         
-        doctor_data = [
-            [Paragraph("<b>Nombre:</b>", styles['EtiquetaCampo']), 
-             Paragraph(doctor['nombre'] if doctor else 'Administrador', styles['ValorCampo'])],
-            [Paragraph("<b>Especialidad:</b>", styles['EtiquetaCampo']), 
-             Paragraph(doctor['especialidad'] if doctor else 'Administración', styles['ValorCampo'])],
-        ]
+        # Línea 1: Nombre del doctor
+        doctor_nombre = f"<b>Médico:</b> {doctor['nombre'] if doctor else 'Administrador'}"
+        if doctor and doctor.get('especialidad'):
+            doctor_nombre += f" | <b>Especialidad:</b> {doctor['especialidad'][:20]}"
+        doctor_data.append([Paragraph(doctor_nombre, styles['ValorCampo'])])
         
+        # Línea 2: Email y teléfono del consultorio
+        doctor_contacto = ""
+        if doctor and doctor.get('email'):
+            doctor_contacto += f"<b>Email:</b> {doctor['email']}"
         if doctor and doctor.get('telefono_consultorio'):
-            doctor_data.append([Paragraph("<b>Tel. Consultorio:</b>", styles['EtiquetaCampo']), 
-                               Paragraph(doctor['telefono_consultorio'], styles['ValorCampo'])])
+            if doctor_contacto:
+                doctor_contacto += " | "
+            doctor_contacto += f"<b>Tel. Consultorio:</b> {doctor['telefono_consultorio']}"
         
-        doctor_table = Table(doctor_data, colWidths=[1.5*inch, doc.width-1.5*inch])
+        if doctor_contacto:
+            doctor_data.append([Paragraph(doctor_contacto, styles['ValorCampo'])])
+        
+        doctor_table = Table(doctor_data, colWidths=[doc.width])
         doctor_table.setStyle(TableStyle([
             ('VALIGN', (0,0), (-1,-1), 'TOP'),
-            ('ALIGN', (0,0), (0,-1), 'LEFT'),
-            ('ALIGN', (1,0), (1,-1), 'LEFT'),
-            ('FONTSIZE', (0,0), (-1,-1), 10),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('FONTSIZE', (0,0), (-1,-1), 8),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 2),
             ('TOPPADDING', (0,0), (-1,-1), 2),
             ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8F8FA')),
-            ('BOX', (0,0), (-1,-1), 1, color_acento),
-            ('LEFTPADDING', (0,0), (-1,-1), 10),
-            ('RIGHTPADDING', (0,0), (-1,-1), 10),
+            ('BOX', (0,0), (-1,-1), 0.5, color_acento),
+            ('LEFTPADDING', (0,0), (-1,-1), 4),
+            ('RIGHTPADDING', (0,0), (-1,-1), 4),
         ]))
         story.append(doctor_table)
-        story.append(Spacer(1, 20))
+        story.append(Spacer(1, 4))
         
         # ==============================================
-        # SECCIÓN: DETALLES DE LA CITA
+        # SECCIÓN 3: FECHA Y HORA DE CITA
         # ==============================================
         
-        story.append(Paragraph("DETALLES DE LA CITA", styles['Subtitulo']))
+        cita_info = f"<b>Fecha de cita:</b> {data['fecha_cita']} - {data['hora_cita']} | <b>Registro:</b> {data['fecha_registro']}"
+        cita_table = Table([[Paragraph(cita_info, styles['ValorCampo'])]], colWidths=[doc.width])
+        cita_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('FONTSIZE', (0,0), (-1,-1), 8),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+            ('TOPPADDING', (0,0), (-1,-1), 3),
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F0F0F5')),
+            ('BOX', (0,0), (-1,-1), 0.5, color_acento),
+            ('LEFTPADDING', (0,0), (-1,-1), 4),
+            ('RIGHTPADDING', (0,0), (-1,-1), 4),
+        ]))
+        story.append(cita_table)
+        story.append(Spacer(1, 4))
         
-        cita_data = [
-            [Paragraph("<b>Fecha de cita:</b>", styles['EtiquetaCampo']), 
-             Paragraph(f"{data['fecha_cita']} - {data['hora_cita']}", styles['ValorCampo'])],
-            [Paragraph("<b>Formato de entrega:</b>", styles['EtiquetaCampo']), 
-             Paragraph(data.get('formato_entrega', 'Digital'), styles['ValorCampo'])],
+        # ==============================================
+        # SECCIÓN 4: FORMATO DE ENTREGA GENERAL
+        # ==============================================
+        
+        formatos_general = [
+            [Paragraph("<b>Formato de entrega general:</b>", styles['EtiquetaCampo']), 
+            Paragraph(f"{data.get('formato_entrega', 'Digital')}", styles['ValorCampo'])],
         ]
         
-        if data.get('formato_fotografia') and any('Fotos' in str(e) or 'Fotografía' in str(e) for e in data.get('estudios', [])):
-            cita_data.append([Paragraph("<b>Formato fotos:</b>", styles['EtiquetaCampo']), 
-                             Paragraph(data['formato_fotografia'], styles['ValorCampo'])])
-        
-        cita_table = Table(cita_data, colWidths=[1.5*inch, doc.width-1.5*inch])
-        cita_table.setStyle(TableStyle([
+        formatos_general_table = Table(formatos_general, colWidths=[1.3*inch, doc.width-1.3*inch])
+        formatos_general_table.setStyle(TableStyle([
             ('VALIGN', (0,0), (-1,-1), 'TOP'),
             ('ALIGN', (0,0), (0,-1), 'LEFT'),
             ('ALIGN', (1,0), (1,-1), 'LEFT'),
-            ('FONTSIZE', (0,0), (-1,-1), 10),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('FONTSIZE', (0,0), (-1,-1), 8),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 2),
             ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8F8FA')),
-            ('BOX', (0,0), (-1,-1), 1, color_acento),
-            ('LEFTPADDING', (0,0), (-1,-1), 10),
+            ('BOX', (0,0), (-1,-1), 0.5, color_acento),
+            ('LEFTPADDING', (0,0), (-1,-1), 4),
         ]))
-        story.append(cita_table)
-        story.append(Spacer(1, 20))
+        story.append(formatos_general_table)
+        story.append(Spacer(1, 4))
         
         # ==============================================
-        # SECCIÓN: ESTUDIOS SOLICITADOS
+        # SECCIÓN 5: ESTUDIOS SELECCIONADOS
         # ==============================================
-        
-        story.append(Paragraph("ESTUDIOS SOLICITADOS", styles['Subtitulo']))
-        
-        estudios_seleccionados = data.get('estudios', [])
         
         if estudios_seleccionados:
-            # Agrupar por categoría
+            # Clasificar estudios
             categorias = {
+                'ORTODÓNTICOS': [],
                 'RADIOGRAFÍAS 2D': [],
-                'TOMOGRAFÍAS 3D': [],
-                'ESTEREOLITOGRAFÍA': [],
-                'ANÁLISIS CEFALOMÉTRICO': [],
-                'FOTOGRAFÍA CLÍNICA': [],
-                'ESCANEO E IMPRESIÓN 3D': [],
-                'OTROS ESTUDIOS': []
+                'FOTOGRAFÍAS': [],
+                'MODELOS 3D': [],
+                'TOMOGRAFÍAS 3D': []
             }
             
             for estudio in estudios_seleccionados:
@@ -1606,129 +1622,145 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 precio = estudio['precio']
                 
                 if isinstance(precio, (int, float)):
-                    precio_formateado = f"${precio:,.2f}"
+                    precio_formateado = f"${precio:,.0f}"
                 else:
                     precio_formateado = str(precio)
                     if '$' not in precio_formateado:
                         precio_formateado = f"${precio_formateado}"
                 
-                texto_estudio = f"{get_checkbox_symbol()} {nombre} - {precio_formateado}"
+                texto_estudio = f"{get_checkbox_symbol()} {nombre[:35]} - {precio_formateado}"
                 
-                if any(p in nombre for p in ['Ortopantomografía', 'Panorámica', 'Lateral', 'P-A', 'A-P', 'Waters', 'ATM', 'Digito', 'Periapical', 'Oclusal', 'Senos paranasales']):
+                if "Ortodóntico" in nombre:
+                    categorias['ORTODÓNTICOS'].append(texto_estudio)
+                elif any(p in nombre for p in ['Ortopantomografía', 'Panorámica', 'Lateral', 'P-A', 'A-P', 'Waters', 'ATM', 'Digito', 'Periapical', 'Oclusal', 'Senos']):
                     categorias['RADIOGRAFÍAS 2D'].append(texto_estudio)
-                elif any(p in nombre for p in ['Tomografía', 'Endodoncia', 'Cirugía Ortognática', 'Ortodoncia 3D', 'Biblioteca de implantes']):
+                elif any(p in nombre for p in ['Fotos', 'Fotografía', 'Escaneo facial']):
+                    categorias['FOTOGRAFÍAS'].append(texto_estudio)
+                elif "Modelo dental" in nombre:
+                    categorias['MODELOS 3D'].append(texto_estudio)
+                elif any(p in nombre for p in ['Tomografía', 'Endodoncia', 'Cirugía', 'Endoscan']):
                     categorias['TOMOGRAFÍAS 3D'].append(texto_estudio)
-                elif any(p in nombre for p in ['Maxilar', 'Mandibular', 'Hemimaxilar', 'Hemimandibular', 'Estereolitografía']):
-                    categorias['ESTEREOLITOGRAFÍA'].append(texto_estudio)
-                elif 'Cefalométrico' in nombre:
-                    categorias['ANÁLISIS CEFALOMÉTRICO'].append(texto_estudio)
-                elif any(p in nombre for p in ['Fotos', 'Fotografía']):
-                    categorias['FOTOGRAFÍA CLÍNICA'].append(texto_estudio)
-                elif any(p in nombre for p in ['Escaneo', 'Modelo', 'Guarda', 'Guía', 'iTero']):
-                    categorias['ESCANEO E IMPRESIÓN 3D'].append(texto_estudio)
-                else:
-                    categorias['OTROS ESTUDIOS'].append(texto_estudio)
             
-            # Crear tabla de estudios con diseño mejorado
-            for categoria, estudios_cat in categorias.items():
-                if estudios_cat:
-                    # Título de categoría con fondo de color corporativo suave
-                    cat_title = Paragraph(f"<b>{categoria}</b>", 
+            # Mostrar categorías que tengan estudios
+            for cat_nombre, items in categorias.items():
+                if items:
+                    # Título de categoría
+                    cat_title = Paragraph(f"<b>{cat_nombre}</b>", 
                                         ParagraphStyle('Categoria', parent=styles['Normal'],
-                                                      textColor=color_texto_claro, alignment=TA_LEFT,
-                                                      backColor=color_primario, fontSize=11,
-                                                      leading=16))
+                                                    textColor=color_texto_claro, alignment=TA_LEFT,
+                                                    backColor=color_primario, fontSize=8,
+                                                    leading=9))
                     
                     cat_table = Table([[cat_title]], colWidths=[doc.width])
                     cat_table.setStyle(TableStyle([
                         ('BACKGROUND', (0,0), (-1,-1), color_primario),
                         ('TEXTCOLOR', (0,0), (-1,-1), color_texto_claro),
                         ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-                        ('LEFTPADDING', (0,0), (-1,-1), 10),
-                        ('RIGHTPADDING', (0,0), (-1,-1), 10),
-                        ('TOPPADDING', (0,0), (-1,-1), 5),
-                        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+                        ('LEFTPADDING', (0,0), (-1,-1), 4),
+                        ('RIGHTPADDING', (0,0), (-1,-1), 4),
+                        ('TOPPADDING', (0,0), (-1,-1), 3),
+                        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
                     ]))
                     story.append(cat_table)
                     
-                    # Lista de estudios en dos columnas si hay muchos
-                    if len(estudios_cat) > 6:
-                        mitad = len(estudios_cat) // 2
-                        col1 = estudios_cat[:mitad]
-                        col2 = estudios_cat[mitad:]
+                    # Si hay muchos items, ponerlos en DOS COLUMNAS
+                    if len(items) > 5:
+                        mitad = len(items) // 2
+                        col1 = items[:mitad]
+                        col2 = items[mitad:]
                         
-                        col1_parrafos = [Paragraph(est, styles['EstudioItem']) for est in col1]
-                        col2_parrafos = [Paragraph(est, styles['EstudioItem']) for est in col2]
+                        while len(col1) < len(col2):
+                            col1.append("")
+                        while len(col2) < len(col1):
+                            col2.append("")
                         
-                        while len(col1_parrafos) < len(col2_parrafos):
-                            col1_parrafos.append(Paragraph("", styles['EstudioItem']))
-                        while len(col2_parrafos) < len(col1_parrafos):
-                            col2_parrafos.append(Paragraph("", styles['EstudioItem']))
+                        items_2col = []
+                        for i in range(len(col1)):
+                            items_2col.append([Paragraph(col1[i], styles['EstudioItem']), 
+                                            Paragraph(col2[i], styles['EstudioItem'])])
                         
-                        col_table_data = []
-                        for i in range(len(col1_parrafos)):
-                            col_table_data.append([col1_parrafos[i], col2_parrafos[i]])
-                        
-                        col_table = Table(col_table_data, colWidths=[doc.width/2.2, doc.width/2.2])
-                        col_table.setStyle(TableStyle([
+                        items_table = Table(items_2col, colWidths=[doc.width/2.1, doc.width/2.1])
+                        items_table.setStyle(TableStyle([
                             ('VALIGN', (0,0), (-1,-1), 'TOP'),
                             ('ALIGN', (0,0), (-1,-1), 'LEFT'),
-                            ('LEFTPADDING', (0,0), (-1,-1), 15),
-                            ('RIGHTPADDING', (0,0), (-1,-1), 5),
+                            ('FONTSIZE', (0,0), (-1,-1), 8),
+                            ('LEFTPADDING', (0,0), (-1,-1), 4),
+                            ('RIGHTPADDING', (0,0), (-1,-1), 2),
                             ('BOTTOMPADDING', (0,0), (-1,-1), 2),
                         ]))
-                        story.append(col_table)
+                        story.append(items_table)
                     else:
-                        for est in estudios_cat:
-                            story.append(Paragraph(est, styles['EstudioItem']))
+                        for item in items:
+                            story.append(Paragraph(item, styles['EstudioItem']))
                     
-                    story.append(Spacer(1, 8))
-        
+                    story.append(Spacer(1, 2))
         else:
             story.append(Paragraph("No se seleccionaron estudios", styles['EstudioItem']))
         
         # ==============================================
-        # OBSERVACIONES
+        # SECCIÓN 6: FORMATO DE ENTREGA DE FOTOGRAFÍAS (SOLO SI APLICA)
+        # ==============================================
+        
+        if tiene_estudios_fotografia and formato_entrega_fotografias:
+            story.append(Spacer(1, 3))
+            
+            formatos_foto = [
+                [Paragraph("<b>Formato de entrega de fotografías:</b>", styles['EtiquetaCampo']), 
+                Paragraph(f"{formato_entrega_fotografias}", styles['ValorCampo'])],
+            ]
+            
+            formatos_foto_table = Table(formatos_foto, colWidths=[1.3*inch, doc.width-1.3*inch])
+            formatos_foto_table.setStyle(TableStyle([
+                ('VALIGN', (0,0), (-1,-1), 'TOP'),
+                ('ALIGN', (0,0), (0,-1), 'LEFT'),
+                ('ALIGN', (1,0), (1,-1), 'LEFT'),
+                ('FONTSIZE', (0,0), (-1,-1), 8),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 2),
+                ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8F8FA')),
+                ('BOX', (0,0), (-1,-1), 0.5, color_acento),
+                ('LEFTPADDING', (0,0), (-1,-1), 4),
+            ]))
+            story.append(formatos_foto_table)
+            story.append(Spacer(1, 3))
+        
+        # ==============================================
+        # OBSERVACIONES (si existen)
         # ==============================================
         
         if data.get('observaciones') and data['observaciones'] != 'Ninguna':
-            story.append(Spacer(1, 10))
-            story.append(Paragraph("OBSERVACIONES", styles['Subtitulo']))
-            
-            # Filtrar observaciones para quitar los datos que ya mostramos
             obs_text = data['observaciones']
+            # Remover campos duplicados que ya están en secciones dedicadas
             obs_text = re.sub(r'Teléfono:.*?\n', '', obs_text)
             obs_text = re.sub(r'Email:.*?\n', '', obs_text)
-            obs_text = re.sub(r'Formato de entrega:.*?\n', '', obs_text)
+            obs_text = re.sub(r'Fecha de nacimiento:.*?\n', '', obs_text)
+            obs_text = re.sub(r'Edad:.*?\n', '', obs_text)
+            obs_text = re.sub(r'Formato de entrega general:.*?\n', '', obs_text)
             obs_text = re.sub(r'Formato de fotografías:.*?\n', '', obs_text)
             
             if obs_text.strip():
-                story.append(Paragraph(obs_text.strip(), styles['ValorCampo']))
+                story.append(Spacer(1, 2))
+                story.append(Paragraph("OBSERVACIONES", styles['Subtitulo']))
+                obs_lines = obs_text.strip().split('\n')
+                for line in obs_lines[:3]:  # Máximo 3 líneas
+                    story.append(Paragraph(line[:70] + "..." if len(line) > 70 else line, styles['ValorCampo']))
         
         # ==============================================
-        # PÁGINA 2 - DESGLOSE DE PRECIOS
+        # DETALLE DE COSTOS
         # ==============================================
-        story.append(PageBreak())
         
-        # Barra superior en página 2
-        story.append(Table([['']], colWidths=[doc.width], 
-                          style=TableStyle([('BACKGROUND', (0,0), (-1,-1), color_primario),
-                                           ('HEIGHT', (0,0), (-1,-1), 0.2*inch)])))
-        story.append(Spacer(1, 20))
-        
-        # Título de la página
-        story.append(Paragraph("DETALLE DE COSTOS", 
-                              ParagraphStyle('PageTitle', parent=styles['Heading1'],
-                                           textColor=color_primario, fontSize=18,
-                                           alignment=TA_CENTER, spaceAfter=20)))
+        story.append(Spacer(1, 4))
+        story.append(Paragraph("COSTOS", 
+                            ParagraphStyle('PageTitle', parent=styles['Heading1'],
+                                        textColor=color_primario, fontSize=10,
+                                        alignment=TA_CENTER, spaceAfter=3)))
         
         if estudios_seleccionados:
-            # Tabla de desglose con diseño profesional
-            table_data = [['Estudio Solicitado', 'Precio']]
+            # Tabla de desglose
+            table_data = [['Estudio', '$']]
             total = 0
             
-            for estudio in estudios_seleccionados:
-                nombre = estudio['nombre']
+            for estudio in estudios_seleccionados[:8]:  # Máximo 8 estudios en la tabla
+                nombre = estudio['nombre'][:30] + "..." if len(estudio['nombre']) > 30 else estudio['nombre']
                 precio_str = estudio['precio']
                 
                 if isinstance(precio_str, str):
@@ -1736,105 +1768,88 @@ class CustomHandler(SimpleHTTPRequestHandler):
                     try:
                         precio_valor = float(precio_limpio)
                         total += precio_valor
-                        precio_mostrar = f"${precio_valor:,.2f}"
+                        precio_mostrar = f"${precio_valor:,.0f}"
                     except ValueError:
                         precio_valor = 0
                         precio_mostrar = precio_str
                 else:
                     precio_valor = float(precio_str)
                     total += precio_valor
-                    precio_mostrar = f"${precio_valor:,.2f}"
+                    precio_mostrar = f"${precio_valor:,.0f}"
                 
                 table_data.append([nombre, precio_mostrar])
             
-            # Agregar cargos adicionales por formato
-            formato_entrega = data.get('formato_entrega', 'Digital')
-            if formato_entrega == 'USB':
-                total += 50
-                table_data.append(['Cargo por USB', '$50.00'])
-            elif formato_entrega == 'DICOM':
-                total += 100
-                table_data.append(['Cargo por DICOM', '$100.00'])
-            elif formato_entrega == 'Impreso':
-                total += 30
-                table_data.append(['Cargo por impresión', '$30.00'])
+            if len(estudios_seleccionados) > 8:
+                table_data.append(['... otros estudios', ''])
+                # Calcular total completo
+                total = 0
+                for estudio in estudios_seleccionados:
+                    precio_str = estudio['precio']
+                    if isinstance(precio_str, str):
+                        precio_limpio = precio_str.replace('$', '').replace(',', '').strip()
+                        try:
+                            total += float(precio_limpio)
+                        except:
+                            pass
+                    else:
+                        total += float(precio_str)
             
-            # Crear tabla de precios con diseño mejorado
-            price_table = Table(table_data, colWidths=[doc.width - 120, 100])
+            # Nota compacta
+            story.append(Paragraph("<i>Formatos sin costo</i>", 
+                                ParagraphStyle('Nota', parent=styles['Normal'],
+                                            textColor=colors.HexColor('#666666'),
+                                            alignment=TA_CENTER, fontSize=6,
+                                            spaceAfter=2)))
+            
+            # Tabla de precios
+            price_table = Table(table_data, colWidths=[doc.width - 70, 50])
             price_table.setStyle(TableStyle([
-                # Encabezado
                 ('BACKGROUND', (0,0), (-1,0), color_primario),
                 ('TEXTCOLOR', (0,0), (-1,0), color_texto_claro),
                 ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0,0), (-1,0), 11),
-                ('ALIGN', (0,0), (-1,0), 'LEFT'),
+                ('FONTSIZE', (0,0), (-1,0), 8),
+                ('ALIGN', (0,0), (0,0), 'LEFT'),
                 ('ALIGN', (1,0), (1,0), 'RIGHT'),
-                ('BOTTOMPADDING', (0,0), (-1,0), 8),
-                ('TOPPADDING', (0,0), (-1,0), 8),
-                ('LEFTPADDING', (0,0), (-1,0), 10),
-                ('RIGHTPADDING', (0,0), (-1,0), 10),
-                
-                # Cuerpo de la tabla
                 ('BACKGROUND', (0,1), (-1,-2), colors.HexColor('#F8F8FA')),
-                ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor('#E8E8F0')),
-                ('TEXTCOLOR', (0,1), (-1,-2), color_texto_oscuro),
-                ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
-                ('FONTSIZE', (0,1), (-1,-1), 10),
+                ('FONTSIZE', (0,1), (-1,-1), 7),
                 ('ALIGN', (0,1), (0,-1), 'LEFT'),
                 ('ALIGN', (1,1), (1,-1), 'RIGHT'),
-                ('GRID', (0,0), (-1,-2), 1, color_acento),
-                ('LINEBELOW', (0,-2), (-1,-2), 1, color_acento),
-                ('LINEABOVE', (0,-1), (-1,-1), 2, color_primario),
-                ('LEFTPADDING', (0,1), (-1,-1), 10),
-                ('RIGHTPADDING', (0,1), (-1,-1), 10),
-                ('BOTTOMPADDING', (0,1), (-1,-1), 5),
-                ('TOPPADDING', (0,1), (-1,-1), 5),
+                ('GRID', (0,0), (-1,-2), 0.5, color_acento),
+                ('LEFTPADDING', (0,0), (-1,-1), 4),
+                ('RIGHTPADDING', (0,0), (-1,-1), 4),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 3),
             ]))
             story.append(price_table)
-            story.append(Spacer(1, 20))
+            story.append(Spacer(1, 4))
             
-            # Total destacado
-            total_text = f"<font size=12>TOTAL A PAGAR:</font> <font size=18 color='#1C1C26'><b>${total:,.2f}</b></font>"
+            # Total
+            total_text = f"<font size=9>TOTAL:</font> <font size=11 color='#1C1C26'><b>${total:,.0f}</b></font>"
             story.append(Paragraph(total_text, 
-                                  ParagraphStyle('Total', parent=styles['Normal'],
-                                               alignment=TA_RIGHT, spaceAfter=30)))
+                                ParagraphStyle('Total', parent=styles['Normal'],
+                                            alignment=TA_RIGHT, spaceAfter=4)))
         
         # ==============================================
         # FIRMAS
         # ==============================================
         
-        story.append(Paragraph("FIRMAS DE CONFORMIDAD", styles['Subtitulo']))
-        story.append(Spacer(1, 30))
-        
-        # Líneas de firma con diseño mejorado
         signature_data = [
-            [Paragraph("____________________________", styles['PiePagina']),
-             Paragraph("____________________________", styles['PiePagina'])],
-            [Paragraph("<b>Firma del Paciente</b>", styles['PiePagina']),
-             Paragraph(f"<b>Firma del Dr(a). {doctor['nombre'] if doctor else 'Administrador'}</b>", styles['PiePagina'])]
+            [Paragraph("___________", styles['PiePagina']),
+            Paragraph("___________", styles['PiePagina'])],
+            [Paragraph("Paciente", styles['PiePagina']),
+            Paragraph(f"Dr. {doctor['nombre'].split()[0] if doctor else 'Admin'}", styles['PiePagina'])]
         ]
         signature_table = Table(signature_data, colWidths=[doc.width/2.0]*2)
         signature_table.setStyle(TableStyle([
             ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-            ('FONTSIZE', (0,0), (-1,-1), 10),
-            ('TOPPADDING', (0,1), (-1,1), 5),
+            ('FONTSIZE', (0,0), (-1,-1), 7),
+            ('TOPPADDING', (0,1), (-1,1), 3),
         ]))
         story.append(signature_table)
-        story.append(Spacer(1, 20))
         
-        # Información de generación
-        story.append(Paragraph(f"Documento generado el {data['fecha_registro']} a las {data['hora_registro']} por Administrador", 
-                              styles['PiePagina']))
-        
-        # ==============================================
-        # PIE DE PÁGINA
-        # ==============================================
-        story.append(Spacer(1, 20))
-        footer_text = "4DIGITAL · Radiológica Dental Chihuahua · Tel. 614 6631185 / 614 5395488"
-        story.append(Paragraph(footer_text, 
-                              ParagraphStyle('Footer', parent=styles['PiePagina'],
-                                           textColor=colors.HexColor('#AAAAAA'))))
+        # Pie de página
+        story.append(Paragraph(f"{data['fecha_registro']} | 4DIGITAL", 
+                            ParagraphStyle('Footer', parent=styles['PiePagina'],
+                                        textColor=colors.HexColor('#AAAAAA'))))
         
         # Generar PDF
         doc.build(story)
@@ -1844,19 +1859,21 @@ class CustomHandler(SimpleHTTPRequestHandler):
         return pdf
     
     # ==============================================
-    # FUNCIÓN PARA GENERAR CITA (RECETA VIRTUAL)
+    # FUNCIÓN PARA GENERAR CITA (RECETA VIRTUAL) - MODIFICADA CON EDAD
     # ==============================================
 
     def handle_generate_cita(self):
-        """Generar una nueva cita desde receta virtual"""
+        """Generar una nueva cita desde receta virtual - INCLUYE EDAD DEL PACIENTE"""
         try:
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             data = json.loads(post_data.decode())
             
             paciente = data.get('paciente')
+            paciente_edad = data.get('pacienteEdad', '')  # NUEVO: edad del paciente
+            paciente_fecha_nacimiento = data.get('pacienteFN', '')  # NUEVO: fecha de nacimiento
             paciente_tel = data.get('pacienteTel', '')
-            paciente_email = data.get('pacienteEmail', '')  # NUEVO CAMPO EMAIL
+            paciente_email = data.get('pacienteEmail', '')
             doctor_id = data.get('doctor_id')
             estudios = data.get('estudios', [])
             observaciones = data.get('observaciones', '')
@@ -1864,15 +1881,22 @@ class CustomHandler(SimpleHTTPRequestHandler):
             hora_cita = data.get('hora_cita')
             total_estudio = float(data.get('total_estudio', 0))
             formato_entrega = data.get('formato_entrega', 'Digital')
-            formato_fotografia = data.get('formato_fotografia', 'USB')
+            formato_entrega_fotografias = data.get('formato_entrega_fotografias')  # Puede ser None
             
             # Agregar formatos a observaciones
             if paciente_tel:
                 observaciones = f"Teléfono: {paciente_tel}\n" + observaciones
-            if paciente_email:  # NUEVO
+            if paciente_email:
                 observaciones = f"Email: {paciente_email}\n" + observaciones
-            observaciones = f"Formato de entrega: {formato_entrega}\n" + observaciones
-            observaciones = f"Formato de fotografías: {formato_fotografia}\n" + observaciones
+            if paciente_edad:
+                observaciones = f"Edad: {paciente_edad} años\n" + observaciones
+            if paciente_fecha_nacimiento:
+                fecha_nac_formateada = datetime.strptime(paciente_fecha_nacimiento, '%Y-%m-%d').strftime('%d/%m/%Y')
+                observaciones = f"Fecha de nacimiento: {fecha_nac_formateada}\n" + observaciones
+            
+            observaciones = f"Formato de entrega general: {formato_entrega}\n" + observaciones
+            if formato_entrega_fotografias:
+                observaciones = f"Formato de fotografías: {formato_entrega_fotografias}\n" + observaciones
             
             if not paciente or not doctor_id:
                 raise ValueError("Faltan datos requeridos: paciente o doctor_id")
@@ -1903,6 +1927,11 @@ class CustomHandler(SimpleHTTPRequestHandler):
             fecha_cita_formateada = datetime.strptime(fecha_cita, '%Y-%m-%d').strftime('%d/%m/%Y')
             hora_cita_formateada = hora_cita
             
+            # Formatear fecha de nacimiento si existe
+            fecha_nac_formateada = ""
+            if paciente_fecha_nacimiento:
+                fecha_nac_formateada = datetime.strptime(paciente_fecha_nacimiento, '%Y-%m-%d').strftime('%d/%m/%Y')
+            
             pdf_data = {
                 'numero_folio': numero_folio,
                 'fecha_registro': fecha_registro,
@@ -1910,8 +1939,10 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'fecha_cita': fecha_cita_formateada,
                 'hora_cita': hora_cita_formateada,
                 'paciente': paciente,
+                'paciente_edad': paciente_edad,  # NUEVO
+                'paciente_fecha_nacimiento': fecha_nac_formateada,  # NUEVO
                 'pacienteTel': paciente_tel,
-                'pacienteEmail': paciente_email,  # NUEVO
+                'pacienteEmail': paciente_email,
                 'doctor_id': doctor_id,
                 'doctor_nombre': doctor_nombre,
                 'estudios': estudios,
@@ -1919,7 +1950,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
                 'total': total_estudio,
                 'recepcionista': 'Administrador' if doctor_id == 'ADMIN' else 'Sistema',
                 'formato_entrega': formato_entrega,
-                'formato_fotografia': formato_fotografia
+                'formato_entrega_fotografias': formato_entrega_fotografias
             }
             
             pdf_content = self.generate_pdf_cita(pdf_data)
@@ -3248,13 +3279,20 @@ print("👑 Panel de administración: /admin")
 print("✅ Gestión de Resultados con puntos automáticos")
 print("✅ 1 punto por cada $100 en resultados entregados")
 print("✅ Eliminación programada de citas")
-print("✅ PDF mejorado con diseño profesional y colores corporativos #1C1C26")
-print("✅ Teléfono de paciente y teléfono de consultorio incluidos")
-print("✅ Email del paciente incluido")
-print("✅ Formato de entrega: Digital, USB, DICOM, Impreso")
-print("✅ NUEVO: Consulta pública de resultados por folio")
-print("✅ NUEVO: Reportes por doctor con historial de estudios completados")
-print("✅ NUEVO: Ajuste manual de puntos por administrador")
+print("✅ PDF con todas las secciones del formulario:")
+print("   - PACIENTE (con Edad y Fecha de Nacimiento)")
+print("   - DATOS DEL MÉDICO (con Email y Teléfono)")
+print("   - AGENDAR CITA")
+print("   - FORMATO DE ENTREGA GENERAL")
+print("   - FORMATO DE ENTREGA DE FOTOGRAFÍAS (solo si aplica)")
+print("   - ESTUDIOS ORTODÓNTICOS")
+print("   - RADIOGRAFÍAS 2D")
+print("   - FOTOGRAFÍAS")
+print("   - MODELOS DE ESTUDIO")
+print("   - TOMOGRAFÍA 3D")
+print("   - OBSERVACIONES ADICIONALES")
+print("   - DETALLE DE COSTOS")
+print("   - FIRMAS")
 print("=" * 60)
 
 if not os.path.exists('templates'):

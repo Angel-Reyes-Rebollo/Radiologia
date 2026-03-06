@@ -2734,6 +2734,11 @@
                 calcularTotalReceta();
             }
             
+            // Actualizar visibilidad del formato de fotografías
+            if (typeof actualizarVisibilidadFormatoFotografias === 'function') {
+                actualizarVisibilidadFormatoFotografias();
+            }
+            
             // Hacer scroll hacia el formulario
             const form = document.querySelector('.form-drd');
             if (form) {
@@ -2743,7 +2748,34 @@
     }
 
     // ==============================================
-    // CONTENIDO RECETA VIRTUAL - VERSIÓN CORREGIDA (CON CAMPO EMAIL)
+    // FUNCIONES PARA EL FORMATO DE FOTOGRAFÍAS CONDICIONAL
+    // ==============================================
+    
+    function verificarEstudiosFotografia() {
+        const fotosExtraIntra = document.getElementById('fotosExtraIntra')?.checked || false;
+        const escaneoFacial = document.getElementById('escaneoFacial')?.checked || false;
+        
+        return fotosExtraIntra || escaneoFacial;
+    }
+
+    function actualizarVisibilidadFormatoFotografias() {
+        const formatoFotografiasSection = document.getElementById('formatoFotografiasSection');
+        if (!formatoFotografiasSection) return;
+        
+        const tieneFotos = verificarEstudiosFotografia();
+        
+        if (tieneFotos) {
+            formatoFotografiasSection.style.display = 'block';
+        } else {
+            formatoFotografiasSection.style.display = 'none';
+            // Resetear a USB cuando se oculta
+            const fotoUSB = document.getElementById('fotoUSB');
+            if (fotoUSB) fotoUSB.checked = true;
+        }
+    }
+
+    // ==============================================
+    // CONTENIDO RECETA VIRTUAL - VERSIÓN CORREGIDA (CON EDAD)
     // ==============================================
     
     function loadRecetaContent(container) {
@@ -2787,7 +2819,7 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN PACIENTE CON CAMPO EMAIL -->
+                <!-- SECCIÓN PACIENTE CON EDAD Y EMAIL -->
                 <div class="info-card">
                     <div class="info-header">
                         <i class="fas fa-user-injured"></i>
@@ -2814,7 +2846,6 @@
                             <label>Teléfono</label>
                             <input type="tel" class="form-control" placeholder="Teléfono" id="pacienteTel">
                         </div>
-                        <!-- NUEVO CAMPO DE EMAIL -->
                         <div class="form-group">
                             <label>Email</label>
                             <input type="email" class="form-control" placeholder="correo@ejemplo.com" id="pacienteEmail">
@@ -2861,17 +2892,17 @@
                     </div>
                 </div>
 
-                <!-- ========== FORMATO DE ENTREGA ========= -->
+                <!-- ========== FORMATO DE ENTREGA GENERAL ========= -->
                 <div class="form-divider">
                     <i class="fas fa-usb" style="font-size: 28px;"></i>
-                    <span>FORMATO DE ENTREGA</span>
+                    <span>FORMATO DE ENTREGA GENERAL</span>
                     <div class="divider-line"></div>
                 </div>
 
                 <div class="studies-section">
                     <div class="section-header">
                         <i class="fas fa-usb"></i>
-                        <h2>SELECCIONE EL FORMATO DE ENTREGA</h2>
+                        <h2>FORMATO DE ENTREGA GENERAL</h2>
                     </div>
                     <div class="options-grid" style="grid-template-columns: repeat(4, 1fr);">
                         <div class="option-item">
@@ -2894,10 +2925,12 @@
                     <div class="text-field-group">
                         <div class="text-field" style="flex: 1;">
                             <label><i class="fas fa-info-circle"></i> Nota:</label>
-                            <span style="color: #3A3A4F; font-size: 13px;">El formato seleccionado se aplicará a todos los estudios de esta receta</span>
+                            <span style="color: #3A3A4F; font-size: 13px;">Este formato se aplica a todos los estudios de la receta</span>
                         </div>
                     </div>
                 </div>
+
+                
 
                 <!-- ========== ESTUDIOS ORTODÓNTICOS ========= -->
                 <div class="form-divider">
@@ -3013,13 +3046,45 @@
                         </div>
                     </div>
                     <div class="text-field-group">
-                        <div class="text-field">
-                            <label><i class="fas fa-usb"></i> Formato de entrega:</label>
-                            <select class="form-control" id="formatoFotografia">
-                                <option value="USB">USB</option>
-                                <option value="Papel">Papel</option>
-                                <option value="Email">Email</option>
-                            </select>
+                        <div class="text-field" style="flex: 1;">
+                            <label><i class="fas fa-info-circle"></i> Nota:</label>
+                            <span style="color: #3A3A4F; font-size: 13px;">Al seleccionar estos estudios, se habilitará la sección "FORMATO DE ENTREGA DE FOTOGRAFÍAS"</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== FORMATO DE ENTREGA DE FOTOGRAFÍAS (OCULTO POR DEFECTO) ========= -->
+                <div id="formatoFotografiasSection" style="display: none;">
+                    <div class="form-divider">
+                        <i class="fas fa-camera" style="font-size: 28px;"></i>
+                        <span>FORMATO DE ENTREGA DE FOTOGRAFÍAS</span>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <div class="studies-section">
+                        <div class="section-header">
+                            <i class="fas fa-camera"></i>
+                            <h2>FORMATO DE ENTREGA DE FOTOGRAFÍAS</h2>
+                        </div>
+                        <div class="options-grid" style="grid-template-columns: repeat(3, 1fr);">
+                            <div class="option-item">
+                                <input type="radio" name="formatoEntregaFotografias" id="fotoUSB" value="USB" checked>
+                                <label for="fotoUSB">USB <span class="price-tag">Sin costo</span></label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" name="formatoEntregaFotografias" id="fotoPapel" value="Papel">
+                                <label for="fotoPapel">Papel <span class="price-tag">Sin costo</span></label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" name="formatoEntregaFotografias" id="fotoEmail" value="Email">
+                                <label for="fotoEmail">Email <span class="price-tag">Sin costo</span></label>
+                            </div>
+                        </div>
+                        <div class="text-field-group">
+                            <div class="text-field" style="flex: 1;">
+                                <label><i class="fas fa-info-circle"></i> Nota:</label>
+                                <span style="color: #3A3A4F; font-size: 13px;">Este formato se aplica solo a los estudios de fotografía</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3119,6 +3184,20 @@
         
         initRecetaForm();
         initCalendarioCitas();
+        
+        // Agregar event listeners para los checkboxes de fotografía
+        const fotosExtraIntra = document.getElementById('fotosExtraIntra');
+        const escaneoFacial = document.getElementById('escaneoFacial');
+        
+        if (fotosExtraIntra) {
+            fotosExtraIntra.addEventListener('change', actualizarVisibilidadFormatoFotografias);
+        }
+        if (escaneoFacial) {
+            escaneoFacial.addEventListener('change', actualizarVisibilidadFormatoFotografias);
+        }
+        
+        // Verificar estado inicial de los checkboxes de fotografía
+        actualizarVisibilidadFormatoFotografias();
     }
 
     function initCalendarioCitas() {
@@ -3253,20 +3332,27 @@
     }
 
     // ==============================================
-    // FUNCIÓN GENERAR CITA CORREGIDA (CON CAMPO EMAIL)
+    // FUNCIÓN GENERAR CITA CORREGIDA (CON EDAD DEL PACIENTE)
     // ==============================================
 
     async function generarCita() {
         const messageEl = document.getElementById('recetaMessage');
         const paciente = document.getElementById('pacienteNombre').value.trim();
+        const pacienteEdad = document.getElementById('pacienteEdad').value.trim();  // NUEVO: edad del paciente
+        const pacienteFN = document.getElementById('pacienteFN').value.trim();      // NUEVO: fecha de nacimiento
         const pacienteTel = document.getElementById('pacienteTel').value.trim();
-        const pacienteEmail = document.getElementById('pacienteEmail').value.trim(); // NUEVO
+        const pacienteEmail = document.getElementById('pacienteEmail').value.trim();
         const fechaCita = document.getElementById('fechaCita').value;
         const horaCita = document.getElementById('horaCita').value;
-        const fechaNacimiento = document.getElementById('pacienteFN').value;
         
-        // Obtener formato de entrega seleccionado
+        // Obtener formato de entrega general
         const formatoEntrega = document.querySelector('input[name="formatoEntrega"]:checked')?.value || 'Digital';
+        
+        // Solo incluir formato de fotografías si hay estudios de fotografía seleccionados
+        let formatoEntregaFotografias = null;
+        if (verificarEstudiosFotografia()) {
+            formatoEntregaFotografias = document.querySelector('input[name="formatoEntregaFotografias"]:checked')?.value || 'USB';
+        }
         
         if (!paciente) {
             messageEl.className = 'message error';
@@ -3296,7 +3382,10 @@
         }
         
         console.log('📝 Generando cita para doctor:', currentDoctorId);
-        console.log('📦 Formato de entrega seleccionado:', formatoEntrega);
+        console.log('📦 Formato de entrega general:', formatoEntrega);
+        console.log('📦 Formato de fotografías:', formatoEntregaFotografias);
+        console.log('📊 Edad del paciente:', pacienteEdad);
+        console.log('📅 Fecha de nacimiento:', pacienteFN);
         
         const estudios = [];
         const checkboxes = document.querySelectorAll('.study-checkbox:checked');
@@ -3314,37 +3403,38 @@
         // SOLO enviar observaciones adicionales, NO los datos estructurados
         const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value.trim();
         
-        // Opcional: agregar fecha de nacimiento a observaciones si se proporciona
-        let observaciones = observacionesAdicionales || '';
-        if (fechaNacimiento && !observaciones.includes('Fecha de nacimiento')) {
-            const fechaNacimientoFormateada = new Date(fechaNacimiento).toLocaleDateString('es-MX');
-            observaciones = `Fecha de nacimiento: ${fechaNacimientoFormateada}\n` + observaciones;
-        }
-        
         const totalEstudio = calcularTotalReceta();
         
         try {
             messageEl.className = 'message';
             messageEl.innerHTML = '<div class="spinner"></div> Generando cita y PDF...';
             
+            const payload = {
+                paciente: paciente,
+                pacienteEdad: pacienteEdad,          // NUEVO
+                pacienteFN: pacienteFN,               // NUEVO
+                pacienteTel: pacienteTel,
+                pacienteEmail: pacienteEmail,
+                doctor_id: currentDoctorId,
+                estudios: estudios,
+                observaciones: observacionesAdicionales || '',
+                fecha_cita: fechaCita,
+                hora_cita: horaCita,
+                total_estudio: totalEstudio,
+                formato_entrega: formatoEntrega
+            };
+            
+            // Solo agregar formato de fotografías si existe
+            if (formatoEntregaFotografias) {
+                payload.formato_entrega_fotografias = formatoEntregaFotografias;
+            }
+            
             const response = await fetch('/api/generate-cita', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    paciente: paciente,
-                    pacienteTel: pacienteTel,
-                    pacienteEmail: pacienteEmail, // NUEVO
-                    doctor_id: currentDoctorId,
-                    estudios: estudios,
-                    observaciones: observaciones, // Solo observaciones adicionales + fecha nacimiento
-                    fecha_cita: fechaCita,
-                    hora_cita: horaCita,
-                    total_estudio: totalEstudio,
-                    formato_entrega: formatoEntrega,
-                    formato_fotografia: document.getElementById('formatoFotografia')?.value || 'USB'
-                })
+                body: JSON.stringify(payload)
             });
             
             const result = await response.json();
@@ -3359,7 +3449,7 @@
                 const ampm = parseInt(hora) >= 12 ? 'PM' : 'AM';
                 const horaDisplay = `${hora12}:${minuto} ${ampm}`;
                 
-                messageEl.innerHTML = `
+                let mensajeExito = `
                     <i class="fas fa-check-circle"></i> 
                     Cita generada exitosamente<br>
                     <strong>Folio:</strong> ${result.numero_folio}<br>
@@ -3368,8 +3458,14 @@
                     <strong>Fecha de cita:</strong> ${fechaCitaFormateada}<br>
                     <strong>Hora de cita:</strong> ${horaDisplay}<br>
                     <strong>Total estudios:</strong> $${totalEstudio.toFixed(2)}<br>
-                    <strong>Formato de entrega:</strong> ${formatoEntrega}
+                    <strong>Formato de entrega general:</strong> ${formatoEntrega}
                 `;
+                
+                if (formatoEntregaFotografias) {
+                    mensajeExito += `<br><strong>Formato de fotografías:</strong> ${formatoEntregaFotografias}`;
+                }
+                
+                messageEl.innerHTML = mensajeExito;
                 
                 if (result.pdf_base64) {
                     const filename = `Receta_${result.numero_folio}_${paciente.replace(/\s+/g, '_')}.pdf`;
@@ -3381,7 +3477,7 @@
                 document.getElementById('pacienteEdad').value = '';
                 document.getElementById('pacienteFN').value = '';
                 document.getElementById('pacienteTel').value = '';
-                document.getElementById('pacienteEmail').value = ''; // NUEVO
+                document.getElementById('pacienteEmail').value = '';
                 document.getElementById('fechaCita').value = '';
                 document.getElementById('horaCita').innerHTML = '<option value="">Seleccione una hora</option>';
                 document.getElementById('horaCita').disabled = true;
@@ -3389,6 +3485,13 @@
                 
                 // Resetear formato de entrega a Digital
                 document.getElementById('formatoDigital').checked = true;
+                
+                // Resetear formato de fotografías
+                const fotoUSB = document.getElementById('fotoUSB');
+                if (fotoUSB) fotoUSB.checked = true;
+                
+                // Ocultar la sección de formato de fotografías
+                document.getElementById('formatoFotografiasSection').style.display = 'none';
                 
                 document.querySelectorAll('.study-checkbox:checked').forEach(cb => {
                     cb.checked = false;
@@ -4612,6 +4715,10 @@
     window.moveSlide = moveSlide;
     window.goToSlide = goToSlide;
     window.irARecetaConEstudios = irARecetaConEstudios;
+    
+    // Funciones para formato de fotografías
+    window.verificarEstudiosFotografia = verificarEstudiosFotografia;
+    window.actualizarVisibilidadFormatoFotografias = actualizarVisibilidadFormatoFotografias;
 </script>
 </body>
 </html>

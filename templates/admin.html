@@ -2128,7 +2128,7 @@
                         </div>
                     </div>
 
-                    <!-- ========== SECCIÓN PACIENTE CON EMAIL ========= -->
+                    <!-- ========== SECCIÓN PACIENTE ========= -->
                     <div class="info-card">
                         <div class="info-header">
                             <i class="fas fa-user-injured"></i>
@@ -2155,7 +2155,6 @@
                                 <label>Teléfono</label>
                                 <input type="tel" class="form-control" placeholder="Teléfono" id="pacienteTel">
                             </div>
-                            <!-- NUEVO CAMPO DE EMAIL -->
                             <div class="form-group">
                                 <label>Email</label>
                                 <input type="email" class="form-control" placeholder="correo@ejemplo.com" id="pacienteEmail">
@@ -2222,17 +2221,17 @@
                         </div>
                     </div>
 
-                    <!-- ========== FORMATO DE ENTREGA ========= -->
+                    <!-- ========== FORMATO DE ENTREGA GENERAL ========= -->
                     <div class="form-divider">
                         <i class="fas fa-usb" style="font-size: 28px;"></i>
-                        <span>FORMATO DE ENTREGA</span>
+                        <span>FORMATO DE ENTREGA GENERAL</span>
                         <div class="divider-line"></div>
                     </div>
 
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-usb"></i>
-                            <h2>SELECCIONE EL FORMATO DE ENTREGA</h2>
+                            <h2>FORMATO DE ENTREGA GENERAL</h2>
                         </div>
                         <div class="options-grid" style="grid-template-columns: repeat(4, 1fr);">
                             <div class="option-item">
@@ -2255,10 +2254,12 @@
                         <div class="text-field-group">
                             <div class="text-field" style="flex: 1;">
                                 <label><i class="fas fa-info-circle"></i> Nota:</label>
-                                <span style="color: #3A3A4F; font-size: 13px;">El formato seleccionado se aplicará a todos los estudios de esta receta</span>
+                                <span style="color: #3A3A4F; font-size: 13px;">Este formato se aplica a todos los estudios de la receta</span>
                             </div>
                         </div>
                     </div>
+
+                    
 
                     <div class="form-divider">
                         <i class="fas fa-teeth" style="font-size: 28px;"></i>
@@ -2352,6 +2353,7 @@
                         <div class="divider-line"></div>
                     </div>
 
+                                        <!-- SECCIÓN FOTOGRAFÍAS -->
                     <div class="studies-section">
                         <div class="section-header">
                             <i class="fas fa-camera"></i>
@@ -2368,13 +2370,45 @@
                             </div>
                         </div>
                         <div class="text-field-group">
-                            <div class="text-field">
-                                <label><i class="fas fa-usb"></i> Formato de entrega:</label>
-                                <select class="form-control" id="formatoFotografia">
-                                    <option value="USB">USB</option>
-                                    <option value="Papel">Papel</option>
-                                    <option value="Email">Email</option>
-                                </select>
+                            <div class="text-field" style="flex: 1;">
+                                <label><i class="fas fa-info-circle"></i> Nota:</label>
+                                <span style="color: #3A3A4F; font-size: 13px;">Al seleccionar estos estudios, se habilitará la sección "FORMATO DE ENTREGA DE FOTOGRAFÍAS"</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========== FORMATO DE ENTREGA DE FOTOGRAFÍAS (DESPUÉS DE LOS ESTUDIOS DE FOTOGRAFÍA) ========= -->
+                    <div id="formatoFotografiasContainer" style="display: none;">
+                        <div class="form-divider">
+                            <i class="fas fa-camera" style="font-size: 28px;"></i>
+                            <span>FORMATO DE ENTREGA DE FOTOGRAFÍAS</span>
+                            <div class="divider-line"></div>
+                        </div>
+
+                        <div class="studies-section">
+                            <div class="section-header">
+                                <i class="fas fa-camera"></i>
+                                <h2>FORMATO DE ENTREGA DE FOTOGRAFÍAS</h2>
+                            </div>
+                            <div class="options-grid" style="grid-template-columns: repeat(3, 1fr);">
+                                <div class="option-item">
+                                    <input type="radio" name="formatoEntregaFotografias" id="fotoUSB" value="USB" checked>
+                                    <label for="fotoUSB">USB <span class="price-tag">Sin costo</span></label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" name="formatoEntregaFotografias" id="fotoPapel" value="Papel">
+                                    <label for="fotoPapel">Papel <span class="price-tag">Sin costo</span></label>
+                                </div>
+                                <div class="option-item">
+                                    <input type="radio" name="formatoEntregaFotografias" id="fotoEmail" value="Email">
+                                    <label for="fotoEmail">Email <span class="price-tag">Sin costo</span></label>
+                                </div>
+                            </div>
+                            <div class="text-field-group">
+                                <div class="text-field" style="flex: 1;">
+                                    <label><i class="fas fa-info-circle"></i> Nota:</label>
+                                    <span style="color: #3A3A4F; font-size: 13px;">Este formato se aplica solo a los estudios de fotografía</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -3111,7 +3145,6 @@
             try {
                 console.log(`Buscando información del doctor ID: ${doctorId}`);
                 
-                // CORRECCIÓN: Usar la ruta correcta para obtener info del doctor
                 const doctorResponse = await fetch(`/api/doctor-info/${doctorId}`);
                 
                 if (!doctorResponse.ok) {
@@ -3125,7 +3158,6 @@
                 mostrarStatsDoctor(doctor);
                 
                 console.log(`Buscando citas completadas del doctor ID: ${doctorId}`);
-                // CORRECCIÓN: Usar la ruta correcta para citas completadas
                 const citasResponse = await fetch(`/api/doctor/${doctorId}/citas-completadas`);
                 
                 if (!citasResponse.ok) {
@@ -4905,165 +4937,29 @@
             }
         }
 
-        // ==============================================
-        // FUNCIÓN ACTUALIZADA: actualizarCitaAdmin con EMAIL
-        // ==============================================
-        async function actualizarCitaAdmin() {
-            const messageEl = document.getElementById('recetaMessage');
-            const citaId = document.getElementById('citaEditandoId').value;
-            const paciente = document.getElementById('pacienteNombre').value.trim();
-            const pacienteTel = document.getElementById('pacienteTel').value.trim();
-            const pacienteEmail = document.getElementById('pacienteEmail').value.trim(); // NUEVO
-            const fechaCita = document.getElementById('fechaCita').value;
-            const horaCita = document.getElementById('horaCita').value;
-            const fechaNacimiento = document.getElementById('pacienteFN').value;
-            const doctorId = document.getElementById('doctorSeleccionadoId').value;
+        // Función para verificar si hay estudios de fotografía seleccionados
+        function verificarEstudiosFotografia() {
+            const fotosExtraIntra = document.getElementById('fotosExtraIntra').checked;
+            const escaneoFacial = document.getElementById('escaneoFacial').checked;
             
-            const formatoEntrega = document.querySelector('input[name="formatoEntrega"]:checked')?.value || 'Digital';
+            return fotosExtraIntra || escaneoFacial;
+        }
+
+        // Función para mostrar/ocultar el formato de fotografías
+        function actualizarVisibilidadFormatoFotografias() {
+            const container = document.getElementById('formatoFotografiasContainer');
+            const tieneFotos = verificarEstudiosFotografia();
             
-            if (!citaId) {
-                messageEl.className = 'message error';
-                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> No hay una cita seleccionada para editar';
-                return;
-            }
-            
-            if (!paciente) {
-                messageEl.className = 'message error';
-                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor ingrese el nombre del paciente';
-                document.getElementById('pacienteNombre').focus();
-                return;
-            }
-            
-            if (!fechaCita) {
-                messageEl.className = 'message error';
-                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione la fecha de la cita';
-                document.getElementById('fechaCita').focus();
-                return;
-            }
-            
-            if (!horaCita) {
-                messageEl.className = 'message error';
-                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione la hora de la cita';
-                document.getElementById('horaCita').focus();
-                return;
-            }
-            
-            if (!doctorId) {
-                messageEl.className = 'message error';
-                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione un doctor';
-                abrirSelectorDoctores();
-                return;
-            }
-            
-            console.log('📝 Actualizando cita:', citaId);
-            
-            const estudiosSeleccionados = [];
-            const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox:checked');
-            
-            checkboxes.forEach(cb => {
-                if (cb.dataset.name && cb.dataset.price) {
-                    const precio = parseFloat(cb.dataset.price);
-                    estudiosSeleccionados.push({
-                        nombre: cb.dataset.name,
-                        precio: precio
-                    });
-                }
-            });
-            
-            const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value.trim();
-            
-            let observaciones = observacionesAdicionales || '';
-            if (fechaNacimiento && !observaciones.includes('Fecha de nacimiento')) {
-                const fechaNacimientoFormateada = new Date(fechaNacimiento).toLocaleDateString('es-MX');
-                observaciones = `Fecha de nacimiento: ${fechaNacimientoFormateada}\n` + observaciones;
-            }
-            
-            const totalEstudio = calcularTotalReceta();
-            
-            try {
-                messageEl.className = 'message';
-                messageEl.innerHTML = '<div class="spinner"></div> Actualizando cita...';
-                
-                const response = await fetch('/api/update-cita', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        cita_id: citaId,
-                        paciente: paciente,
-                        pacienteTel: pacienteTel,
-                        pacienteEmail: pacienteEmail, // NUEVO
-                        doctor_id: doctorId,
-                        fecha_cita: fechaCita,
-                        hora_cita: horaCita,
-                        total_estudio: totalEstudio,
-                        observaciones: observaciones,
-                        formato_entrega: formatoEntrega,
-                        formato_fotografia: document.getElementById('formatoFotografia')?.value || 'USB'
-                    })
-                });
-                
-                const result = await response.json();
-                console.log('📡 Respuesta del servidor:', result);
-                
-                if (result.success) {
-                    messageEl.className = 'message success';
-                    
-                    const fechaCitaFormateada = new Date(fechaCita).toLocaleDateString('es-MX');
-                    const [hora, minuto] = horaCita.split(':');
-                    const hora12 = parseInt(hora) > 12 ? parseInt(hora) - 12 : parseInt(hora);
-                    const ampm = parseInt(hora) >= 12 ? 'PM' : 'AM';
-                    const horaDisplay = `${hora12}:${minuto} ${ampm}`;
-                    
-                    const doctorNombre = document.getElementById('doctorSeleccionadoDisplay').value;
-                    
-                    messageEl.innerHTML = `
-                        <i class="fas fa-check-circle"></i> 
-                        Cita actualizada exitosamente<br>
-                        <strong>Paciente:</strong> ${paciente}<br>
-                        <strong>Doctor:</strong> ${doctorNombre}<br>
-                        <strong>Fecha de cita:</strong> ${fechaCitaFormateada}<br>
-                        <strong>Hora de cita:</strong> ${horaDisplay}<br>
-                        <strong>Total estudios:</strong> $${totalEstudio.toFixed(2)}
-                    `;
-                    
-                    cancelarEdicionReceta();
-                    loadAllCitas();
-                    loadCitasAEliminar();
-                    
-                    setTimeout(() => {
-                        showSection('citas', null);
-                    }, 2000);
-                } else {
-                    messageEl.className = 'message error';
-                    messageEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message || 'Error al actualizar la cita'}`;
-                }
-            } catch (error) {
-                console.error('❌ Error actualizando cita:', error);
-                messageEl.className = 'message error';
-                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error de conexión con el servidor';
+            if (tieneFotos) {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+                // Resetear las selecciones de formato de fotografías si se oculta
+                document.getElementById('fotoUSB').checked = true;
             }
         }
 
-        function cancelarEdicionReceta() {
-            document.getElementById('citaEditandoId').value = '';
-            citaEditando = null;
-            
-            limpiarFormularioReceta();
-            
-            document.getElementById('folioDisplay').textContent = 'Nueva receta';
-            document.getElementById('editingBadge').style.display = 'none';
-            
-            document.getElementById('btnCompletarReceta').style.display = 'block';
-            document.getElementById('btnActualizarReceta').style.display = 'none';
-            document.getElementById('btnCancelarEdicion').style.display = 'none';
-            
-            const messageEl = document.getElementById('recetaMessage');
-            messageEl.className = 'message';
-            messageEl.innerHTML = '';
-        }
-
+        // Modificar la función initRecetaVirtualForm
         function initRecetaVirtualForm() {
             console.log('Inicializando receta virtual form');
             initCalendarioCitas();
@@ -5072,12 +4968,21 @@
             checkboxes.forEach(cb => {
                 cb.removeEventListener('change', calcularTotalReceta);
                 cb.addEventListener('change', calcularTotalReceta);
+                
+                // Agregar evento específico para checkboxes de fotografía
+                if (cb.id === 'fotosExtraIntra' || cb.id === 'escaneoFacial') {
+                    cb.removeEventListener('change', actualizarVisibilidadFormatoFotografias);
+                    cb.addEventListener('change', actualizarVisibilidadFormatoFotografias);
+                }
             });
             
             const radios = document.querySelectorAll('input[name="formatoEntrega"]');
             radios.forEach(radio => {
                 radio.addEventListener('change', calcularTotalReceta);
             });
+            
+            // Verificar estado inicial de los checkboxes de fotografía
+            actualizarVisibilidadFormatoFotografias();
             
             calcularTotalReceta();
         }
@@ -5191,19 +5096,26 @@
         }
 
         // ==============================================
-        // FUNCIÓN ACTUALIZADA: generarCitaAdmin con EMAIL
+        // FUNCIÓN ACTUALIZADA: generarCitaAdmin con EDAD DEL PACIENTE
         // ==============================================
         async function generarCitaAdmin() {
             const messageEl = document.getElementById('recetaMessage');
             const paciente = document.getElementById('pacienteNombre').value.trim();
+            const pacienteEdad = document.getElementById('pacienteEdad').value.trim();  // NUEVO: edad del paciente
+            const pacienteFN = document.getElementById('pacienteFN').value.trim();      // NUEVO: fecha de nacimiento
             const pacienteTel = document.getElementById('pacienteTel').value.trim();
-            const pacienteEmail = document.getElementById('pacienteEmail').value.trim(); // NUEVO
+            const pacienteEmail = document.getElementById('pacienteEmail').value.trim();
             const fechaCita = document.getElementById('fechaCita').value;
             const horaCita = document.getElementById('horaCita').value;
-            const fechaNacimiento = document.getElementById('pacienteFN').value;
             const doctorId = document.getElementById('doctorSeleccionadoId').value;
             
             const formatoEntrega = document.querySelector('input[name="formatoEntrega"]:checked')?.value || 'Digital';
+            
+            // Solo incluir formato de fotografías si hay estudios de fotografía seleccionados
+            let formatoEntregaFotografias = null;
+            if (verificarEstudiosFotografia()) {
+                formatoEntregaFotografias = document.querySelector('input[name="formatoEntregaFotografias"]:checked')?.value || 'USB';
+            }
             
             if (!paciente) {
                 messageEl.className = 'message error';
@@ -5234,6 +5146,8 @@
             }
             
             console.log('📝 Generando cita para doctor:', doctorId);
+            console.log('📊 Edad del paciente:', pacienteEdad);
+            console.log('📅 Fecha de nacimiento:', pacienteFN);
             
             const estudios = [];
             const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox:checked');
@@ -5251,10 +5165,6 @@
             const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value.trim();
             
             let observaciones = observacionesAdicionales || '';
-            if (fechaNacimiento && !observaciones.includes('Fecha de nacimiento')) {
-                const fechaNacimientoFormateada = new Date(fechaNacimiento).toLocaleDateString('es-MX');
-                observaciones = `Fecha de nacimiento: ${fechaNacimientoFormateada}\n` + observaciones;
-            }
             
             const totalEstudio = calcularTotalReceta();
             
@@ -5262,24 +5172,32 @@
                 messageEl.className = 'message';
                 messageEl.innerHTML = '<div class="spinner"></div> Generando cita y PDF...';
                 
+                const payload = {
+                    paciente: paciente,
+                    pacienteEdad: pacienteEdad,          // NUEVO
+                    pacienteFN: pacienteFN,               // NUEVO
+                    pacienteTel: pacienteTel,
+                    pacienteEmail: pacienteEmail,
+                    doctor_id: doctorId,
+                    estudios: estudios,
+                    observaciones: observaciones,
+                    fecha_cita: fechaCita,
+                    hora_cita: horaCita,
+                    total_estudio: totalEstudio,
+                    formato_entrega: formatoEntrega
+                };
+                
+                // Solo agregar formato de fotografías si existe
+                if (formatoEntregaFotografias) {
+                    payload.formato_entrega_fotografias = formatoEntregaFotografias;
+                }
+                
                 const response = await fetch('/api/generate-cita', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        paciente: paciente,
-                        pacienteTel: pacienteTel,
-                        pacienteEmail: pacienteEmail, // NUEVO
-                        doctor_id: doctorId,
-                        estudios: estudios,
-                        observaciones: observaciones,
-                        fecha_cita: fechaCita,
-                        hora_cita: horaCita,
-                        total_estudio: totalEstudio,
-                        formato_entrega: formatoEntrega,
-                        formato_fotografia: document.getElementById('formatoFotografia')?.value || 'USB'
-                    })
+                    body: JSON.stringify(payload)
                 });
                 
                 const result = await response.json();
@@ -5296,7 +5214,7 @@
                     
                     const doctorNombre = document.getElementById('doctorSeleccionadoDisplay').value;
                     
-                    messageEl.innerHTML = `
+                    let mensajeExito = `
                         <i class="fas fa-check-circle"></i> 
                         Cita generada exitosamente<br>
                         <strong>Folio:</strong> ${result.numero_folio}<br>
@@ -5305,8 +5223,14 @@
                         <strong>Fecha de cita:</strong> ${fechaCitaFormateada}<br>
                         <strong>Hora de cita:</strong> ${horaDisplay}<br>
                         <strong>Total estudios:</strong> $${totalEstudio.toFixed(2)}<br>
-                        <strong>Formato de entrega:</strong> ${formatoEntrega}
+                        <strong>Formato de entrega general:</strong> ${formatoEntrega}
                     `;
+                    
+                    if (formatoEntregaFotografias) {
+                        mensajeExito += `<br><strong>Formato de fotografías:</strong> ${formatoEntregaFotografias}`;
+                    }
+                    
+                    messageEl.innerHTML = mensajeExito;
                     
                     if (result.pdf_base64) {
                         downloadPDF(result.pdf_base64, `Receta_${result.numero_folio}_${paciente.replace(/\s+/g, '_')}.pdf`);
@@ -5329,14 +5253,193 @@
         }
 
         // ==============================================
-        // FUNCIÓN ACTUALIZADA: limpiarFormularioReceta con EMAIL
+        // FUNCIÓN ACTUALIZADA: actualizarCitaAdmin con EDAD DEL PACIENTE
+        // ==============================================
+        async function actualizarCitaAdmin() {
+            const messageEl = document.getElementById('recetaMessage');
+            const citaId = document.getElementById('citaEditandoId').value;
+            const paciente = document.getElementById('pacienteNombre').value.trim();
+            const pacienteEdad = document.getElementById('pacienteEdad').value.trim();  // NUEVO: edad del paciente
+            const pacienteFN = document.getElementById('pacienteFN').value.trim();      // NUEVO: fecha de nacimiento
+            const pacienteTel = document.getElementById('pacienteTel').value.trim();
+            const pacienteEmail = document.getElementById('pacienteEmail').value.trim();
+            const fechaCita = document.getElementById('fechaCita').value;
+            const horaCita = document.getElementById('horaCita').value;
+            const doctorId = document.getElementById('doctorSeleccionadoId').value;
+            
+            const formatoEntrega = document.querySelector('input[name="formatoEntrega"]:checked')?.value || 'Digital';
+            
+            // Solo incluir formato de fotografías si hay estudios de fotografía seleccionados
+            let formatoEntregaFotografias = null;
+            if (verificarEstudiosFotografia()) {
+                formatoEntregaFotografias = document.querySelector('input[name="formatoEntregaFotografias"]:checked')?.value || 'USB';
+            }
+            
+            if (!citaId) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> No hay una cita seleccionada para editar';
+                return;
+            }
+            
+            if (!paciente) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor ingrese el nombre del paciente';
+                document.getElementById('pacienteNombre').focus();
+                return;
+            }
+            
+            if (!fechaCita) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione la fecha de la cita';
+                document.getElementById('fechaCita').focus();
+                return;
+            }
+            
+            if (!horaCita) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione la hora de la cita';
+                document.getElementById('horaCita').focus();
+                return;
+            }
+            
+            if (!doctorId) {
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Por favor seleccione un doctor';
+                abrirSelectorDoctores();
+                return;
+            }
+            
+            console.log('📝 Actualizando cita:', citaId);
+            console.log('📊 Edad del paciente:', pacienteEdad);
+            console.log('📅 Fecha de nacimiento:', pacienteFN);
+            
+            const estudiosSeleccionados = [];
+            const checkboxes = document.querySelectorAll('#receta-virtual-section .study-checkbox:checked');
+            
+            checkboxes.forEach(cb => {
+                if (cb.dataset.name && cb.dataset.price) {
+                    const precio = parseFloat(cb.dataset.price);
+                    estudiosSeleccionados.push({
+                        nombre: cb.dataset.name,
+                        precio: precio
+                    });
+                }
+            });
+            
+            const observacionesAdicionales = document.getElementById('observacionesAdicionales')?.value.trim();
+            
+            let observaciones = observacionesAdicionales || '';
+            
+            const totalEstudio = calcularTotalReceta();
+            
+            try {
+                messageEl.className = 'message';
+                messageEl.innerHTML = '<div class="spinner"></div> Actualizando cita...';
+                
+                const payload = {
+                    cita_id: citaId,
+                    paciente: paciente,
+                    pacienteEdad: pacienteEdad,          // NUEVO
+                    pacienteFN: pacienteFN,               // NUEVO
+                    pacienteTel: pacienteTel,
+                    pacienteEmail: pacienteEmail,
+                    doctor_id: doctorId,
+                    fecha_cita: fechaCita,
+                    hora_cita: horaCita,
+                    total_estudio: totalEstudio,
+                    observaciones: observaciones,
+                    formato_entrega: formatoEntrega
+                };
+                
+                // Solo agregar formato de fotografías si existe
+                if (formatoEntregaFotografias) {
+                    payload.formato_entrega_fotografias = formatoEntregaFotografias;
+                }
+                
+                const response = await fetch('/api/update-cita', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                console.log('📡 Respuesta del servidor:', result);
+                
+                if (result.success) {
+                    messageEl.className = 'message success';
+                    
+                    const fechaCitaFormateada = new Date(fechaCita).toLocaleDateString('es-MX');
+                    const [hora, minuto] = horaCita.split(':');
+                    const hora12 = parseInt(hora) > 12 ? parseInt(hora) - 12 : parseInt(hora);
+                    const ampm = parseInt(hora) >= 12 ? 'PM' : 'AM';
+                    const horaDisplay = `${hora12}:${minuto} ${ampm}`;
+                    
+                    const doctorNombre = document.getElementById('doctorSeleccionadoDisplay').value;
+                    
+                    let mensajeExito = `
+                        <i class="fas fa-check-circle"></i> 
+                        Cita actualizada exitosamente<br>
+                        <strong>Paciente:</strong> ${paciente}<br>
+                        <strong>Doctor:</strong> ${doctorNombre}<br>
+                        <strong>Fecha de cita:</strong> ${fechaCitaFormateada}<br>
+                        <strong>Hora de cita:</strong> ${horaDisplay}<br>
+                        <strong>Total estudios:</strong> $${totalEstudio.toFixed(2)}<br>
+                        <strong>Formato de entrega general:</strong> ${formatoEntrega}
+                    `;
+                    
+                    if (formatoEntregaFotografias) {
+                        mensajeExito += `<br><strong>Formato de fotografías:</strong> ${formatoEntregaFotografias}`;
+                    }
+                    
+                    messageEl.innerHTML = mensajeExito;
+                    
+                    cancelarEdicionReceta();
+                    loadAllCitas();
+                    loadCitasAEliminar();
+                    
+                    setTimeout(() => {
+                        showSection('citas', null);
+                    }, 2000);
+                } else {
+                    messageEl.className = 'message error';
+                    messageEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${result.message || 'Error al actualizar la cita'}`;
+                }
+            } catch (error) {
+                console.error('❌ Error actualizando cita:', error);
+                messageEl.className = 'message error';
+                messageEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error de conexión con el servidor';
+            }
+        }
+
+        function cancelarEdicionReceta() {
+            document.getElementById('citaEditandoId').value = '';
+            citaEditando = null;
+            
+            limpiarFormularioReceta();
+            
+            document.getElementById('folioDisplay').textContent = 'Nueva receta';
+            document.getElementById('editingBadge').style.display = 'none';
+            
+            document.getElementById('btnCompletarReceta').style.display = 'block';
+            document.getElementById('btnActualizarReceta').style.display = 'none';
+            document.getElementById('btnCancelarEdicion').style.display = 'none';
+            
+            const messageEl = document.getElementById('recetaMessage');
+            messageEl.className = 'message';
+            messageEl.innerHTML = '';
+        }
+
+        // ==============================================
+        // FUNCIÓN ACTUALIZADA: limpiarFormularioReceta
         // ==============================================
         function limpiarFormularioReceta() {
             document.getElementById('pacienteNombre').value = '';
             document.getElementById('pacienteEdad').value = '';
             document.getElementById('pacienteFN').value = '';
             document.getElementById('pacienteTel').value = '';
-            document.getElementById('pacienteEmail').value = ''; // NUEVO
+            document.getElementById('pacienteEmail').value = '';
             document.getElementById('fechaCita').value = '';
             document.getElementById('observacionesAdicionales').value = '';
             
@@ -5350,20 +5453,17 @@
                 cb.checked = false;
             });
             
-            document.querySelectorAll('#receta-virtual-section input[type="text"], #receta-virtual-section input[type="number"], #receta-virtual-section textarea, #receta-virtual-section select').forEach(input => {
-                if (input.id !== 'pacienteNombre' && input.id !== 'pacienteEdad' && 
-                    input.id !== 'pacienteFN' && input.id !== 'pacienteTel' &&
-                    input.id !== 'pacienteEmail' && input.id !== 'fechaCita' && 
-                    input.id !== 'observacionesAdicionales') {
-                    if (input.id === 'formatoFotografia') {
-                        input.value = 'USB';
-                    } else {
-                        input.value = '';
-                    }
-                }
+            // Resetear radios de formato
+            document.querySelectorAll('input[name="formatoEntrega"]').forEach(radio => {
+                if (radio.id === 'formatoDigital') radio.checked = true;
             });
             
-            document.getElementById('formatoDigital').checked = true;
+            document.querySelectorAll('input[name="formatoEntregaFotografias"]').forEach(radio => {
+                if (radio.id === 'fotoUSB') radio.checked = true;
+            });
+            
+            // Ocultar el contenedor de formato de fotografías
+            document.getElementById('formatoFotografiasContainer').style.display = 'none';
             
             document.getElementById('doctorSeleccionadoDisplay').value = '';
             document.getElementById('doctorSeleccionadoId').value = '';
@@ -5762,7 +5862,7 @@
             
             document.getElementById('ajustarDoctorId').value = doctorId;
             document.getElementById('ajustarDoctorNombre').textContent = doctorNombre;
-            document.getElementById('ajustarDoctorId').textContent = doctorId;
+            document.getElementById('ajustarDoctorIdDisplay').textContent = doctorId;
             document.getElementById('ajustarPuntosActuales').textContent = puntosActuales;
             
             document.getElementById('ajustePuntosValor').value = '0';
@@ -5963,6 +6063,8 @@
         window.ajustarPuntosRapido = ajustarPuntosRapido;
         window.confirmarAjustePuntos = confirmarAjustePuntos;
         window.actualizarPreviewPuntos = actualizarPreviewPuntos;
+        window.verificarEstudiosFotografia = verificarEstudiosFotografia;
+        window.actualizarVisibilidadFormatoFotografias = actualizarVisibilidadFormatoFotografias;
     </script>
 </body>
 </html>
