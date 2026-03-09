@@ -1,0 +1,19 @@
+# ============================================================
+# .gitignore — Archivos que NO deben subirse a GitHub
+# ============================================================
+
+# Variables de entorno (¡MUY IMPORTANTE! contiene contraseñas)
+.env
+
+# Caché de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Entornos virtuales
+venv/
+env/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

@@ -1097,6 +1097,7 @@
                     const formData = new FormData(registroForm);
                     
                     const response = await fetch('/registrar', {
+                    credentials: 'include',
                         method: 'POST',
                         body: new URLSearchParams(formData)
                     });

@@ -53,11 +53,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
         }
         
-        .admin-logo i {
-            font-size: 24px;
-            color: #1C1C26;
+        .admin-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         .admin-brand h1 {
@@ -1633,13 +1635,22 @@
             color: #FFD700;
         }
     </style>
+    <script>
+        async function logout() {
+            if (confirm('¿Cerrar sesión?')) {
+                localStorage.clear();
+                await fetch('/logout', { method: 'POST', credentials: 'include' });
+                window.location.href = '/';
+            }
+        }
+    </script>
 </head>
 <body>
     <header class="admin-header">
         <div class="admin-header-content">
             <div class="admin-brand">
                 <div class="admin-logo">
-                    <i class="fas fa-x-ray"></i>
+                    <img src="/static/LOGO4Digital.jpg" alt="4Digital Logo">
                 </div>
                 <div>
                     <h1>4Digital - Panel de Administración</h1>
@@ -2213,7 +2224,7 @@
                             <span>TOMOGRAFÍA CONE BEAM - CAMPOS DE VISIÓN (FOV)</span>
                         </div>
                         <div style="text-align: center;">
-                            <img src="Craneos.png" alt="Guía de FOV para Tomografía Cone Beam" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 5px 15px rgba(28, 28, 38, 0.2); border: 2px solid #3A3A4F;">
+                            <img src="/static/Craneos.png" alt="Guía de FOV para Tomografía Cone Beam" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 5px 15px rgba(28, 28, 38, 0.2); border: 2px solid #3A3A4F;">
                             <p style="margin-top: 15px; color: #1C1C26; font-size: 14px;">
                                 <i class="fas fa-info-circle" style="color: #3A3A4F;"></i> 
                                 Guía de referencia para selección de campo de visión
@@ -3145,7 +3156,7 @@
             try {
                 console.log(`Buscando información del doctor ID: ${doctorId}`);
                 
-                const doctorResponse = await fetch(`/api/doctor-info/${doctorId}`);
+                const doctorResponse = await fetch(`/api/doctor-info/${doctorId}`, { credentials: 'include' });
                 
                 if (!doctorResponse.ok) {
                     throw new Error('Doctor no encontrado');
@@ -3158,7 +3169,7 @@
                 mostrarStatsDoctor(doctor);
                 
                 console.log(`Buscando citas completadas del doctor ID: ${doctorId}`);
-                const citasResponse = await fetch(`/api/doctor/${doctorId}/citas-completadas`);
+                const citasResponse = await fetch(`/api/doctor/${doctorId}/citas-completadas`, { credentials: 'include' });
                 
                 if (!citasResponse.ok) {
                     throw new Error('Error al cargar el historial de citas');
@@ -3318,7 +3329,7 @@
                     return;
                 }
                 
-                const response = await fetch(`/api/descargar-resultado/${citaId}`);
+                const response = await fetch(`/api/descargar-resultado/${citaId}`, { credentials: 'include' });
                 
                 if (!response.ok) {
                     if (response.status === 404) {
@@ -3378,7 +3389,7 @@
         async function loadCitasSinResultado() {
             try {
                 console.log('Cargando citas sin resultado...');
-                const response = await fetch('/api/citas-sin-resultado');
+                const response = await fetch('/api/citas-sin-resultado', { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
@@ -3509,6 +3520,7 @@
                     const base64Data = reader.result.split(',')[1];
                     
                     const response = await fetch('/api/entregar-resultado', {
+                    credentials: 'include',
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -3615,6 +3627,7 @@
                 messageEl.style.display = 'block';
                 
                 const response = await fetch('/api/programar-eliminacion', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -3678,6 +3691,7 @@
                 cancelBtn.disabled = true;
                 
                 const response = await fetch('/api/cancelar-eliminacion', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -3718,7 +3732,7 @@
         async function loadCitasAEliminar() {
             try {
                 console.log('Cargando citas programadas para eliminar...');
-                const response = await fetch('/api/citas-eliminar');
+                const response = await fetch('/api/citas-eliminar', { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
@@ -3846,7 +3860,7 @@
         async function cargarEventosCalendario() {
             try {
                 console.log('Cargando eventos para calendario...');
-                const response = await fetch('/api/citas');
+                const response = await fetch('/api/citas', { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
@@ -3856,7 +3870,7 @@
                 console.log('Citas cargadas para calendario:', allCitas.length);
                 
                 try {
-                    const responseEliminar = await fetch('/api/citas-eliminar');
+                    const responseEliminar = await fetch('/api/citas-eliminar', { credentials: 'include' });
                     if (responseEliminar.ok) {
                         const citasEliminar = await responseEliminar.json();
                         allCitas = [...allCitas, ...citasEliminar];
@@ -4095,7 +4109,7 @@
                 loadingEl.style.display = 'block';
                 listEl.style.display = 'none';
                 
-                const response = await fetch('/api/doctores');
+                const response = await fetch('/api/doctores', { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error('Error al cargar doctores');
@@ -4196,7 +4210,7 @@
         async function loadAdminStats() {
             try {
                 console.log('Cargando estadísticas...');
-                const response = await fetch('/api/admin/stats');
+                const response = await fetch('/api/admin/stats', { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
@@ -4228,7 +4242,7 @@
         async function loadActivityLog() {
             try {
                 console.log('Cargando actividad...');
-                const response = await fetch('/api/admin/activity');
+                const response = await fetch('/api/admin/activity', { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
@@ -4276,7 +4290,7 @@
         async function loadDoctores() {
             try {
                 console.log('Cargando doctores...');
-                const response = await fetch('/api/doctores');
+                const response = await fetch('/api/doctores', { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
@@ -4339,9 +4353,6 @@
                                     <button class="btn-action btn-edit" onclick="editUser('${doctor.id}')" title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn-action" style="background: #28a745; color: white;" onclick="mostrarModalAjustarPuntos('${doctor.id}', '${doctor.nombre ? doctor.nombre.replace(/'/g, "\\'") : ''}', ${puntos})" title="Ajustar puntos">
-                                        <i class="fas fa-coins"></i> Puntos
-                                    </button>
                                     <button class="btn-action btn-delete" onclick="confirmDeleteUser('${doctor.id}', 'doctor', '${doctor.nombre ? doctor.nombre.replace(/'/g, "\\'") : ''}')" title="Eliminar">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -4364,7 +4375,7 @@
         async function loadAllCitas() {
             try {
                 console.log('Cargando todas las citas...');
-                const response = await fetch('/api/citas');
+                const response = await fetch('/api/citas', { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error(`Error HTTP: ${response.status}`);
@@ -4497,6 +4508,7 @@
                 cancelBtn.disabled = true;
                 
                 const response = await fetch('/api/cancelar-cita', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -4608,7 +4620,7 @@
         function mostrarModalEditarFechaHora(citaId) {
             console.log('Mostrando modal editar fecha/hora para cita:', citaId);
             
-            fetch(`/api/cita/${citaId}`)
+            fetch(`/api/cita/${citaId}`, { credentials: 'include' })
                 .then(response => response.json())
                 .then(cita => {
                     let modal = document.getElementById('editarFechaHoraModal');
@@ -4772,6 +4784,7 @@
                 messageEl.style.display = 'block';
                 
                 const response = await fetch('/api/update-cita-fecha-hora', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -4884,7 +4897,7 @@
                 
                 showRecetaVirtual();
                 
-                const response = await fetch(`/api/cita/${citaId}`);
+                const response = await fetch(`/api/cita/${citaId}`, { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error('Error al cargar los datos de la cita');
@@ -5193,6 +5206,7 @@
                 }
                 
                 const response = await fetch('/api/generate-cita', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -5357,6 +5371,7 @@
                 }
                 
                 const response = await fetch('/api/update-cita', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -5484,7 +5499,7 @@
         async function viewUserDetails(userId) {
             try {
                 console.log('Viendo detalles del doctor:', userId);
-                const response = await fetch(`/api/usuarios/doctor/${userId}`);
+                const response = await fetch(`/api/usuarios/doctor/${userId}`, { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error('Error al cargar detalles');
@@ -5551,7 +5566,7 @@
         async function editUser(userId) {
             try {
                 console.log('Editando doctor:', userId);
-                const response = await fetch(`/api/usuarios/doctor/${userId}`);
+                const response = await fetch(`/api/usuarios/doctor/${userId}`, { credentials: 'include' });
                 
                 if (!response.ok) {
                     throw new Error('Error al cargar datos');
@@ -5613,6 +5628,7 @@
             try {
                 console.log('Guardando cambios:', data);
                 const response = await fetch('/api/update-user', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
@@ -5661,6 +5677,7 @@
             try {
                 console.log('Creando doctor:', data);
                 const response = await fetch('/api/create-doctor', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
@@ -5697,6 +5714,7 @@
             try {
                 console.log('Eliminando doctor:', currentUserToDelete);
                 const response = await fetch('/api/delete-user', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
@@ -5842,9 +5860,10 @@
             });
         }
 
-        function logout() {
+        async function logout() {
             if (confirm('¿Cerrar sesión?')) {
                 localStorage.clear();
+                await fetch('/logout', { method: 'POST', credentials: 'include' });
                 window.location.href = '/';
             }
         }
@@ -5963,6 +5982,7 @@
                 messageEl.style.display = 'block';
                 
                 const response = await fetch('/api/ajustar-puntos', {
+                    credentials: 'include',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

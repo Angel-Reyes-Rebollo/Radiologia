@@ -664,7 +664,7 @@
         <div class="login-left">
             <div class="login-brand">
                 <div class="logo">
-                    <img src="LOGO4Digital.jpg" alt="4Digital Logo">
+                    <img src="/static/LOGO4Digital.jpg" alt="4Digital Logo">
                 </div>
                 <h1>4Digital - Radiología Médica</h1>
                 <p>Sistema de Gestión Integral</p>
@@ -863,7 +863,7 @@
             consultarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando...';
             
             try {
-                const response = await fetch(`/api/consultar-folio/${encodeURIComponent(folio)}`);
+                const response = await fetch(`/api/consultar-folio/${encodeURIComponent(folio)}`, { credentials: 'include' });
                 
                 if (!response.ok) {
                     const errorData = await response.json();
@@ -981,6 +981,7 @@
                 formData.append('password', password);
                 
                 const response = await fetch('/login', {
+                    credentials: 'include',
                     method: 'POST',
                     body: new URLSearchParams(formData)
                 });

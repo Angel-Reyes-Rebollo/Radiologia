@@ -55,11 +55,13 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
         }
         
-        .logo i {
-            font-size: 28px;
-            color: #1C1C26;
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         .company-name {
@@ -1871,7 +1873,7 @@
         <header>
             <div class="logo-container">
                 <div class="logo">
-                    <i class="fas fa-x-ray"></i>
+                    <img src="/static/LOGO4Digital.jpg" alt="4Digital Logo">
                 </div>
                 <div>
                     <div class="company-name">4Digital - Radiología Médica</div>
@@ -2034,7 +2036,7 @@
             
             console.log('🔍 Obteniendo ID real para usuario:', currentUsername);
             
-            const response = await fetch(`/api/doctor-by-user/${currentUsername}`);
+            const response = await fetch(`/api/doctor-by-user/${currentUsername}`, { credentials: 'include' });
             
             console.log('📡 Respuesta de doctor-by-user:', response.status);
             
@@ -2253,7 +2255,7 @@
         try {
             if (!currentDoctorId) return;
             
-            const citasResponse = await fetch(`/api/citas/${currentDoctorId}`);
+            const citasResponse = await fetch(`/api/citas/${currentDoctorId}`, { credentials: 'include' });
             if (citasResponse.ok) {
                 const citas = await citasResponse.json();
                 document.getElementById('totalCitas').textContent = Array.isArray(citas) ? citas.length : 0;
@@ -2267,7 +2269,7 @@
                 document.getElementById('totalPuntos').textContent = doctorPuntos;
                 
                 try {
-                    const infoResponse = await fetch(`/api/doctor-info/${currentDoctorId}`);
+                    const infoResponse = await fetch(`/api/doctor-info/${currentDoctorId}`, { credentials: 'include' });
                     if (infoResponse.ok) {
                         const doctorInfo = await infoResponse.json();
                         doctorPuntos = doctorInfo.puntos || 0;
@@ -2884,7 +2886,7 @@
                         <span>TOMOGRAFÍA CONE BEAM - CAMPOS DE VISIÓN (FOV)</span>
                     </div>
                     <div style="text-align: center;">
-                        <img src="Craneos.png" alt="Guía de FOV para Tomografía Cone Beam" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 5px 15px rgba(28, 28, 38, 0.2); border: 2px solid #3A3A4F;">
+                        <img src="/static/Craneos.png" alt="Guía de FOV para Tomografía Cone Beam" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 5px 15px rgba(28, 28, 38, 0.2); border: 2px solid #3A3A4F;">
                         <p style="margin-top: 15px; color: #1C1C26; font-size: 14px;">
                             <i class="fas fa-info-circle" style="color: #3A3A4F;"></i> 
                             Guía de referencia para selección de campo de visión
@@ -3430,6 +3432,7 @@
             }
             
             const response = await fetch('/api/generate-cita', {
+                    credentials: 'include',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -3536,7 +3539,7 @@
                 return;
             }
             
-            const response = await fetch(`/api/descargar-pdf/${citaId}`);
+            const response = await fetch(`/api/descargar-pdf/${citaId}`, { credentials: 'include' });
             
             console.log(`📡 Respuesta descarga: ${response.status}`);
             
@@ -3590,7 +3593,7 @@
                 return;
             }
             
-            const response = await fetch(`/api/descargar-resultado/${citaId}`);
+            const response = await fetch(`/api/descargar-resultado/${citaId}`, { credentials: 'include' });
             
             console.log(`📡 Respuesta descarga: ${response.status}`);
             
@@ -3761,7 +3764,7 @@
             
             console.log('🔍 Cargando citas para doctor ID:', currentDoctorId);
             
-            const response = await fetch(`/api/citas/${currentDoctorId}`);
+            const response = await fetch(`/api/citas/${currentDoctorId}`, { credentials: 'include' });
             
             console.log('📡 Respuesta del servidor - Status:', response.status);
             
@@ -4098,7 +4101,7 @@
             
             console.log('🔍 Cargando resultados para doctor ID:', currentDoctorId);
             
-            const response = await fetch(`/api/resultados/${currentDoctorId}`);
+            const response = await fetch(`/api/resultados/${currentDoctorId}`, { credentials: 'include' });
             
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
@@ -4258,7 +4261,7 @@
             
             console.log('🔍 Cargando historial para doctor ID:', currentDoctorId);
             
-            const response = await fetch(`/api/citas/${currentDoctorId}`);
+            const response = await fetch(`/api/citas/${currentDoctorId}`, { credentials: 'include' });
             
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status}`);
@@ -4402,7 +4405,7 @@
             exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando PDF...';
             exportBtn.disabled = true;
             
-            const response = await fetch(`/api/citas/${currentDoctorId}`);
+            const response = await fetch(`/api/citas/${currentDoctorId}`, { credentials: 'include' });
             if (!response.ok) {
                 throw new Error('No se pudieron cargar los datos');
             }
@@ -4650,6 +4653,7 @@
         
         try {
             const response = await fetch('/api/change-doctor-password', {
+                    credentials: 'include',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -4677,11 +4681,12 @@
         }
     }
 
-    function logout() {
+    async function logout() {
         localStorage.removeItem('current_user_id');
         localStorage.removeItem('current_user_type');
         localStorage.removeItem('current_user_name');
         localStorage.removeItem('current_doctor_id');
+        await fetch('/logout', { method: 'POST', credentials: 'include' });
         window.location.href = '/';
     }
 
