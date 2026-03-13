@@ -377,15 +377,19 @@ def delete_user():
 
 
 @doctores_bp.route('/api/change-doctor-password', methods=['POST'])
-@requiere_admin
+@requiere_login
 def change_doctor_password():
     try:
         import bcrypt
+        from flask import session
         data         = request.get_json()
         doctor_id    = data.get('doctor_id')
         new_password = data.get('new_password')
         if not doctor_id or not new_password:
             return jsonify({'success': False, 'message': 'Faltan datos'}), 400
+        # Un doctor solo puede cambiar su propia contraseña
+        if session.get('tipo') == 'doctor' and session.get('user_id') != doctor_id:
+            return jsonify({'success': False, 'message': 'No tienes permiso para cambiar esta contraseña'}), 403
         if len(new_password) < 6:
             return jsonify({'success': False, 'message': 'Mínimo 6 caracteres'}), 400
         nuevo_hash = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
