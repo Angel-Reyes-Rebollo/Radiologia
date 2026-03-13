@@ -1,19 +1,15 @@
-# ============================================================
-# .gitignore — Archivos que NO deben subirse a GitHub
-# ============================================================
-
-# Variables de entorno (¡MUY IMPORTANTE! contiene contraseñas)
+# Archivos sensibles — NUNCA subir a GitHub
 .env
+entorno
+radiologia_db.sql
 
-# Caché de Python
+# Python
 __pycache__/
 *.pyc
 *.pyo
-
-# Entornos virtuales
 venv/
-env/
+.venv/
 
-# Archivos del sistema
+# Sistema
 .DS_Store
 Thumbs.db

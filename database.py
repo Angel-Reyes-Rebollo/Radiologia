@@ -10,9 +10,10 @@
 # ============================================================
 
 import os
+
 import mysql.connector
-from mysql.connector import pooling
 from dotenv import load_dotenv
+from mysql.connector import pooling
 
 # load_dotenv() lee tu archivo .env y carga las variables
 # para que os.getenv() pueda acceder a ellas
@@ -27,8 +28,9 @@ load_dotenv()
 
 connection_pool = pooling.MySQLConnectionPool(
     pool_name="radiologia_pool",
-    pool_size=5,
+    pool_size=20,
     host=os.getenv("DB_HOST", "localhost"),
+    port=int(os.getenv("DB_PORT", 3306)),  # ← agregar esta línea
     user=os.getenv("DB_USER", "root"),
     password=os.getenv("DB_PASS", ""),
     database=os.getenv("DB_NAME", "radiologia_db")
@@ -46,4 +48,5 @@ def get_db():
         cursor.close()
         db.close()  # esto NO cierra la conexión, la devuelve al pool
     """
+    return connection_pool.get_connection()
     return connection_pool.get_connection()

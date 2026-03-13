@@ -1,16 +1,14 @@
 # ============================================================
-# ARCHIVO .env — Credenciales y configuración sensible
-# ⚠️ MUY IMPORTANTE: Agrega este archivo a tu .gitignore
-#    para que NUNCA se suba a GitHub
+# ARCHIVO .env — NO subir a GitHub
 # ============================================================
 
-# Configuración de la base de datos
+# Base de datos — Railway llena estos valores automáticamente
 DB_HOST=localhost
 DB_USER=root
 DB_PASS=
 DB_NAME=radiologia_db
+DB_PORT=3306
 
-# Clave secreta para las sesiones de Flask
-# Cámbiala por una cadena larga y aleatoria antes de producción
-# Puedes generar una con: python -c "import secrets; print(secrets.token_hex(32))"
+# Clave secreta para sesiones Flask
+# Genera una con: python -c "import secrets; print(secrets.token_hex(32))"
 SECRET_KEY=cambia-esto-por-una-clave-segura-y-larga
