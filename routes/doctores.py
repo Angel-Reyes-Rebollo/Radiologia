@@ -332,7 +332,7 @@ def update_user():
 
         if data.get('estado') is not None:
             fields.append("activo=%s")
-            valores.append(1 if data['estado'] == 'activo' else 0)
+            valores.append(1 if data['estado'] in ('activo', 'active') else 0)
         if data.get('puntos') is not None:
             fields.append("puntos=%s")
             valores.append(data['puntos'])
