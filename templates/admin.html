@@ -1661,7 +1661,7 @@
             <div class="admin-user">
                 <div class="user-info">
                     <h3 id="adminName">Administrador Principal</h3>
-                    <p id="adminEmail">admin@4digital.com</p>
+                    <p id="adminEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e687828b8f88a6d2828f818f92878ac885898b">[email&#160;protected]</a></p>
                 </div>
                 <button class="logout-btn" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> Cerrar
@@ -2597,6 +2597,7 @@
                         <div class="form-group">
                             <label>Estado</label>
                             <select id="editEstado" class="form-control">
+                                <option value="">-- Sin cambios --</option>
                                 <option value="active">Activo</option>
                                 <option value="inactive">Inactivo</option>
                             </select>
@@ -2982,7 +2983,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/es.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -5617,7 +5618,7 @@
                 telefono_consultorio: document.getElementById('editTelefonoConsultorio').value,
                 direccion_consultorio: document.getElementById('editDireccionConsultorio').value,
                 puntos: parseInt(document.getElementById('editPuntos').value) || 0,
-                estado: document.getElementById('editEstado').value
+                ...(document.getElementById('editEstado').value ? { estado: document.getElementById('editEstado').value } : {})
             };
             
             const password = document.getElementById('editPassword').value;
@@ -6082,9 +6083,4 @@
         window.mostrarModalAjustarPuntos = mostrarModalAjustarPuntos;
         window.ajustarPuntosRapido = ajustarPuntosRapido;
         window.confirmarAjustePuntos = confirmarAjustePuntos;
-        window.actualizarPreviewPuntos = actualizarPreviewPuntos;
-        window.verificarEstudiosFotografia = verificarEstudiosFotografia;
-        window.actualizarVisibilidadFormatoFotografias = actualizarVisibilidadFormatoFotografias;
-    </script>
-</body>
-</html>
+        window.actualizarPreviewPuntos

@@ -266,7 +266,7 @@ def create_doctor():
         cursor = db.cursor(dictionary=True)
 
         cursor.execute(
-            "SELECT usuario COLLATE utf8mb4_unicode_ci FROM doctores WHERE usuario=%s UNION SELECT usuario COLLATE utf8mb4_unicode_ci FROM administradores WHERE usuario=%s",
+            "SELECT usuario FROM doctores WHERE usuario=%s UNION SELECT usuario FROM administradores WHERE usuario=%s",
             (usuario, usuario)
         )
         if cursor.fetchone():
@@ -275,7 +275,7 @@ def create_doctor():
             return jsonify({'success': False, 'message': 'Usuario ya en uso'}), 400
 
         cursor.execute(
-            "SELECT email COLLATE utf8mb4_unicode_ci FROM doctores WHERE email=%s UNION SELECT email COLLATE utf8mb4_unicode_ci FROM administradores WHERE email=%s",
+            "SELECT email FROM doctores WHERE email=%s UNION SELECT email FROM administradores WHERE email=%s",
             (email, email)
         )
         if cursor.fetchone():
@@ -330,9 +330,11 @@ def update_user():
                 fields.append(f"{campo}=%s")
                 valores.append(data[key])
 
-        if data.get('estado') is not None:
+        # Solo actualizar activo si el valor es explícitamente 'active' o 'inactive'
+        # Esto evita que un campo vacío o mal inicializado pise el valor real de la BD
+        if data.get('estado') in ('active', 'inactive', 'activo', 'inactivo'):
             fields.append("activo=%s")
-            valores.append(1 if data['estado'] == 'activo' else 0)
+            valores.append(1 if data['estado'] in ('active', 'activo') else 0)
         if data.get('puntos') is not None:
             fields.append("puntos=%s")
             valores.append(data['puntos'])
