@@ -191,8 +191,8 @@ def handle_registro():
         cursor = db.cursor()
 
         cursor.execute(
-            "SELECT usuario FROM doctores WHERE usuario=%s "
-            "UNION SELECT usuario FROM administradores WHERE usuario=%s",
+            "SELECT usuario COLLATE utf8mb4_unicode_ci FROM doctores WHERE usuario=%s "
+            "UNION SELECT usuario COLLATE utf8mb4_unicode_ci FROM administradores WHERE usuario=%s",
             (usuario, usuario)
         )
         if cursor.fetchone():
@@ -201,8 +201,8 @@ def handle_registro():
             return jsonify({"success": False, "message": "El nombre de usuario ya está en uso"}), 400
 
         cursor.execute(
-            "SELECT email FROM doctores WHERE email=%s "
-            "UNION SELECT email FROM administradores WHERE email=%s",
+            "SELECT email COLLATE utf8mb4_unicode_ci FROM doctores WHERE email=%s "
+            "UNION SELECT email COLLATE utf8mb4_unicode_ci FROM administradores WHERE email=%s",
             (email, email)
         )
         if cursor.fetchone():
